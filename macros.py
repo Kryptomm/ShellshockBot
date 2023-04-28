@@ -26,7 +26,7 @@ def overcharge():
             click(530,1000)
             sleep(0.25)
             
-            while not (isVisible("FireButton", region=(1000,900, 1420, 1100)) or isVisible("NotFireButton", region=(1000,900, 1420, 1100))) and not macros["overcharge"] == "exit": pass
+            while not (isVisible("FireButton", region=(1000,900, 1420, 1100))) and not macros["overcharge"] == "exit": pass
             print("overcharge: Klick")
             
             click(493,460)
@@ -42,7 +42,7 @@ def fortify():
             click(530,1000)
             sleep(0.25)
             
-            while not (isVisible("FireButton", region=(1000,900, 1420, 1100)) or isVisible("NotFireButton", region=(1000,900, 1420, 1100))) and not macros["overcharge"] == "exit": pass
+            while not (isVisible("FireButton", region=(1000,900, 1420, 1100))) and not macros["overcharge"] == "exit": pass
             print("fortify: Klick")
             
             click(474,504)
