@@ -1,5 +1,6 @@
 import pytesseract, numpy, cv2, pyautogui, difflib, time
 from PIL import Image, ImageEnhance, ImageGrab
+import keyboard
 pyautogui.FAILSAFE = False
 
 WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce", "three-bounce",
@@ -128,8 +129,10 @@ def convertTo1DArray(cap):
 if __name__ == "__main__":
     wait = 3
     time.sleep(wait)
+    print("Starting")
     while True:
         time.sleep(1)
+        if keyboard.is_pressed('t'): break
 
         cap = makeScreen()
         name = getName(cap)
@@ -146,3 +149,5 @@ if __name__ == "__main__":
         print(name)
         pyautogui.keyDown("w")
         pyautogui.keyUp("w")
+    
+    print("Gestoppt")
