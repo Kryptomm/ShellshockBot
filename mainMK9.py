@@ -7,13 +7,11 @@ import difflib
 import time
 import json
 import os
-import matplotlib.pyplot as plt
 import kNearestNeighbors as knn
 import queue
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 from datetime import datetime
-from threading import Thread
-from KryptomModules.mathmatics import gaussAlgo
+from threading import Thread 
 
 RULES = """
         ~~~DAS IST EIN BILLIGER FARMBOT FÜR XP~~~
@@ -102,7 +100,10 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "secret blade", "concealed blade", "portal gun", "ashpd", "volcano", "eruption",
                     "tangent fire", "tangent attack", "tangent assault", "summoner", "mage",
                     "travelers", "scavengers", "wicked witch", "witches broom",
-                    "ghouls", "oddball", "oddbomb", "botherer", "tormentor", "punisher"],
+                    "ghouls", "oddball", "oddbomb", "botherer", "tormentor", "punisher", "cropduster", "obnoxiousduster",
+                    "toxicduster", "small potion", "medium potion", "large potion", "huge potion", "wanderer",
+                    "double wanderer", "triple wanderer", "censorbar", "restrictedbar", "redactedbar",
+                    "kiss", "french kiss", "smooch", "confuser", "super-confuser", "mega-confuser"],
         
         "straight": ["glock","m9","desert eagle","moons","orbitals","shank","dagger","sword","uzi","mp5","p90",
                     "rampage","riot","m4","m16","ak-47", "laser beam","great beam","ultra beam","master beam",
@@ -110,7 +111,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "fat stacks", "dolla bills", "make-it-rain"],
 
         "instant": ["earthquake","mega-quake","shockwave","sonic pulse","drone","heavy drone","attractoids",
-                    "imploder", "ultimate imploder"],
+                    "imploder", "ultimate imploder", "health aura", "health aura+", "health aura++"],
 
         "45degrees": ["three-ball", "five-ball", "eleven-ball", "twentyfive-ball", "stream", "creek", "river",
                     "tsunami", "flame", "blaze", "inferno", "splitterchain", "rapidfire", "shotgun", "burst-fire",
@@ -124,7 +125,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "kittens", "ghostlets", "wacky cluster", "kooky cluster", "crazy cluster", "chicken-fling",
                     "chicken-hurl", "chicken-launch", "pepper", "salt and pepper", "paprika", "cayenne", "needler",
                     "dual needler", "kernels", "popcorn", "burnt popcorn", "skeet", "olympic skeet", "heavy taser",
-                    "jammer", "jiver", "rocker", "bounsplode", "double-bounsplode", "triple-bounsplode"],
+                    "jammer", "jiver", "rocker", "bounsplode", "double-bounsplode", "triple-bounsplode", "pongslam", "pyroslam"],
 
         "deltaAngle": [("roller",-1), ("heavy roller",-1), ("groller",-1), ("back-roller",1),
                     ("heavy back-roller",1), ("back-groller",1), ("saw blade",-2), ("rip saw",-2), ("diamond blade",-2),

@@ -126,19 +126,23 @@ def convertTo1DArray(cap):
     return arr, num
 
 if __name__ == "__main__":
-    wait = 2
+    wait = 3
     time.sleep(wait)
+    while True:
+        time.sleep(1)
 
-    cap = makeScreen()
-    name = getName(cap)
-    data, num = convertTo1DArray(cap)
-    name = name.replace(" ", "#")
+        cap = makeScreen()
+        name = getName(cap)
+        data, num = convertTo1DArray(cap)
+        name = name.replace(" ", "#")
 
-    text = f"{name} {num} "
-    for p in data: text += str(p) + " "
-    text += "\n"
+        text = f"{name} {num} "
+        for p in data: text += str(p) + " "
+        text += "\n"
 
-    with open('WeaponPixels.txt', 'a') as f:
-        f.write(text)
+        with open('WeaponPixels.txt', 'a') as f:
+            f.write(text)
 
-    print(name)
+        print(name)
+        pyautogui.keyDown("w")
+        pyautogui.keyUp("w")
