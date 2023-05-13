@@ -260,7 +260,9 @@ def moveCannon(angle, strength, old_angle, old_strength, myPos):
     t = Thread(target=pressKey, args=(strength, key_strength))
     threads.append(t)
 
-    for t in threads: t.start()
+    for t in threads:
+        t.start()
+        t.join()
     for t in threads: t.join()
 
 #*Gibt mir meine aktuell ausgewählte Waffe wieder und zudem die Kategorie mit Pytesseract
@@ -389,7 +391,7 @@ def move(key, t):
     pyautogui.keyUp(key)
 
 #*Bewege mich in einen vorgebenen Bereich, jenachdem ob ich links oder rechts stehe.
-def makeMove(myPos, enemyPos, weapon_cat):
+def makeMove(myPos, enemyPos):
     tolerance = 25
 
     myPosX = myPos[0]
@@ -409,14 +411,14 @@ def makeMove(myPos, enemyPos, weapon_cat):
         if d[1] > maxHeight[1]: maxHeight = d
     
     print(f"{maxHeight=}")
-    if myPosX <= maxHeight[0] + tolerance and myPosX >= maxHeight[0] - tolerance: return False, weapon_cat
+    if myPosX <= maxHeight[0] + tolerance and myPosX >= maxHeight[0] - tolerance: return False
     key = ""
     time = min(abs(maxHeight[0]-myPosX)/120,4)
     if myPosX < maxHeight[0]: key = "d"
     else: key = "a"
 
     move(key, time)
-    return True, weapon_cat
+    return True
 
 #^Overview-Functions
 #*Gibt die Koordinaten eines Gegners wieder und von mir
@@ -718,11 +720,11 @@ def play(waitTime=3, debug=False):
                 print("Die Kalkulation hat ergeben ... Der Gegner ist stehen geblieben")
 
             #Bewegung
-            moveMe, weapon_cat = makeMove(myPos, enemyPos, weapon_cat)
+            """moveMe = makeMove(myPos, enemyPos, weapon_cat)
             if moveMe:
                 print("Ich habe mich bewegt ... Ich berechne meine Position neu!")
                 myPos = getAverageCoordinatesBreadth(MyTank, myPos[0], myPos[1], everyPixel=4)
-            print(f"Meine PosgetAverageCoordinatesBreadthition: {myPos}\nGegner Position: {enemyPos}")
+            print(f"Meine PosgetAverageCoordinatesBreadthition: {myPos}\nGegner Position: {enemyPos}")"""
 
             #Schuss-Kalkulation
             wind = 0
@@ -775,8 +777,8 @@ def main(debug=False):
     t.start()
     t = Thread(target=loadWindPixels)
     t.start()
-    t = Thread(target=gearLoop)
-    t.start()
+    """t = Thread(target=gearLoop)
+    t.start()"""
 
 
     first_xp = getXP()
