@@ -751,8 +751,8 @@ def main(debug=False):
     t.start()
     t = Thread(target=loadWindPixels)
     t.start()
-    """t = Thread(target=gearLoop)
-    t.start()"""
+    t = Thread(target=gearLoop)
+    t.start()
 
 
     first_xp = getXP()
