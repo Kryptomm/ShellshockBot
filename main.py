@@ -37,8 +37,8 @@ WIND_FIELD_LEFT = [919,74,934,93]
 WEAPON_FIELD = [713,1038,950,1064]
 SHOOTLINE_FIELD = [-30,-300,30,20]
 GAME_FIELD = [0,0,1920,920]
-TANK1BOX = [100,720]
-TANK2BOX = [1200,1820]
+TANK1BOX = [500,820]
+TANK2BOX = [1100,1320]
 
 #FARBEN
 MyTank = (0, 220, 15)
@@ -379,33 +379,20 @@ def move(key, t):
 
 #*Bewege mich in einen vorgebenen Bereich, jenachdem ob ich links oder rechts stehe.
 def makeMove(myPos, enemyPos):
-    tolerance = 25
-
+    time = 1.3
     myPosX = myPos[0]
-    myPosY = GAME_FIELD[3] - myPos[1]
     enPosX = enemyPos[0]
-    enPosY = GAME_FIELD[3] - enemyPos[1]
-
-    whichBox = 1
-    if myPosX > enPosX: whichBox = 2
-
-    heights = []
-    if whichBox == 1: heights = getTerrainHeights(TANK1BOX[0],TANK1BOX[1])
-    else: heights = getTerrainHeights(TANK2BOX[0],TANK2BOX[1])
-
-    maxHeight = [0, float("-inf")]
-    for d in heights:
-        if d[1] > maxHeight[1]: maxHeight = d
     
-    print(f"{maxHeight=}")
-    if myPosX <= maxHeight[0] + tolerance and myPosX >= maxHeight[0] - tolerance: return False
-    key = ""
-    time = min(abs(maxHeight[0]-myPosX)/120,4)
-    if myPosX < maxHeight[0]: key = "d"
-    else: key = "a"
-
-    move(key, time)
-    return True
+    whichBox, key = TANK1BOX, "a"
+    if myPosX > enPosX:
+        whichBox = TANK2BOX
+        key = "d"
+        
+    if myPosX >= whichBox[0] and myPosX <= whichBox[1]:
+        move(key, time)
+        return True
+    
+    return False
 
 #^Overview-Functions
 #*Gibt die Koordinaten eines Gegners wieder und von mir
@@ -707,11 +694,11 @@ def play(waitTime=3, debug=False):
                 print("Die Kalkulation hat ergeben ... Der Gegner ist stehen geblieben")
 
             #Bewegung
-            """moveMe = makeMove(myPos, enemyPos, weapon_cat)
+            moveMe = makeMove(myPos, enemyPos)
             if moveMe:
                 print("Ich habe mich bewegt ... Ich berechne meine Position neu!")
                 myPos = getAverageCoordinatesBreadth(MyTank, myPos[0], myPos[1], everyPixel=4)
-            print(f"Meine PosgetAverageCoordinatesBreadthition: {myPos}\nGegner Position: {enemyPos}")"""
+            print(f"Meine PosgetAverageCoordinatesBreadthition: {myPos}\nGegner Position: {enemyPos}")
 
             #Schuss-Kalkulation
             wind = 0
