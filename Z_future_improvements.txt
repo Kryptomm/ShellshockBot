@@ -1,5 +1,0 @@
--45Grad: Berg vor mir -> Normalen Schusswinkel nutzen oder weg fahren
-
--Bumper erkennung
-
--Waffenstats -> Wie oft wurden welche Waffen geschossen?

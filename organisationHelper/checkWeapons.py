@@ -12,7 +12,7 @@ def loadWeaponPixels():
     print("----------------------------------------------------------------")
     print("lade Waffen-Trainings-Daten")
     print("----------------------------------------------------------------")
-    file1 = open('WeaponPixels.txt', 'r')
+    file1 = open('data/WeaponPixels.txt', 'r')
     Lines = file1.readlines()
 
     count = 0
