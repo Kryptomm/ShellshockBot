@@ -388,7 +388,7 @@ def makeMove(myPos, enemyPos):
         whichBox = TANK2BOX
         key = "d"
         
-    if myPosX >= whichBox[0] and myPosX <= whichBox[1]:
+    if not(myPosX >= whichBox[0] and myPosX <= whichBox[1]):
         move(key, time)
         return True
     
@@ -460,7 +460,7 @@ def getAverageCoordinatesBreadth(capColor, lastX, lastY, everyPixel=2):
 
 #*Gibt mir auf den Pixel genau die Koordinaten meines Panzers wieder
 def getMyExcaktCoordinates(myPos):
-    pyautogui.click(myPos[0], min(myPos[1]+250, 880))
+    pyautogui.click(myPos[0], min(myPos[1]+20, 880))
     time.sleep(0.1)
     
     height = SHOOTLINE_FIELD[3]
