@@ -12,22 +12,9 @@ import queue
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 from datetime import datetime
 from threading import Thread 
-from weapons import WEPS
 
-RULES = """
-        ~~~DAS IST EIN BILLIGER FARMBOT FÜR XP~~~
-            REGELN:
-                -Fenster: Vollbild
-                -Map-Color: Blue
-                -Map-Mode: Generated/LowerXP: Eine Flache Map
-                -Mode: Deathmatch
-                -Players: 2
-                -Wind: High
-                -Shot-Type: Single
-                -Mod: One-Wep
-                -Obstacles: <=Med 
-            Aktiviere den Bot in der Lobby und sei nicht bereit!
-        """
+from definitions import WEPS, RULES
+
 
 #Variablen
 RADIUS = 343

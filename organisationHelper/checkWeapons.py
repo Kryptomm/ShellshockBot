@@ -1,4 +1,4 @@
-from weapons import WEPS
+from definitions import WEPS
 import pyautogui
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 import kNearestNeighbors as knn

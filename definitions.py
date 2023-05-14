@@ -72,7 +72,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     ("olympic ringer",-2), ("hover-ball",-3), ("heavy hover-ball",-3), ("train",-2), ("express",-2),
                     ("throwing star",-2), ("multi-star",-2), ("ninja",-2)],
 
-        "radius": [("3d-bomb",33), ("2x3d",33), ("3x3d",33), ("early bird",100), ("early worm",100)],
+        "radius": [("3d-bomb",33), ("2x3d",33), ("3x3d",33), ("early bird",100), ("early worm",67)],
 
         "landing": ["grenade", "tri-nade", "multi-nade", "grenade storm", "cactus strike","air strike",
                     "helicopter strike", "ac-130", "artillery", "disco ball", "groovy ball", "pinata",
@@ -82,3 +82,18 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "god rays", "deity", "spreader", "kamikaze", "suicide bomber", "acid rain", "acid hail",
                     "shooting star", "snowstorm", "firestorm"]
         }
+
+RULES = """
+        ~~~DAS IST EIN BILLIGER FARMBOT FÜR XP~~~
+            REGELN:
+                -Fenster: Vollbild
+                -Map-Color: Blue
+                -Map-Mode: Generated/LowerXP: Eine Flache Map
+                -Mode: Deathmatch
+                -Players: 2
+                -Wind: High
+                -Shot-Type: Single
+                -Mod: One-Wep
+                -Obstacles: <=Med 
+            Aktiviere den Bot in der Lobby und sei nicht bereit!
+        """

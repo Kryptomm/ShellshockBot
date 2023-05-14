@@ -3,8 +3,8 @@ import shutil
 from distutils.dir_util import copy_tree
 
 fileNames = ["macros"]
-copyFiles = ["WeaponPixels.txt", "WindPixels.txt", "Images", "settings.json"]
-dontDelete = ["Tesseract-OCR", "mainMK9.exe"]
+copyFiles = ["data/WeaponPixels.txt", "data/WindPixels.txt", "Images", "settings.json"]
+dontDelete = ["Tesseract-OCR", "mainMK9.exe", "macros.exe"]
 copyTo = "D:\Dropbox\Shellshockbot"
 file_executed_in = os.getcwd()
 
