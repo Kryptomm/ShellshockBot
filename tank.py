@@ -1,4 +1,3 @@
-import math
 import numpy
 import visualizer
 from collections import deque
@@ -12,9 +11,10 @@ def pressKey(amount : int, key : str) -> None:
     press(key, presses=amount, interval=0.2)
 
 class Tank:
-    def __init__(self, color : tuple[int, int, int]):
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager):
         self.__position : Point = Point(0.5, 0.5)
-        self.__color = color
+        self.color = color
+        self.coordManager = coordManager
         
     def getPosition(self) -> Point:
         return self.__position
@@ -40,19 +40,71 @@ class Tank:
     @absY.setter
     def absY(self, value : int) -> None:
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
+
+    def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
+        myPosX = self.absX
+        myPosY = self.absY
         
-    def getColor(self) -> tuple[int, int, int]:
-        return self.__color
+        gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
+        
+        s = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
+        q = deque()
+        visited = set()
+        
+        q.append(myPosX)
+        q.append(myPosY)
+        
+        visited.add((myPosX, myPosY))
+        minD = [0,0,float("inf")]
+
+        while q:
+            field = (q.popleft(), q.popleft())
+            
+            if not (field[0] < gamefieldBoundaries[2] and field[0] >= gamefieldBoundaries[0] and field[1] < gamefieldBoundaries[3] and field[1] >= gamefieldBoundaries[1]):
+                continue
+            
+            color = s.getpixel((field[0], field[1]))
+            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.color))
+            
+            if d < minD[2]: minD = [field[0], field[1], d]
+            if d < 15: break
+
+            if (field[0] + everyPixel, field[1]) not in visited:
+                q.append(field[0] + everyPixel)
+                q.append(field[1])
+
+                visited.add((field[0] + everyPixel, field[1]))
+                
+            if (field[0] - everyPixel, field[1]) not in visited:
+                q.append(field[0] - everyPixel)
+                q.append(field[1])
+
+                visited.add((field[0] - everyPixel, field[1]))
+            if (field[0], field[1] + everyPixel) not in visited:
+                q.append(field[0])
+                q.append(field[1] + everyPixel)
+
+                visited.add((field[0], field[1] + everyPixel))
+                
+            if (field[0], field[1] - everyPixel) not in visited:
+                q.append(field[0])
+                q.append(field[1] - everyPixel)
+                visited.add((field[0], field[1] - everyPixel))
+
+        self.absX = minD[0]
+        self.absY = minD[1]
+
+        return Point(self.getXCoordinate(), self.getYCoordinate())
+    
 
 class friendlyTank(Tank):
     def __init__(self, boundaries : Box, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
-        super().__init__(color)
+        super().__init__(color, coordManager)
         
         self.__boundaries : Box = boundaries
-        
         self.__lastAngle : int = 0
         self.__lastPower : int = 0
-        self.coordManager = coordManager
+        
         self.gameEnvironment = gameEnvironment
         
         self.SHOOTRADIUS = 0.177951
@@ -79,6 +131,10 @@ class friendlyTank(Tank):
         if myPosY <= 300: pressKey(60, "up")
         else: pressKey(15, "up")
         
+    def shoot(self, enemyTank) -> None:
+        weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
+        print("shoot")
+    
     def updateAndGetExcactPosition(self) -> Point:
         myPosX = self.absX
         myPosY = self.absY
@@ -130,72 +186,21 @@ class friendlyTank(Tank):
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
-    def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
-        myPosX = self.absX
-        myPosY = self.absY
-        
-        gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
-        
-        s = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
-        q = deque()
-        visited = set()
-        
-        q.append(myPosX)
-        q.append(myPosY)
-        
-        visited.add((myPosX, myPosY))
-        minD = [0,0,float("inf")]
-
-        while q:
-            field = (q.popleft(), q.popleft())
-            
-            if not (field[0] < gamefieldBoundaries[2] and field[0] >= gamefieldBoundaries[0] and field[1] < gamefieldBoundaries[3] and field[1] >= gamefieldBoundaries[1]):
-                continue
-            
-            color = s.getpixel((field[0], field[1]))
-            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.getColor()))
-            
-            if d < minD[2]: minD = [field[0], field[1], d]
-            if d < 15: break
-
-            if (field[0] + everyPixel, field[1]) not in visited:
-                q.append(field[0] + everyPixel)
-                q.append(field[1])
-
-                visited.add((field[0] + everyPixel, field[1]))
-                
-            if (field[0] - everyPixel, field[1]) not in visited:
-                q.append(field[0] - everyPixel)
-                q.append(field[1])
-
-                visited.add((field[0] - everyPixel, field[1]))
-            if (field[0], field[1] + everyPixel) not in visited:
-                q.append(field[0])
-                q.append(field[1] + everyPixel)
-
-                visited.add((field[0], field[1] + everyPixel))
-                
-            if (field[0], field[1] - everyPixel) not in visited:
-                q.append(field[0])
-                q.append(field[1] - everyPixel)
-                visited.add((field[0], field[1] - everyPixel))
-
-        self.absX = minD[0]
-        self.absY = minD[1]
-
-        return Point(self.getXCoordinate(), self.getYCoordinate())
-    
-    def shoot(self, enemyTank) -> None:
-        weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
-        print("shoot")
-    
 if __name__ == "__main__":
     sleep(2)
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
-    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
     
+    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
+    enemyTank = Tank((194,3,3), CM)
+    
+    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
+
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     print(myTank.updateAndGetExcactPosition())
     
-    visualizer.drawSquareAroundPixel(myTank.absX, myTank.absY, 15, CM, "Z_bild.png")
+    visualizer.drawCirclesAroundPixels([[myTank.absX, myTank.absY],[enemyTank.absX, enemyTank.absY]],
+                                    15,
+                                    [myTank.color, enemyTank.color],
+                                    CM,
+                                    "Z_bild.png")
