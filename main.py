@@ -446,12 +446,15 @@ def getAverageCoordinatesBreadth(capColor, lastX, lastY, everyPixel=2):
         if field[0] + everyPixel < GAME_FIELD[2] and not visited[field[0] + everyPixel][field[1]]:
             q.put([field[0] + everyPixel, field[1]])
             visited[field[0] + everyPixel][field[1]] = True
+            
         if field[0] - everyPixel > GAME_FIELD[0] and not visited[field[0] - everyPixel][field[1]]:
             q.put([field[0] - everyPixel, field[1]])
             visited[field[0] - everyPixel][field[1]] = True
+            
         if field[1] + everyPixel < GAME_FIELD[3] and not visited[field[0]][field[1] + everyPixel]:
             q.put([field[0], field[1] + everyPixel])
             visited[field[0]][field[1] + everyPixel] = True
+            
         if field[1] - everyPixel > GAME_FIELD[1] and not visited[field[0]][field[1] - everyPixel]:
             q.put([field[0], field[1] - everyPixel])
             visited[field[0]][field[1] - everyPixel] = True

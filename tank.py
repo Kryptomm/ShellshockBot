@@ -1,6 +1,7 @@
-import queue
 import math
+import timeit
 import numpy
+from collections import deque
 from pyautogui import press, click, screenshot
 from time import sleep
 from coordinateManager import CoordinateManager, Point, Box
@@ -26,7 +27,7 @@ class Tank:
     def getYCoordinate(self) -> float:
         return self.__position.getY()
     
-    def pressKey(iterations : int, key : str):
+    def pressKey(iterations : int, key : str) -> None:
         press(key, presses=iterations, interval=0.2)
 
     def moveCannon(self, angle : int, strength : int) -> None:
@@ -101,33 +102,63 @@ class Tank:
         gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
         
         s = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
-        q = queue.Queue()
-        visited = numpy.zeros((gamefieldBoundaries[2],gamefieldBoundaries[3]), dtype=bool)
+        q = deque()
+        visited = set()
+        
+        everyPixelTimes2, everyPixelTimes3 = everyPixel * 2, everyPixel * 3
 
-        q.put([myPosX, myPosY])
-        visited[myPosX][myPosY] = True
+        q.append(myPosX)
+        q.append(myPosY)
+        
+        visited.add((myPosX, myPosY))
         minD = [0,0,float("inf")]
 
-        while not q.empty():
-            field = q.get()
+        while q:
+            field = (q.popleft(), q.popleft())
+            
+            if not (field[0] < gamefieldBoundaries[2] and field[0] >= gamefieldBoundaries[0] and field[1] < gamefieldBoundaries[3] and field[1] >= gamefieldBoundaries[1]):
+                continue
+            
             color = s.getpixel((field[0], field[1]))
-            d = math.sqrt((color[0]-self.__color[0])**2+(color[1]-self.__color[1])**2+(color[2]-self.__color[2])**2)
+            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.__color))
+            
             if d < minD[2]: minD = [field[0], field[1], d]
-
             if d < 15: return minD
 
-            if field[0] + everyPixel < gamefieldBoundaries[2] and not visited[field[0] + everyPixel][field[1]]:
-                q.put([field[0] + everyPixel, field[1]])
-                visited[field[0] + everyPixel][field[1]] = True
-            if field[0] - everyPixel > gamefieldBoundaries[0] and not visited[field[0] - everyPixel][field[1]]:
-                q.put([field[0] - everyPixel, field[1]])
-                visited[field[0] - everyPixel][field[1]] = True
-            if field[1] + everyPixel < gamefieldBoundaries[3] and not visited[field[0]][field[1] + everyPixel]:
-                q.put([field[0], field[1] + everyPixel])
-                visited[field[0]][field[1] + everyPixel] = True
-            if field[1] - everyPixel > gamefieldBoundaries[1] and not visited[field[0]][field[1] - everyPixel]:
-                q.put([field[0], field[1] - everyPixel])
-                visited[field[0]][field[1] - everyPixel] = True
+            if (field[0] + everyPixel, field[1]) not in visited:
+                q.append(field[0] + everyPixel)
+                q.append(field[1])
+                q.append(field[0] + everyPixelTimes2)
+                q.append(field[1])
+                q.append(field[0] + everyPixelTimes3)
+                q.append(field[1])
+
+                visited.add((field[0] + everyPixel, field[1]))
+                visited.add((field[0] + everyPixelTimes2, field[1]))
+                visited.add((field[0] + everyPixelTimes3, field[1]))
+                
+            if (field[0] - everyPixel, field[1]) not in visited:
+                q.append(field[0] - everyPixel)
+                q.append(field[1])
+                q.append(field[0] - everyPixelTimes2)
+                q.append(field[1])
+                q.append(field[0] - everyPixelTimes3)
+                q.append(field[1])
+
+                visited.add((field[0] - everyPixel, field[1]))
+                visited.add((field[0] - everyPixelTimes2, field[1]))
+                visited.add((field[0] - everyPixelTimes3, field[1]))
+
+            if (field[0], field[1] + everyPixel) not in visited:
+                q.append(field[0])
+                q.append(field[1] + everyPixel)
+
+                visited.add((field[0], field[1] + everyPixel))
+                
+            if (field[0], field[1] - everyPixel) not in visited:
+                q.append(field[0])
+                q.append(field[1] - everyPixel)
+                visited.add((field[0], field[1] - everyPixel))
 
         myPosX = self.coordManager.convertWidthToFloat(minD[0])
         myPosY = self.coordManager.convertHeigthToFloat(minD[1])
@@ -141,6 +172,4 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     myTank = Tank(CM.TANK1BOX, (0, 220, 15), CM)
     
-    myTank.getAverageCoordinatesBreadth(everyPixel=2)
-    myTank.updateAndGetExcactPosition()
-    myTank.resetAngle()
+    print(myTank.getAverageCoordinatesBreadth(everyPixel=2))
