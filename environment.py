@@ -19,6 +19,8 @@ class GameEnvironment:
         self.__NotFireButton = "Images/NotFireButton.png"
         self.__ReadyButton = "Images/ReadyButton.png"
         
+        print("Game Environment ready to go")
+        
     def __loadPixelData(self, path : str) -> None:
         file = open(path, 'r')
         Lines = file.readlines()
@@ -32,7 +34,7 @@ class GameEnvironment:
             for i in range(2,len(d)):
                 d[i] = int(d[i])
             data.append([d[2:], d[0].replace("#"," "), int(d[1])])
-            if count % 20 == 0: print(f"{count} von {len(Lines)} geladen")
+            if count % 30 == 0: print(f"{count} von {len(Lines)} geladen")
         print(f"{count} von {len(Lines)} geladen")
         
         return data

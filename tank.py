@@ -5,22 +5,17 @@ from collections import deque
 from pyautogui import press, click, screenshot
 from time import sleep
 from coordinateManager import CoordinateManager, Point, Box
+from environment import GameEnvironment
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 
 def pressKey(amount : int, key : str) -> None:
     press(key, presses=amount, interval=0.2)
 
 class Tank:
-    def __init__(self, boundaries : Box, color : tuple[int, int, int], coordManager : CoordinateManager) -> None:
+    def __init__(self, color : tuple[int, int, int]):
         self.__position : Point = Point(0.5, 0.5)
+        self.__color = color
         
-        self.__boundaries : Box = boundaries
-        self.__color : tuple[int, int, int] = color
-        
-        self.__lastAngle : int = 0
-        self.__lastPower : int = 0
-        self.coordManager = coordManager
-    
     def getPosition(self) -> Point:
         return self.__position
     
@@ -45,6 +40,22 @@ class Tank:
     @absY.setter
     def absY(self, value : int) -> None:
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
+        
+    def getColor(self) -> tuple[int, int, int]:
+        return self.__color
+
+class friendlyTank(Tank):
+    def __init__(self, boundaries : Box, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
+        super().__init__(color)
+        
+        self.__boundaries : Box = boundaries
+        
+        self.__lastAngle : int = 0
+        self.__lastPower : int = 0
+        self.coordManager = coordManager
+        self.gameEnvironment = gameEnvironment
+        
+        self.SHOOTRADIUS = 0.177951
     
     def moveCannon(self, angle : int, strength : int) -> None:
         key_angle = "left" if angle <= 90 else "right"
@@ -79,7 +90,7 @@ class Tank:
         
         height = screenshotBoundarie[3]
         if max(myPosY+screenshotBoundarie[1],0) == 0:
-            height = abs(screenshotBoundarie[1])-myPosY[1]
+            height = abs(screenshotBoundarie[1])-myPosY
         cap = screenshot(region=(myPosX+screenshotBoundarie[0], max(myPosY+screenshotBoundarie[1],0), screenshotBoundarie[2]*2, height))
 
         enhancer = ImageEnhance.Sharpness(cap)
@@ -142,7 +153,7 @@ class Tank:
                 continue
             
             color = s.getpixel((field[0], field[1]))
-            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.__color))
+            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.getColor()))
             
             if d < minD[2]: minD = [field[0], field[1], d]
             if d < 15: break
@@ -174,13 +185,17 @@ class Tank:
 
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
+    def shoot(self, enemyTank) -> None:
+        weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
+        print("shoot")
+    
 if __name__ == "__main__":
     sleep(2)
     CM = CoordinateManager()
-    myTank = Tank(CM.TANK1BOX, (36, 245, 41), CM)
+    GE = GameEnvironment(CM)
+    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
     
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     print(myTank.updateAndGetExcactPosition())
-    myTank.resetAngle()
     
     visualizer.drawSquareAroundPixel(myTank.absX, myTank.absY, 15, CM, "Z_bild.png")
