@@ -84,7 +84,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
         }
 
 RULES = """
-        ~~~DAS IST EIN BILLIGER FARMBOT FÜR XP~~~
+        ~~~DAS IST EIN FARMBOT FÜR XP~~~
             REGELN:
                 -Fenster: Vollbild
                 -Map-Color: Blue

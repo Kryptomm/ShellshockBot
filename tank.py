@@ -20,18 +20,31 @@ class Tank:
         self.__lastAngle : int = 0
         self.__lastPower : int = 0
         self.coordManager = coordManager
-        
+    
+    def getPosition(self) -> Point:
+        return self.__position
+    
     def getXCoordinate(self) -> float:
         return self.__position.getX()
     
     def getYCoordinate(self) -> float:
         return self.__position.getY()
     
-    def getAbsoluteXCoordinate(self) -> int:
+    @property
+    def absX(self) -> int:
         return self.coordManager.convertFloatToWidth(self.getXCoordinate())
     
-    def getAbsoluteYCoordinate(self) -> int:
+    @absX.setter
+    def absX(self, value : int) -> None:
+        self.__position.setX(self.coordManager.convertWidthToFloat(value))
+    
+    @property
+    def absY(self) -> int:
         return self.coordManager.convertFloatToHeigth(self.getYCoordinate())
+    
+    @absY.setter
+    def absY(self, value : int) -> None:
+        self.__position.setY(self.coordManager.convertHeigthToFloat(value))
     
     def moveCannon(self, angle : int, strength : int) -> None:
         key_angle = "left" if angle <= 90 else "right"
@@ -47,17 +60,17 @@ class Tank:
         pressKey(strengh_delta, "down")
         
     def resetAngle(self) -> None:
-        myPosX = self.getAbsoluteXCoordinate()
-        myPosY = self.getAbsoluteYCoordinate()
+        myPosX = self.absX
+        myPosY = self.absY
         
         click(myPosX, max(myPosY - self.coordManager.convertFloatToWidth(self.coordManager.RESETANGLERADIUS), 0))
 
         if myPosY <= 300: pressKey(60, "up")
-        else: pressKey(20, "up")
+        else: pressKey(15, "up")
         
-    def updateAndGetExcactPosition(self) -> tuple[float, float]:
-        myPosX = self.getAbsoluteXCoordinate()
-        myPosY = self.getAbsoluteYCoordinate()
+    def updateAndGetExcactPosition(self) -> Point:
+        myPosX = self.absX
+        myPosY = self.absY
         
         click(myPosX, min(myPosY + self.coordManager.convertFloatToHeigth( 0.018519), self.coordManager.convertFloatToHeigth(0.814815)))
         sleep(0.05)
@@ -102,14 +115,13 @@ class Tank:
                 highest_count = count
 
         myPosX = myPosX + screenshotBoundarie[0] + highest_row
-        myPosX = self.coordManager.convertWidthToFloat(myPosX)
+        self.absX = myPosX
         
-        self.__position.setX(myPosX)
-        return myPosX, myPosY
+        return Point(self.getXCoordinate(), self.getYCoordinate())
     
-    def getAverageCoordinatesBreadth(self, everyPixel=2) -> tuple[float, float]:
-        myPosX = self.getAbsoluteXCoordinate()
-        myPosY = self.getAbsoluteYCoordinate()
+    def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
+        myPosX = self.absX
+        myPosY = self.absY
         
         gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
         
@@ -117,8 +129,6 @@ class Tank:
         q = deque()
         visited = set()
         
-        everyPixelTimes2, everyPixelTimes3 = everyPixel * 2, everyPixel * 3
-
         q.append(myPosX)
         q.append(myPosY)
         
@@ -159,12 +169,10 @@ class Tank:
                 q.append(field[1] - everyPixel)
                 visited.add((field[0], field[1] - everyPixel))
 
-        myPosX = self.coordManager.convertWidthToFloat(minD[0])
-        myPosY = self.coordManager.convertHeigthToFloat(minD[1])
-        self.__position.setX(myPosX)
-        self.__position.setY(myPosY)
-        
-        return (myPosX, myPosY)
+        self.absX = minD[0]
+        self.absY = minD[1]
+
+        return Point(self.getXCoordinate(), self.getYCoordinate())
     
 if __name__ == "__main__":
     sleep(2)
@@ -172,5 +180,7 @@ if __name__ == "__main__":
     myTank = Tank(CM.TANK1BOX, (36, 245, 41), CM)
     
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
-    visualizer.drawSquareAroundPixel(myTank.getAbsoluteXCoordinate(), myTank.getAbsoluteYCoordinate(), 15, CM, "Z_bild.png")
-    myTank.moveCannon(80,90)
+    print(myTank.updateAndGetExcactPosition())
+    myTank.resetAngle()
+    
+    visualizer.drawSquareAroundPixel(myTank.absX, myTank.absY, 15, CM, "Z_bild.png")

@@ -19,6 +19,9 @@ class Point:
     
     def getPos(self) -> tuple[float, float]:
         return (self.getX(), self.getY())
+    
+    def __repr__(self) -> str:
+        return f"x:{self.getX()}, y:{self.getY()}"
 
 class Box:
     def __init__(self, upper_x : float, upper_y : float, bottom_x : float, bottom_y : float)  -> None:
