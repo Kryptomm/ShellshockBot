@@ -121,8 +121,8 @@ class GameEnvironment:
         cap = self.__makeScreenFromWind()
         arr, ones = self.__convertTo1DArray(cap)
         new_point = arr
-        wep_str = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, ones, fixedK=1)
-        return int(wep_str), self.getWindRichtung()
+        wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, ones, fixedK=1)
+        return int(wind), self.getWindRichtung()
 
 if __name__ == "__main__":
     CoordMan = CoordinateManager()

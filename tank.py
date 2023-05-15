@@ -1,5 +1,6 @@
 import numpy
 import visualizer
+import shootingStrategies
 from collections import deque
 from pyautogui import press, click, screenshot
 from time import sleep
@@ -8,7 +9,7 @@ from environment import GameEnvironment
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 
 def pressKey(amount : int, key : str) -> None:
-    press(key, presses=amount, interval=0.2)
+    press(key, presses=amount, interval=0.05)
 
 class Tank:
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager):
@@ -107,7 +108,7 @@ class friendlyTank(Tank):
         
         self.gameEnvironment = gameEnvironment
         
-        self.SHOOTRADIUS = 0.177951
+        self.SHOOTRADIUS = 0.173958
     
     def moveCannon(self, angle : int, strength : int) -> None:
         key_angle = "left" if angle <= 90 else "right"
@@ -133,7 +134,10 @@ class friendlyTank(Tank):
         
     def shoot(self, enemyTank) -> None:
         weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
-        print("shoot")
+        wind, wind_richtung = self.gameEnvironment.getWind()
+        
+        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, wind_richtung)
+        self.moveCannon(angle, power)
     
     def updateAndGetExcactPosition(self) -> Point:
         myPosX = self.absX
@@ -186,6 +190,8 @@ class friendlyTank(Tank):
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
+    
+    
 if __name__ == "__main__":
     sleep(2)
     CM = CoordinateManager()
@@ -198,6 +204,8 @@ if __name__ == "__main__":
 
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     print(myTank.updateAndGetExcactPosition())
+    
+    myTank.shoot(enemyTank)
     
     visualizer.drawCirclesAroundPixels([[myTank.absX, myTank.absY],[enemyTank.absX, enemyTank.absY]],
                                     15,
