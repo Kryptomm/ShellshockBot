@@ -1,6 +1,6 @@
 import math
-import timeit
 import numpy
+import visualizer
 from collections import deque
 from pyautogui import press, click, screenshot
 from time import sleep
@@ -27,16 +27,28 @@ class Tank:
     def getYCoordinate(self) -> float:
         return self.__position.getY()
     
-    def pressKey(iterations : int, key : str) -> None:
-        press(key, presses=iterations, interval=0.2)
-
+    def getAbsoluteXCoordinate(self) -> int:
+        return self.coordManager.convertFloatToWidth(self.getXCoordinate())
+    
+    def getAbsoluteYCoordinate(self) -> int:
+        return self.coordManager.convertFloatToHeigth(self.getYCoordinate())
+    
     def moveCannon(self, angle : int, strength : int) -> None:
         key_angle = "left" if angle <= 90 else "right"
         if angle > 90: key_angle="right"
         
+        self.updateAndGetExcactPosition()
+        self.resetAngle()
+        
+        angle_delta = abs(angle-90)
+        strengh_delta = abs(100-strength)
+        
+        pressKey(angle_delta, key_angle)
+        pressKey(strengh_delta, "down")
+        
     def resetAngle(self) -> None:
-        myPosX = self.coordManager.convertFloatToWidth(self.getXCoordinate())
-        myPosY = self.coordManager.convertFloatToHeigth(self.getYCoordinate())
+        myPosX = self.getAbsoluteXCoordinate()
+        myPosY = self.getAbsoluteYCoordinate()
         
         click(myPosX, max(myPosY - self.coordManager.convertFloatToWidth(self.coordManager.RESETANGLERADIUS), 0))
 
@@ -44,8 +56,8 @@ class Tank:
         else: pressKey(20, "up")
         
     def updateAndGetExcactPosition(self) -> tuple[float, float]:
-        myPosX = self.coordManager.convertFloatToWidth(self.getXCoordinate())
-        myPosY = self.coordManager.convertFloatToHeigth(self.getYCoordinate())
+        myPosX = self.getAbsoluteXCoordinate()
+        myPosY = self.getAbsoluteYCoordinate()
         
         click(myPosX, min(myPosY + self.coordManager.convertFloatToHeigth( 0.018519), self.coordManager.convertFloatToHeigth(0.814815)))
         sleep(0.05)
@@ -95,9 +107,9 @@ class Tank:
         self.__position.setX(myPosX)
         return myPosX, myPosY
     
-    def getAverageCoordinatesBreadth(self, everyPixel=2) -> None:
-        myPosX = self.coordManager.convertFloatToWidth(self.getXCoordinate())
-        myPosY = self.coordManager.convertFloatToHeigth(self.getYCoordinate())
+    def getAverageCoordinatesBreadth(self, everyPixel=2) -> tuple[float, float]:
+        myPosX = self.getAbsoluteXCoordinate()
+        myPosY = self.getAbsoluteYCoordinate()
         
         gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
         
@@ -123,32 +135,19 @@ class Tank:
             d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.__color))
             
             if d < minD[2]: minD = [field[0], field[1], d]
-            if d < 15: return minD
+            if d < 15: break
 
             if (field[0] + everyPixel, field[1]) not in visited:
                 q.append(field[0] + everyPixel)
                 q.append(field[1])
-                q.append(field[0] + everyPixelTimes2)
-                q.append(field[1])
-                q.append(field[0] + everyPixelTimes3)
-                q.append(field[1])
 
                 visited.add((field[0] + everyPixel, field[1]))
-                visited.add((field[0] + everyPixelTimes2, field[1]))
-                visited.add((field[0] + everyPixelTimes3, field[1]))
                 
             if (field[0] - everyPixel, field[1]) not in visited:
                 q.append(field[0] - everyPixel)
                 q.append(field[1])
-                q.append(field[0] - everyPixelTimes2)
-                q.append(field[1])
-                q.append(field[0] - everyPixelTimes3)
-                q.append(field[1])
 
                 visited.add((field[0] - everyPixel, field[1]))
-                visited.add((field[0] - everyPixelTimes2, field[1]))
-                visited.add((field[0] - everyPixelTimes3, field[1]))
-
             if (field[0], field[1] + everyPixel) not in visited:
                 q.append(field[0])
                 q.append(field[1] + everyPixel)
@@ -165,11 +164,13 @@ class Tank:
         self.__position.setX(myPosX)
         self.__position.setY(myPosY)
         
-        return myPosX, myPosY, minD[2]
+        return (myPosX, myPosY)
     
 if __name__ == "__main__":
-    sleep(3)
+    sleep(2)
     CM = CoordinateManager()
-    myTank = Tank(CM.TANK1BOX, (0, 220, 15), CM)
+    myTank = Tank(CM.TANK1BOX, (36, 245, 41), CM)
     
-    print(myTank.getAverageCoordinatesBreadth(everyPixel=2))
+    print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
+    visualizer.drawSquareAroundPixel(myTank.getAbsoluteXCoordinate(), myTank.getAbsoluteYCoordinate(), 15, CM, "Z_bild.png")
+    myTank.moveCannon(80,90)
