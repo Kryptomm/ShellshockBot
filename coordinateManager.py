@@ -58,8 +58,8 @@ class CoordinateManager:
     def __init__(self) -> None:
         self.__screenWidth, self.__screenHeigth = size()
         
-        self.READY_BUTTON       = Box(0.613021,  0.881481,  0.8375,    0.912963)
-        self.XP_FIELD           = Box(0.1625,    0.111111,  0.229167,  0.138889)
+        self.READY_BUTTON       = Box(0.582813,  0.789815,  0.854167,  0.999074)
+        self.FIRE_BUTTON        = Box(0.534375,  0.865741,  0.735417,  0.991667)
         self.WIND_FIELD         = Box(0.492708,  0.071296,  0.506771,  0.087963)
         self.WIND_FIELD_RIGHT   = Box(0.513021,  0.068519,  0.520833,  0.086111)
         self.WIND_FIELD_LEFT    = Box(0.478646,  0.068519,  0.486458,  0.086111)

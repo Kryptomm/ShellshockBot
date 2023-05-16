@@ -1,7 +1,7 @@
 import kNearestNeighbors as knn
 import pyautogui
 
-from coordinateManager import CoordinateManager
+from coordinateManager import CoordinateManager, Box
 from PIL import Image, ImageEnhance, ImageGrab
 from definitions import WEPS
 
@@ -9,16 +9,16 @@ class GameEnvironment:
     def __init__(self, coordManager : CoordinateManager) -> None:
         self.coordManager = coordManager
         
-        self.__inLobby = False
-        self.__myTurn = False
-        
         self.__WEAPONPIXELS = self.__loadPixelData('data/WeaponPixels.txt') 
         self.__WINDPIXELS = self.__loadPixelData('data/WindPixels.txt')
         
-        self.__FireButton : str = "Images/FireButton.png"
-        self.__LockedInButton : str = "Images/LockedInButton.png"
-        self.__NotFireButton : str = "Images/NotFireButton.png"
-        self.__ReadyButton : str = "Images/ReadyButton.png"
+        self.FireButton : str = ("Images/FireButton.png", coordManager.FIRE_BUTTON)
+        self.LockedInButton : str = ("Images/LockedInButton.png", coordManager.FIRE_BUTTON)
+        self.NotFireButton : str = ("Images/NotFireButton.png", coordManager.FIRE_BUTTON)
+        self.ReadyButton : str = ("Images/ReadyButton.png", coordManager.READY_BUTTON)
+        
+        self.isShootingState = False
+        self.inLobbyState = False
         
         print("Game Environment ready to go")
         
@@ -125,15 +125,39 @@ class GameEnvironment:
         wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, ones, fixedK=1)
         return int(wind), self.getWindRichtung()
 
-    def pressButton(self, button : str) -> None:
-        readyButton = pyautogui.locateOnScreen(button, grayscale=True, confidence=0.9)
+    def pressButton(self, button : tuple[str, Box]) -> None:
+        readyButton = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
         if readyButton == None: return
         pyautogui.click(readyButton[0],readyButton[1])
         pyautogui.click(5,5)
+    
+    def inLobby(self):
+        inLobby = pyautogui.locateOnScreen(self.ReadyButton[0], grayscale=True, confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
+        if inLobby:
+            self.inLobbyState = True
+            return True
+        else: 
+            self.inLobbyState = False
+            return False
         
+    def inLoadingScreen(self):
+        FireButton = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
+        NotFireButton = pyautogui.locateOnScreen(self.NotFireButton[0], confidence=0.9, region=self.NotFireButton[1].getBoundariesNormalized(self.coordManager))
+        ReadyButton = pyautogui.locateOnScreen(self.ReadyButton[0], confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
+        LockedInButton = pyautogui.locateOnScreen(self.LockedInButton[0], confidence=0.9, region=self.LockedInButton[1].getBoundariesNormalized(self.coordManager))
+        
+        if not FireButton and not NotFireButton and not ReadyButton and not LockedInButton:
+            return True
+        return False
+    
+    def isMyTurn(self):
+        myTurn = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
+        if myTurn == None:
+            return False
+        else: return True
+    
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     while True:
-        print(GameEnv.getSelectedWeapon())
-        print(GameEnv.getWind())
+        print("lobby", GameEnv.inLobby(), "loading", GameEnv.inLoadingScreen())

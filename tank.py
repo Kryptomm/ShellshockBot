@@ -2,7 +2,7 @@ import numpy
 import visualizer
 import shootingStrategies
 from collections import deque
-from pyautogui import press, click, screenshot
+from pyautogui import press, click, screenshot, locateOnScreen
 from time import sleep
 from coordinateManager import CoordinateManager, Point, Box
 from environment import GameEnvironment
@@ -108,6 +108,7 @@ class friendlyTank(Tank):
         
         self.gameEnvironment = gameEnvironment
         
+        self.shooting = False
         self.SHOOTRADIUS = 0.173958
     
     def moveCannon(self, angle : int, strength : int) -> None:
@@ -138,6 +139,7 @@ class friendlyTank(Tank):
         
         angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, wind_richtung)
         self.moveCannon(angle, power)
+        self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
     
     def updateAndGetExcactPosition(self) -> Point:
         myPosX = self.absX
@@ -190,8 +192,6 @@ class friendlyTank(Tank):
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
-
-
 if __name__ == "__main__":
     sleep(2)
     CM = CoordinateManager()
@@ -200,6 +200,10 @@ if __name__ == "__main__":
     myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
     enemyTank = Tank((194,3,3), CM)
     
+    while True:
+        print(myTank.gameEnvironment.inLobby(), myTank.gameEnvironment.inLoadingScreen(), myTank.isMyTurn())
+    
+    """
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     print(myTank.updateAndGetExcactPosition())
     print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
@@ -210,4 +214,4 @@ if __name__ == "__main__":
                                     15,
                                     [myTank.color, enemyTank.color],
                                     CM,
-                                    "Z_bild.png")
+                                    "Z_bild.png")"""

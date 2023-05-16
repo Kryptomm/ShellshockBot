@@ -87,13 +87,13 @@ RULES = """
         ~~~DAS IST EIN FARMBOT FÜR XP~~~
             REGELN:
                 -Fenster: Vollbild
-                -Map-Color: Blue
-                -Map-Mode: Generated/LowerXP: Eine Flache Map
+                -Map-Color: Nicht Gelb/Rot/Grün
+                -Map-Mode: Generated  / Secure: Eine Flache Map
                 -Mode: Deathmatch
                 -Players: 2
                 -Wind: High
                 -Shot-Type: Single
                 -Mod: One-Wep
-                -Obstacles: <=Med 
+                -Obstacles: Med / Secure: Low
             Aktiviere den Bot in der Lobby und sei nicht bereit!
         """
