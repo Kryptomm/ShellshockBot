@@ -3,21 +3,20 @@ import math
 from coordinateManager import CoordinateManager
 
 GRAVITY = 0.359413
+WIND_FACTOR = 0.000252 / 2
 
 """
 Formulas for calculating x,y positions at a given time t with
-    angle: [0,2*π]
+    angle: [0,359]
     wind: [-100,100]
     time: N
     gravity: [0:N)
-    speed: [0,N]
-    
-    x = (speed * cos(winkel) + wind * time) * time
-    y = speed * sin(winkel) * time - 0.5 * gravity * time^2
+    strength: [0,N]
 """
 def calculatePosition(angle : int, strength : int ,wind : int, time : float, coordManager : CoordinateManager, x_offset : float, y_offset : float) -> tuple[float,float]:
     angle = math.radians(angle)
     strength = 0.009133*strength - 0.0009244
+    wind = WIND_FACTOR*wind
     
     x = (strength * CM.getScreenHeigth() / CM.getScreenWidth() * math.cos(angle) + wind * time) * time + x_offset
     y = -1* (strength * math.sin(angle) * time - 0.5 * GRAVITY * time**2) + y_offset
@@ -49,9 +48,9 @@ if __name__ == "__main__":
     myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
     myTank.getAverageCoordinatesBreadth()
     
-    angle = 104
-    strength = 100
-    wind = 0
+    angle = 54
+    strength = 78
+    wind = -44
     
     t = 0
     maxT = 5
