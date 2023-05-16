@@ -11,5 +11,4 @@ def __normal(myTank : friendlyTank, enemyTank : Tank, wind : int, wind_richtung 
     angle = 90 + round(distance / myTank.SHOOTRADIUS * 4)
     angle += round(wind / 14) * wind_richtung
     
-    
     return angle, 100

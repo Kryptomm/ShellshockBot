@@ -190,8 +190,8 @@ class friendlyTank(Tank):
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
-    
-    
+
+
 if __name__ == "__main__":
     sleep(2)
     CM = CoordinateManager()
@@ -200,10 +200,9 @@ if __name__ == "__main__":
     myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
     enemyTank = Tank((194,3,3), CM)
     
-    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
-
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     print(myTank.updateAndGetExcactPosition())
+    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
     
     myTank.shoot(enemyTank)
     

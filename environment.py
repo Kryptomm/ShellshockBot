@@ -1,4 +1,5 @@
 import kNearestNeighbors as knn
+import pyautogui
 
 from coordinateManager import CoordinateManager
 from PIL import Image, ImageEnhance, ImageGrab
@@ -14,10 +15,10 @@ class GameEnvironment:
         self.__WEAPONPIXELS = self.__loadPixelData('data/WeaponPixels.txt') 
         self.__WINDPIXELS = self.__loadPixelData('data/WindPixels.txt')
         
-        self.__FireButton = "Images/FireButton.png"
-        self.__LockedInButton = "Images/LockedInButton.png"
-        self.__NotFireButton = "Images/NotFireButton.png"
-        self.__ReadyButton = "Images/ReadyButton.png"
+        self.__FireButton : str = "Images/FireButton.png"
+        self.__LockedInButton : str = "Images/LockedInButton.png"
+        self.__NotFireButton : str = "Images/NotFireButton.png"
+        self.__ReadyButton : str = "Images/ReadyButton.png"
         
         print("Game Environment ready to go")
         
@@ -124,6 +125,12 @@ class GameEnvironment:
         wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, ones, fixedK=1)
         return int(wind), self.getWindRichtung()
 
+    def pressButton(self, button : str) -> None:
+        readyButton = pyautogui.locateOnScreen(button, grayscale=True, confidence=0.9)
+        if readyButton == None: return
+        pyautogui.click(readyButton[0],readyButton[1])
+        pyautogui.click(5,5)
+        
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
