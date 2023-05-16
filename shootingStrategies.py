@@ -1,5 +1,7 @@
 import math
 
+from coordinateManager import CoordinateManager
+
 GRAVITY = 0.359413
 
 """
@@ -13,12 +15,12 @@ Formulas for calculating x,y positions at a given time t with
     x = (speed * cos(winkel) + wind * time) * time
     y = speed * sin(winkel) * time - 0.5 * gravity * time^2
 """
-def calculatePosition(angle : int, strength : int ,wind : int, time : float) -> tuple[float,float]:
+def calculatePosition(angle : int, strength : int ,wind : int, time : float, coordManager : CoordinateManager, x_offset : float, y_offset : float) -> tuple[float,float]:
     angle = math.radians(angle)
-    strength = -0.000003*strength**3 + 0.000492*strength**2 + -0.017763*strength**1 + 0.505767
+    strength = 0.009133*strength - 0.0009244
     
-    x = (strength * math.cos(angle) + wind * time) * time
-    y = strength * math.sin(angle) * time - 0.5 * GRAVITY * time**2
+    x = (strength * CM.getScreenHeigth() / CM.getScreenWidth() * math.cos(angle) + wind * time) * time + x_offset
+    y = -1* (strength * math.sin(angle) * time - 0.5 * GRAVITY * time**2) + y_offset
     
     return x,y
 
@@ -37,8 +39,17 @@ def __normal(myTank, enemyTank, wind : int, wind_richtung : int) -> tuple[int,in
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    from tank import friendlyTank
+    from environment import GameEnvironment
+    from visualizer import drawCirclesAroundPixels
     
-    angle = 86
+    CM = CoordinateManager()
+    GE = GameEnvironment(CM)
+    
+    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
+    myTank.getAverageCoordinatesBreadth()
+    
+    angle = 104
     strength = 100
     wind = 0
     
@@ -48,12 +59,27 @@ if __name__ == "__main__":
     
     X = []
     Y = []
+    firstXbelow0 = 0
+    found = False
     while t < maxT:
-        x,y = calculatePosition(angle, strength, wind, t)
+        x,y = calculatePosition(angle, strength, wind, t, CM,myTank.getXCoordinate(),myTank.getYCoordinate())
         X.append(x)
         Y.append(y)
         t += step
         
+        if y <= 0 and not found and x > 0.02:
+            found = True
+            firstXbelow0 = x
+    
+    connectedList = []
+    colors = []
+    for i in range(len(X)):
+        connectedList.append([X[i]*CM.getScreenWidth(), Y[i]*CM.getScreenHeigth()])
+        colors.append((255,255,255))
+    
+    drawCirclesAroundPixels(connectedList,5,colors,CM,"Z_bild.png")
+    
+    print(firstXbelow0)
     fig, ax = plt.subplots()
 
     # Plot all coordinates as scatter points
@@ -69,5 +95,3 @@ if __name__ == "__main__":
     # Set labels and title
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
-    
-    plt.show()
