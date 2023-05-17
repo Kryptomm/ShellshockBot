@@ -8,10 +8,20 @@ from coordinateManager import CoordinateManager
 from tank import Tank, friendlyTank
 
 def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
-    myTank = friendlyTank(coordManager.TANK1BOX, colors.FRIENDLY_TANK, coordManager, gameEnvironment)
+    myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
-    sleep(10)
+    sleep(8)
+    myTank.getAverageCoordinatesBreadth()
+    enemyTank.getAverageCoordinatesBreadth()
+    
+    if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
+        myTank.BOUNDARIES = coordManager.TANK1BOX
+        enemyTank.BOUNDARIES = coordManager.TANK2BOX
+    else:
+        myTank.BOUNDARIES = coordManager.TANK2BOX
+        enemyTank.BOUNDARIES = coordManager.TANK1BOX
+    
     while True:
         while not gameEnvironment.isMyTurn():
             if gameEnvironment.inLoadingScreen(): click(1013, 1050)
@@ -21,6 +31,9 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         
         myTank.getAverageCoordinatesBreadth()
         enemyTank.getAverageCoordinatesBreadth()
+        
+        if myTank.move():
+            myTank.getAverageCoordinatesBreadth()
         
         myTank.shoot(enemyTank)
         gameEnvironment.isShootingState = False

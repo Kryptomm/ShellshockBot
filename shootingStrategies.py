@@ -9,8 +9,16 @@ MINTIME = 0
 MAXTIME = 10
 ITERATIONS = 20
 
+MIN_STRENGTH = 20
+MAX_STRENGTH = 100
+
 def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+    if weapon_cat == "normal": return __normal(myTank, enemyTank, wind, CM)
+    if weapon_cat == "straight": return __straight(myTank, enemyTank)
+    if weapon_cat == "instant": return __instant()
+    if weapon_cat == "45degrees": return __45degrees(myTank, enemyTank, wind, CM)
     return __normal(myTank, enemyTank, wind, CM)
+
 
 """
 Formulas for calculating x,y positions at a given time t with
@@ -60,20 +68,48 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
 
 def __normal(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int,int]:
     angle = 90
-    strength = 100
 
     for i in range(0,45):
-        for s in range(0,99):
-            if __isAngleAndPowerHitting(angle-i,strength-s,wind,CM,myTank,enemyTank):
-                return (angle-i, strength-s)
-            if __isAngleAndPowerHitting(angle+i,strength-s,wind,CM,myTank,enemyTank):
-                return (angle+i, strength-s)
+        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+            if __isAngleAndPowerHitting(angle-i, s, wind, CM, myTank, enemyTank):
+                return (angle-i, s)
+            if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, enemyTank):
+                return (angle+i, s)
+    
+    #Einfach davon ausgehen das sowieso was hittet
+    return angle,strength
+
+def __straight(myTank, enemyTank) -> tuple[int,int]:
+    m = -1 * (myTank.absY - enemyTank.absY)/(myTank.absX - enemyTank.absX)
+    angle = math.degrees(math.atan(m))
+    print(angle, m, enemyTank.getPosition())
+
+    if enemyTank.getXCoordinate() < myTank.getXCoordinate():
+        angle += 180
+    
+    return round(angle), 100
+
+def __instant() -> tuple[int,int]:
+    return 90,100
+
+def __45degrees(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+    angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
+
+    for i in range(0,20):
+        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+            if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
+                return (angle-i, s)
+            
+    for i in range(0,20):
+        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+            if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
+                return (angle-i, s)
+            
     
     #Einfach davon ausgehen das sowieso was hittet
     return angle,strength
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
     from tank import friendlyTank, Tank
     from environment import GameEnvironment
     from visualizer import drawCirclesAroundPixels
@@ -81,12 +117,14 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
+    myTank = friendlyTank((36, 245, 41), CM, GE)
     myTank.getAverageCoordinatesBreadth()
     
     enemyTank = Tank((194,3,3), CM)
     enemyTank.getAverageCoordinatesBreadth()
     
+    myTank.shoot(enemyTank)
+    exit()
     strength = 100
     angle = 99
     wind = 37
@@ -116,19 +154,3 @@ if __name__ == "__main__":
         colors.append((255,255,255))
     
     drawCirclesAroundPixels(connectedList,5,colors,CM,"Z_bild.png")
-    
-    fig, ax = plt.subplots()
-
-    # Plot all coordinates as scatter points
-    ax.scatter(X,Y)
-
-    # Color the first coordinate differently
-    ax.scatter(X[0], Y[0], color='red')
-
-    # Set axes limits
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 2)
-
-    # Set labels and title
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')

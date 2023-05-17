@@ -2,7 +2,7 @@ import numpy
 import visualizer
 import shootingStrategies
 from collections import deque
-from pyautogui import press, click, screenshot, locateOnScreen
+from pyautogui import press, click, screenshot, locateOnScreen, keyDown, keyUp
 from time import sleep
 from coordinateManager import CoordinateManager, Point, Box
 from environment import GameEnvironment
@@ -10,6 +10,11 @@ from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 
 def pressKey(amount : int, key : str) -> None:
     press(key, presses=amount, interval=0.05)
+
+def holdKey(time : float, key : str):
+    keyDown(key)
+    sleep(time)
+    keyUp(key)
 
 class Tank:
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager):
@@ -99,10 +104,10 @@ class Tank:
     
 
 class friendlyTank(Tank):
-    def __init__(self, boundaries : Box, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
         super().__init__(color, coordManager)
         
-        self.__boundaries : Box = boundaries
+        self.BOUNDARIES : Box = None
         self.__lastAngle : int = 0
         self.__lastPower : int = 0
         
@@ -192,6 +197,14 @@ class friendlyTank(Tank):
         self.absX = myPosX
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
+    
+    def move(self) -> None:
+        if self.BOUNDARIES.isPointInBoundaries(self.getPosition()): return False
+        
+        if self.getXCoordinate() < self.BOUNDARIES.getUpperLeft().getX():
+            holdKey(2, "d")
+        else: holdKey(2, "a")
+        return True
     
 if __name__ == "__main__":
     sleep(2)
