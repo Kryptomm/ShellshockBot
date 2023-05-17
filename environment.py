@@ -106,7 +106,7 @@ class GameEnvironment:
         windFieldLeftBoundaries = self.coordManager.WIND_FIELD_LEFT.getBoundariesNormalized(self.coordManager)
         windFieldRightBoundaries = self.coordManager.WIND_FIELD_RIGHT.getBoundariesNormalized(self.coordManager)
         
-        richtung = -1
+        richtung = 1
         for CORDS in (windFieldLeftBoundaries, windFieldRightBoundaries):
             cap = ImageGrab.grab(bbox = (CORDS[0],CORDS[1],CORDS[2],CORDS[3]))
             filter = ImageEnhance.Color(cap)
@@ -114,8 +114,8 @@ class GameEnvironment:
             enhancer = ImageEnhance.Contrast(cap)
             cap = enhancer.enhance(100)
             if cap.getpixel((int(cap.width/2),int(cap.height/2))) == (255,255,255):
-                if CORDS == windFieldRightBoundaries: richtung = -1
-                else: richtung = 1
+                if CORDS == windFieldRightBoundaries: richtung = 1
+                else: richtung = -1
         return richtung
     
     def getWind(self) -> tuple[int, int]:

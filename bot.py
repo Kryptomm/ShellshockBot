@@ -11,7 +11,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     myTank = friendlyTank(coordManager.TANK1BOX, colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
-    sleep(3)
+    sleep(10)
     while True:
         while not gameEnvironment.isMyTurn():
             if gameEnvironment.inLoadingScreen(): click(1013, 1050)
@@ -23,7 +23,6 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         enemyTank.getAverageCoordinatesBreadth()
         
         myTank.shoot(enemyTank)
-        
         gameEnvironment.isShootingState = False
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -33,7 +32,9 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
         while gameEnvironment.inLobby():
             sleep(0.1)
         
+        gameEnvironment.inLobbyState = False
         gameLoop(coordManager, gameEnvironment)
+        gameEnvironment.inLobbyState = True
 
 def main() -> None:
     print(RULES)

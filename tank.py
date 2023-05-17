@@ -135,9 +135,10 @@ class friendlyTank(Tank):
     def shoot(self, enemyTank) -> None:
         weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
+        wind = wind * wind_richtung
         
-        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, wind_richtung, self.coordManager)
-        print(angle, power, enemyTank.getPosition(), wind*wind_richtung)
+        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, self.coordManager)
+        
         self.moveCannon(angle, power)
         self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
     
