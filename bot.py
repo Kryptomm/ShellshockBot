@@ -7,6 +7,8 @@ from environment import GameEnvironment
 from coordinateManager import CoordinateManager
 from tank import Tank, friendlyTank
 
+DEBUG = True
+
 def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
     myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
@@ -55,7 +57,7 @@ def main() -> None:
     coordManager = CoordinateManager()
     gameEnvironment = GameEnvironment(coordManager)
     
-    if gameEnvironment.inLobby() == False:
+    if gameEnvironment.inLobby() == False and not DEBUG:
         print("Starte von der Lobby aus!")
         return
 

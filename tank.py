@@ -202,8 +202,8 @@ class friendlyTank(Tank):
         if self.BOUNDARIES.isPointInBoundaries(self.getPosition()): return False
         
         if self.getXCoordinate() < self.BOUNDARIES.getUpperLeft().getX():
-            holdKey(2, "d")
-        else: holdKey(2, "a")
+            holdKey(1, "d")
+        else: holdKey(1, "a")
         return True
     
 if __name__ == "__main__":
