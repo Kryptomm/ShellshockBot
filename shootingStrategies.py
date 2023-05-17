@@ -9,8 +9,8 @@ MINTIME = 0
 MAXTIME = 10
 ITERATIONS = 20
 
-def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, wind_richtung : int) -> tuple[int,int]:
-    return __normal(myTank, enemyTank, wind, wind_richtung)
+def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, wind_richtung : int, CM : CoordinateManager) -> tuple[int,int]:
+    return __normal(myTank, enemyTank, wind, wind_richtung, CM)
 
 """
 Formulas for calculating x,y positions at a given time t with
@@ -35,16 +35,16 @@ def __isCoordinateHitting(x : float, y : float, enemyTank) -> bool:
     if not (enemyTank.getYCoordinate() - EPSILON <= y <= enemyTank.getYCoordinate() + EPSILON): return False
     return True
 
-def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordManager : CoordinateManager, x_offset : float, y_offset : float, enemyTank) -> bool:
+def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordManager : CoordinateManager, myTank, enemyTank) -> bool:
     desiredX = enemyTank.getXCoordinate()
     time = MAXTIME / 2
     timeSize = MAXTIME / 4
     
-    lookingFactor = 1 if x_offset <= enemyTank.getXCoordinate() else -1
+    lookingFactor = 1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else -1
     
     calculatedPosition = None
     for _ in range(ITERATIONS):
-        calculatedPosition = __calculatePosition(angle, strength, wind, time, CM, x_offset, y_offset)
+        calculatedPosition = __calculatePosition(angle, strength, wind, time, coordManager, myTank.getXCoordinate(), myTank.getYCoordinate())
         if calculatedPosition[0] >=  desiredX:
             time = time - timeSize * lookingFactor
         else:
@@ -58,14 +58,25 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         if __isCoordinateHitting(calculatedPosition[0]+i, calculatedPosition[1], enemyTank): return True
     return False
 
-def __normal(myTank, enemyTank, wind : int, wind_richtung : int) -> tuple[int,int]:
+def __normal(myTank, enemyTank, wind : int, wind_richtung : int, CM : CoordinateManager) -> tuple[int,int]:
+    angle = 90
+    strength = 100
+    wind = wind * wind_richtung * -1
+    
+    for i in range(0,45):
+        for s in range(0,99):
+            if __isAngleAndPowerHitting(angle-i,strength-s,wind,CM,myTank,enemyTank):
+                return (angle-i, strength-s)
+            if __isAngleAndPowerHitting(angle+i,strength-s,wind,CM,myTank,enemyTank):
+                return (angle+i, strength-s)
+    
     distance = enemyTank.getXCoordinate() - myTank.getXCoordinate()
     
     angle = 90 + round(distance / myTank.SHOOTRADIUS * 4)
     angle += round(wind / 14) * wind_richtung
     
     return angle, 100
-
+        
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from tank import friendlyTank, Tank
@@ -83,11 +94,9 @@ if __name__ == "__main__":
     
     strength = 100
     angle = 99
-    wind = 0
-    for a in range(0,360):
-        for s in range(0,101):
-            if __isAngleAndPowerHitting(a,s,wind,CM,myTank.getXCoordinate(),myTank.getYCoordinate(),enemyTank):
-                print("Strength:",s,"Angle",a)
+    wind = 37
+    
+    print(__normal(myTank, enemyTank, wind, 1, CM))
     print(enemyTank.getPosition())
 
     t = 0

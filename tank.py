@@ -112,9 +112,8 @@ class friendlyTank(Tank):
         self.SHOOTRADIUS = 0.173958
     
     def moveCannon(self, angle : int, strength : int) -> None:
-        key_angle = "left" if angle <= 90 else "right"
-        if angle > 90: key_angle="right"
-        
+        key_angle = "right" if angle <= 90 else "left"
+
         self.updateAndGetExcactPosition()
         self.resetAngle()
         
@@ -137,7 +136,8 @@ class friendlyTank(Tank):
         weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
         
-        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, wind_richtung)
+        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, wind_richtung, self.coordManager)
+        print(angle, power, enemyTank.getPosition(), wind*wind_richtung)
         self.moveCannon(angle, power)
         self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
     

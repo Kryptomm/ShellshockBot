@@ -11,6 +11,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     myTank = friendlyTank(coordManager.TANK1BOX, colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
+    sleep(3)
     while True:
         while not gameEnvironment.isMyTurn():
             if gameEnvironment.inLoadingScreen(): click(1013, 1050)
