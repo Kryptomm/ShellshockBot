@@ -47,21 +47,29 @@ class Tank:
     def absY(self, value : int) -> None:
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
 
-    def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
-        myPosX = self.absX
-        myPosY = self.absY
-        
-        gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
+    @staticmethod
+    def updateCoordinatesBreadth(tanks, everyPixel=3) -> None:
+        if not(type(tanks) == list):
+            tanks = [tanks]
+            
+        #Assume every tanks has the same Boundarie, anything other would not make sense.
+        gamefieldBoundaries = tanks[0].coordManager.GAME_FIELD.getBoundariesNormalized(tanks[0].coordManager)
         
         s = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
         q = deque()
         visited = set()
         
-        q.append(myPosX)
-        q.append(myPosY)
+        for tank in tanks:
+            myPosX = tank.absX
+            myPosY = tank.absY
+            q.append(tank.absX)
+            q.append(tank.absY)
         
-        visited.add((myPosX, myPosY))
-        minD = [0,0,float("inf")]
+            visited.add((myPosX, myPosY))
+            
+        minDs = {value: (0,0,float("inf")) for value in tanks}
+        needToFind = len(tanks)
+        found = 0
 
         while q:
             field = (q.popleft(), q.popleft())
@@ -69,11 +77,15 @@ class Tank:
             if not (field[0] < gamefieldBoundaries[2] and field[0] >= gamefieldBoundaries[0] and field[1] < gamefieldBoundaries[3] and field[1] >= gamefieldBoundaries[1]):
                 continue
             
-            color = s.getpixel((field[0], field[1]))
-            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.color))
-            
-            if d < minD[2]: minD = [field[0], field[1], d]
-            if d < 15: break
+            pixelColor = s.getpixel((field[0], field[1]))
+            for tank in tanks:
+                d = numpy.linalg.norm(numpy.array(pixelColor) - numpy.array(tank.color))
+                
+                if d < minDs[tank][2]: minDs[tank] = [field[0], field[1], d]
+                if d < 15:
+                    found += 1
+                    if found == needToFind:
+                        break
 
             if (field[0] + everyPixel, field[1]) not in visited:
                 q.append(field[0] + everyPixel)
@@ -97,11 +109,9 @@ class Tank:
                 q.append(field[1] - everyPixel)
                 visited.add((field[0], field[1] - everyPixel))
 
-        self.absX = minD[0]
-        self.absY = minD[1]
-
-        return Point(self.getXCoordinate(), self.getYCoordinate())
-    
+        for tank in tanks:
+            tank.absX = minDs[tank][0]
+            tank.absY = minDs[tank][1]  
 
 class friendlyTank(Tank):
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -202,8 +212,8 @@ class friendlyTank(Tank):
         if self.BOUNDARIES.isPointInBoundaries(self.getPosition()): return False
         
         if self.getXCoordinate() < self.BOUNDARIES.getUpperLeft().getX():
-            holdKey(1, "d")
-        else: holdKey(1, "a")
+            holdKey(1.5, "d")
+        else: holdKey(1.5, "a")
         return True
     
 if __name__ == "__main__":
@@ -211,21 +221,15 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
+    from time import time
+    
+    myTank = friendlyTank((36, 245, 41), CM, GE)
     enemyTank = Tank((194,3,3), CM)
     
-    while True:
-        print(myTank.gameEnvironment.inLobby(), myTank.gameEnvironment.inLoadingScreen(), myTank.isMyTurn())
-    
-    """
-    print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
-    print(myTank.updateAndGetExcactPosition())
-    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
-    
-    myTank.shoot(enemyTank)
-    
+    Tank.updateCoordinatesBreadth([myTank, enemyTank])
+
     visualizer.drawCirclesAroundPixels([[myTank.absX, myTank.absY],[enemyTank.absX, enemyTank.absY]],
                                     15,
                                     [myTank.color, enemyTank.color],
                                     CM,
-                                    "Z_bild.png")"""
+                                    "Z_bild.png")
