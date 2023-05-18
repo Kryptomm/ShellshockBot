@@ -170,7 +170,9 @@ class friendlyTank(Tank):
         
         angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, extra_info ,self.coordManager)
         
-        self.moveCannon(angle, power)
+        if weapon_category != "instant":
+            self.moveCannon(angle, power)
+            
         self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
     
     def updateAndGetExcactPosition(self) -> Point:

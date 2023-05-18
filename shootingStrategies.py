@@ -21,7 +21,6 @@ def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, extra_info
     if weapon_cat == "radius": return __radius(myTank, enemyTank, extra_info, CM)
     return __normal(myTank, enemyTank, wind, CM)
 
-
 """
 Formulas for calculating x,y positions at a given time t with
     angle: [0,359]
