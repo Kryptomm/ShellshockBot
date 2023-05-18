@@ -47,29 +47,21 @@ class Tank:
     def absY(self, value : int) -> None:
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
 
-    @staticmethod
-    def updateCoordinatesBreadth(tanks, everyPixel=3) -> None:
-        if not(type(tanks) == list):
-            tanks = [tanks]
-            
-        #Assume every tanks has the same Boundarie, anything other would not make sense.
-        gamefieldBoundaries = tanks[0].coordManager.GAME_FIELD.getBoundariesNormalized(tanks[0].coordManager)
+    def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
+        myPosX = self.absX
+        myPosY = self.absY
+        
+        gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
         
         s = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
         q = deque()
         visited = set()
         
-        for tank in tanks:
-            myPosX = tank.absX
-            myPosY = tank.absY
-            q.append(tank.absX)
-            q.append(tank.absY)
+        q.append(myPosX)
+        q.append(myPosY)
         
-            visited.add((myPosX, myPosY))
-            
-        minDs = {value: (0,0,float("inf")) for value in tanks}
-        needToFind = len(tanks)
-        found = 0
+        visited.add((myPosX, myPosY))
+        minD = [0,0,float("inf")]
 
         while q:
             field = (q.popleft(), q.popleft())
@@ -77,15 +69,11 @@ class Tank:
             if not (field[0] < gamefieldBoundaries[2] and field[0] >= gamefieldBoundaries[0] and field[1] < gamefieldBoundaries[3] and field[1] >= gamefieldBoundaries[1]):
                 continue
             
-            pixelColor = s.getpixel((field[0], field[1]))
-            for tank in tanks:
-                d = numpy.linalg.norm(numpy.array(pixelColor) - numpy.array(tank.color))
-                
-                if d < minDs[tank][2]: minDs[tank] = [field[0], field[1], d]
-                if d < 15:
-                    found += 1
-                    if found == needToFind:
-                        break
+            color = s.getpixel((field[0], field[1]))
+            d = numpy.linalg.norm(numpy.array(color) - numpy.array(self.color))
+            
+            if d < minD[2]: minD = [field[0], field[1], d]
+            if d < 15: break
 
             if (field[0] + everyPixel, field[1]) not in visited:
                 q.append(field[0] + everyPixel)
@@ -109,9 +97,11 @@ class Tank:
                 q.append(field[1] - everyPixel)
                 visited.add((field[0], field[1] - everyPixel))
 
-        for tank in tanks:
-            tank.absX = minDs[tank][0]
-            tank.absY = minDs[tank][1]  
+        self.absX = minD[0]
+        self.absY = minD[1]
+
+        return Point(self.getXCoordinate(), self.getYCoordinate())
+    
 
 class friendlyTank(Tank):
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -221,15 +211,21 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    from time import time
-    
-    myTank = friendlyTank((36, 245, 41), CM, GE)
+    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
     enemyTank = Tank((194,3,3), CM)
     
-    Tank.updateCoordinatesBreadth([myTank, enemyTank])
-
+    while True:
+        print(myTank.gameEnvironment.inLobby(), myTank.gameEnvironment.inLoadingScreen(), myTank.isMyTurn())
+    
+    """
+    print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
+    print(myTank.updateAndGetExcactPosition())
+    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
+    
+    myTank.shoot(enemyTank)
+    
     visualizer.drawCirclesAroundPixels([[myTank.absX, myTank.absY],[enemyTank.absX, enemyTank.absY]],
                                     15,
                                     [myTank.color, enemyTank.color],
                                     CM,
-                                    "Z_bild.png")
+                                    "Z_bild.png")"""
