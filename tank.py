@@ -109,7 +109,8 @@ class friendlyTank(Tank):
         
         self.BOUNDARIES : Box = None
         self.__lastAngle : int = 0
-        self.__lastPower : int = 0
+        self.__lastStrength : int = 0
+        self.__firstShot = True
         
         self.gameEnvironment = gameEnvironment
         
@@ -117,16 +118,41 @@ class friendlyTank(Tank):
         self.SHOOTRADIUS = 0.173958
     
     def moveCannon(self, angle : int, strength : int) -> None:
-        key_angle = "right" if angle <= 90 else "left"
+        angle = angle % 360
+        lastAngle = self.__lastAngle
+        lastStrength = self.__lastStrength
+        
+        resetKeyAngle = "right" if angle <= 90 or angle >= 270 else "left"
 
-        self.updateAndGetExcactPosition()
-        self.resetAngle()
+        resetAngle = abs(angle - 90)
+        if resetKeyAngle == "right:":
+            resetAngle = 360 - resetAngle
+        resetStrength = abs(100-strength)
         
-        angle_delta = abs(angle-90)
-        strengh_delta = abs(100-strength)
+        __toLeft = (lastAngle - angle) % 360
+        __toRight = (angle - lastAngle) % 360
+        keepAngle = min(__toLeft, __toRight)
+        keepKeyAngle = "right" if __toLeft < __toRight else "left"
         
-        pressKey(angle_delta, key_angle)
-        pressKey(strengh_delta, "down")
+        keepStrength = abs(lastStrength - strength)
+        keepKeyStrength = "up" if lastStrength < strength else "down"
+        
+        isResetting = False
+        if (resetAngle + resetStrength < keepAngle + keepStrength) or self.__firstShot:
+            isResetting = True
+        
+        if isResetting:
+            self.updateAndGetExcactPosition()
+            self.resetAngle()
+            pressKey(resetAngle, resetKeyAngle)
+            pressKey(resetStrength, "down")
+        else:
+            pressKey(keepAngle, keepKeyAngle)
+            pressKey(keepStrength, keepKeyStrength)
+        
+        self.__firstShot = False
+        self.__lastAngle = angle
+        self.__lastStrength = strength
         
     def resetAngle(self) -> None:
         myPosX = self.absX

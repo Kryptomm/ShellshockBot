@@ -13,7 +13,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
-    sleep(6)
+    sleep(8)
     myTank.getAverageCoordinatesBreadth()
     enemyTank.getAverageCoordinatesBreadth()
     
