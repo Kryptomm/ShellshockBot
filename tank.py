@@ -226,7 +226,7 @@ class friendlyTank(Tank):
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
-    def move(self) -> None:
+    def move(self) -> bool:
         if self.BOUNDARIES.isPointInBoundaries(self.getPosition()): return False
         
         if self.getXCoordinate() < self.BOUNDARIES.getUpperLeft().getX():

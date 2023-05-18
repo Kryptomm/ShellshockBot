@@ -19,6 +19,7 @@ def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, extra_info
     if weapon_cat == "45degrees": return __45degrees(myTank, enemyTank, wind, CM)
     if weapon_cat == "landing": return __landing(myTank, enemyTank, wind, CM)
     if weapon_cat == "radius": return __radius(myTank, enemyTank, extra_info, CM)
+    
     return __normal(myTank, enemyTank, wind, CM)
 
 """
@@ -78,7 +79,7 @@ def __normal(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int
                 return (angle+i, s)
     
     #Einfach davon ausgehen das sowieso was hittet
-    return angle,strength
+    return angle,100
 
 def __straight(myTank, enemyTank) -> tuple[int,int]:
     m = -1 * (myTank.absY - enemyTank.absY) / (myTank.absX - enemyTank.absX)

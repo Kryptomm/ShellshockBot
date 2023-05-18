@@ -66,8 +66,8 @@ class CoordinateManager:
         self.WEAPON_FIELD       = Box(0.371354,  0.961111,  0.494792,  0.985185)
         self.SHOOTLINE_FIELD    = Box(-0.015625, -0.277778, 0.015625,  0.018519)
         self.GAME_FIELD         = Box(0,         0,          1,         0.851852)
-        self.TANK1BOX           = Box(0.260417,  0,          0.427083,  1)
-        self.TANK2BOX           = Box(0.572917,  0,          0.6875,    1)
+        self.TANK1BOX           = Box(0.260417,  -1,          0.364583,  2)
+        self.TANK2BOX           = Box(0.635417,  -1,          0.739583,    2)
         
         self.RADIUS             = 0.178646 #dependent from width of the screen
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen
@@ -96,6 +96,8 @@ class CoordinateManager:
 
 
 if __name__ == "__main__":
-    b = Box(0.2, 0,  0.5, 1)
-    p = Point(0.6,0.5)
-    print(b.isPointInBoundaries(p))
+    CM = CoordinateManager()
+    
+    p = Point(0.3,0.5)
+    
+    print(CM.TANK1BOX.isPointInBoundaries(p))

@@ -1,5 +1,5 @@
 from time import sleep
-from pyautogui import click
+from pyautogui import click, FAILSAFE, FailSafeException
 
 import colors
 from definitions import RULES
@@ -17,13 +17,6 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     myTank.getAverageCoordinatesBreadth()
     enemyTank.getAverageCoordinatesBreadth()
     
-    if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
-        myTank.BOUNDARIES = coordManager.TANK1BOX
-        enemyTank.BOUNDARIES = coordManager.TANK2BOX
-    else:
-        myTank.BOUNDARIES = coordManager.TANK2BOX
-        enemyTank.BOUNDARIES = coordManager.TANK1BOX
-    
     while True:
         while not gameEnvironment.isMyTurn():
             if gameEnvironment.inLoadingScreen(): click(1013, 1050)
@@ -34,8 +27,18 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         myTank.getAverageCoordinatesBreadth()
         enemyTank.getAverageCoordinatesBreadth()
         
-        if myTank.move():
-            myTank.getAverageCoordinatesBreadth()
+        if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
+            myTank.BOUNDARIES = coordManager.TANK1BOX
+            enemyTank.BOUNDARIES = coordManager.TANK2BOX
+        else:
+            myTank.BOUNDARIES = coordManager.TANK2BOX
+            enemyTank.BOUNDARIES = coordManager.TANK1BOX
+            
+        try:
+            if myTank.move():
+                myTank.getAverageCoordinatesBreadth()
+        except FailSafeException:
+            pass
         
         myTank.shoot(enemyTank)
         gameEnvironment.isShootingState = False
@@ -64,7 +67,7 @@ def main() -> None:
     lobbyWrapperLoop(coordManager, gameEnvironment)
 
 if __name__ == "__main__":
-    wait = 1
+    wait = 3
     for x in range(wait):
         print(f"starting in {wait-x}...")
         sleep(1)
