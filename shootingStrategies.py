@@ -12,11 +12,13 @@ ITERATIONS = 20
 MIN_STRENGTH = 20
 MAX_STRENGTH = 100
 
-def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, extra_info ,CM : CoordinateManager) -> tuple[int,int]:
     if weapon_cat == "normal": return __normal(myTank, enemyTank, wind, CM)
     if weapon_cat == "straight": return __straight(myTank, enemyTank)
     if weapon_cat == "instant": return __instant()
     if weapon_cat == "45degrees": return __45degrees(myTank, enemyTank, wind, CM)
+    if weapon_cat == "landing": return __landing(myTank, enemyTank, wind, CM)
+    if weapon_cat == "radius": return __radius(myTank, enemyTank, extra_info, CM)
     return __normal(myTank, enemyTank, wind, CM)
 
 
@@ -107,7 +109,34 @@ def __45degrees(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[
             
     
     #Einfach davon ausgehen das sowieso was hittet
-    return angle,strength
+    return angle,100
+
+def __landing(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+    angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
+
+    for i in range(0,20):
+        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+            if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
+                return (angle-i, s)
+            
+    for i in range(0,20):
+        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+            if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
+                return (angle-i, s)
+            
+    
+    #Einfach davon ausgehen das sowieso was hittet
+    return angle,100
+
+def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]:
+    angle = __straight(myTank, enemyTank)[0]
+    distance = math.sqrt((myTank.getXCoordinate() - enemyTank.getXCoordinate())**2 +
+                         ((myTank.getYCoordinate() - enemyTank.getYCoordinate()) * CM.getScreenHeigth() / CM.getScreenWidth())**2)
+    
+    radia = distance / CM.RADIUS
+    strengh = min(round(radia * delta),100)
+    
+    return angle, strengh
 
 if __name__ == "__main__":
     from tank import friendlyTank, Tank

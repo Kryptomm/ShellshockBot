@@ -164,11 +164,11 @@ class friendlyTank(Tank):
         else: pressKey(15, "up")
         
     def shoot(self, enemyTank) -> None:
-        weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
+        weapon, weapon_category, extra_info = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
         
-        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, self.coordManager)
+        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, extra_info ,self.coordManager)
         
         self.moveCannon(angle, power)
         self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
@@ -228,8 +228,8 @@ class friendlyTank(Tank):
         if self.BOUNDARIES.isPointInBoundaries(self.getPosition()): return False
         
         if self.getXCoordinate() < self.BOUNDARIES.getUpperLeft().getX():
-            holdKey(1.5, "d")
-        else: holdKey(1.5, "a")
+            holdKey(1.25, "d")
+        else: holdKey(1.25, "a")
         return True
     
 if __name__ == "__main__":
@@ -237,21 +237,12 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
+    myTank = friendlyTank((36, 245, 41), CM, GE)
     enemyTank = Tank((194,3,3), CM)
     
-    while True:
-        print(myTank.gameEnvironment.inLobby(), myTank.gameEnvironment.inLoadingScreen(), myTank.isMyTurn())
-    
-    """
+
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     print(myTank.updateAndGetExcactPosition())
     print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
     
     myTank.shoot(enemyTank)
-    
-    visualizer.drawCirclesAroundPixels([[myTank.absX, myTank.absY],[enemyTank.absX, enemyTank.absY]],
-                                    15,
-                                    [myTank.color, enemyTank.color],
-                                    CM,
-                                    "Z_bild.png")"""

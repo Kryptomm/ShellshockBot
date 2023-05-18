@@ -96,11 +96,14 @@ class GameEnvironment:
         new_point = arr
         wep_str = knn.multiThreadfindCategory(new_point, self.__WEAPONPIXELS, 8, ones, fixedK=1)
         
+        extra_information = None
         for wep_cat in WEPS:
             for wep in WEPS[wep_cat]:
-                if type(wep) is tuple: wep = wep[0]
-                if wep == wep_str: return wep, wep_cat
-        return ("shot", "normal")
+                if type(wep) is tuple:
+                    extra_information = wep[1]
+                    wep = wep[0]
+                if wep == wep_str: return wep, wep_cat, extra_information
+        return ("shot", "normal", None)
     
     def getWindRichtung(self) -> int:
         windFieldLeftBoundaries = self.coordManager.WIND_FIELD_LEFT.getBoundariesNormalized(self.coordManager)
