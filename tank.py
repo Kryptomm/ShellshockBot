@@ -1,6 +1,7 @@
 import numpy
 import visualizer
 import shootingStrategies
+import asyncio
 from collections import deque
 from pyautogui import press, click, screenshot, locateOnScreen, keyDown, keyUp
 from time import sleep
@@ -8,8 +9,21 @@ from coordinateManager import CoordinateManager, Point, Box
 from environment import GameEnvironment
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 
-def pressKey(amount : int, key : str) -> None:
-    press(key, presses=amount, interval=0.05)
+async def press_key(amount : int, key : str):
+    for _ in range(amount):
+        await asyncio.sleep(0.05)  # Simulating some delay before pressing the key
+        press(key)
+
+async def __press_keys(keys):
+    coroutines = []
+    for k in keys:
+        coroutines.append(press_key(k[0],k[1]))
+    await asyncio.gather(*coroutines)
+
+def pressKeys(keys : list[(int, str)]):
+    if not(type(keys) == list):
+        tanks = [keys]
+    asyncio.run(__press_keys(keys))
 
 def holdKey(time : float, key : str):
     keyDown(key)
@@ -119,24 +133,24 @@ class friendlyTank(Tank):
     def moveCannon(self, angle : int, strength : int) -> None:
         key_angle = "right" if angle <= 90 else "left"
 
-        self.updateAndGetExcactPosition()
-        self.resetAngle()
+        #self.updateAndGetExcactPosition()
+        #self.resetAngle()
         
         angle_delta = abs(angle-90)
         strengh_delta = abs(100-strength)
         
-        pressKey(angle_delta, key_angle)
-        pressKey(strengh_delta, "down")
-        
+        pressKeys([(angle_delta, key_angle),(strengh_delta,"down")])
+
     def resetAngle(self) -> None:
         myPosX = self.absX
         myPosY = self.absY
         
         click(myPosX, max(myPosY - self.coordManager.convertFloatToWidth(self.coordManager.RESETANGLERADIUS), 0))
 
-        if myPosY <= 300: pressKey(60, "up")
-        else: pressKey(15, "up")
-        
+        amount = 15
+        if myPosY <= 300: amount = 60
+        pressKeys((amount, "up"))
+
     def shoot(self, enemyTank) -> None:
         weapon, weapon_category = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
@@ -211,11 +225,9 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    myTank = friendlyTank(CM.TANK1BOX, (36, 245, 41), CM, GE)
-    enemyTank = Tank((194,3,3), CM)
-    
-    while True:
-        print(myTank.gameEnvironment.inLobby(), myTank.gameEnvironment.inLoadingScreen(), myTank.isMyTurn())
+    myTank = friendlyTank((36, 245, 41), CM, GE)
+
+    myTank.moveCannon(80,90)
     
     """
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
