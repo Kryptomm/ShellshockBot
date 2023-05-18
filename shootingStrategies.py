@@ -80,10 +80,10 @@ def __normal(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int
     return angle,strength
 
 def __straight(myTank, enemyTank) -> tuple[int,int]:
-    m = -1 * (myTank.absY - enemyTank.absY)/(myTank.absX - enemyTank.absX)
+    m = -1 * (myTank.absY - enemyTank.absY) / (myTank.absX - enemyTank.absX)
     angle = math.degrees(math.atan(m))
-    print(angle, m, enemyTank.getPosition())
 
+    angle += 360
     if enemyTank.getXCoordinate() < myTank.getXCoordinate():
         angle += 180
     
