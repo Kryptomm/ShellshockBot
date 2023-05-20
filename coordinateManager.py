@@ -128,6 +128,8 @@ class Box:
 
 class CoordinateManager:
     def __init__(self) -> None:
+        """A class where all needed coordinates are already preset
+        """
         self.__screenWidth, self.__screenHeigth = size()
         
         self.READY_BUTTON       = Box(0.582813,  0.789815,  0.854167,  0.999074)
@@ -145,24 +147,74 @@ class CoordinateManager:
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen
         
     def getScreenWidth(self) -> int:
+        """getter for the screen width
+
+        Returns:
+            int: return screen width in absolute units
+        """
         return self.__screenWidth
     
     def getScreenHeigth(self) -> int:
+        """getter for the screen heigth
+
+        Returns:
+            int: return screen heigth in absolute units
+        """
         return self.__screenHeigth
     
     def convertFloatToWidth(self, normalizedNumber : float) -> int:
+        """converts a float number to an absolute number of width
+
+        Args:
+            normalizedNumber (float): a relative coordinate on the screen
+
+        Returns:
+            int: absolute width coordinate on the screen
+        """
         return round(normalizedNumber * self.__screenWidth)
     
     def convertFloatToHeigth(self, normalizedNumber : float) -> int:
+        """converts a float number to an absolute number of heigth
+
+        Args:
+            normalizedNumber (float): a relative coordinate on the screen
+
+        Returns:
+            int: absolute heigth coordinate on the screen
+        """
         return round(normalizedNumber * self.__screenHeigth)
     
     def convertWidthToFloat(self, width : int) -> float:
+        """converts an absolute number to a relative number
+
+        Args:
+            width (int): absolute position on the screen
+
+        Returns:
+            float: relative width on the screen
+        """
         return width / self.__screenWidth
     
     def convertHeigthToFloat(self, heigth : int) -> float:
+        """converts an absolute number to a relative number
+
+        Args:
+            heigth (int): absolute position on the screen
+
+        Returns:
+            float: relative heigth on the screen
+        """
         return heigth / self.__screenHeigth
     
     def convertPointToCoordinate(self, normalizedPoint : Point) -> tuple[int, int]:
+        """converts a point of relative coordinates to a tuple of screen coordinates
+
+        Args:
+            normalizedPoint (Point): gets a point of the class Point
+
+        Returns:
+            tuple[int, int]: a tuple of absolute coordinates on the screen.
+        """
         return (self.convertFloatToWidth(normalizedPoint.getX()), self.convertFloatToWidth(normalizedPoint.getY()))
     
 

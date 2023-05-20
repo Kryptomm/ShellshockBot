@@ -129,9 +129,9 @@ class GameEnvironment:
         return int(wind), self.getWindRichtung()
 
     def pressButton(self, button : tuple[str, Box]) -> None:
-        readyButton = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
-        if readyButton == None: return
-        pyautogui.click(readyButton[0],readyButton[1])
+        button = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
+        if button == None: return
+        pyautogui.click(button[0],button[1])
         pyautogui.click(5,5)
     
     def inLobby(self):
