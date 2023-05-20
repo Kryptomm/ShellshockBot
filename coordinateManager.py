@@ -56,19 +56,51 @@ class Point:
 
 class Box:
     def __init__(self, upper_x : float, upper_y : float, bottom_x : float, bottom_y : float)  -> None:
+        """a simple class for a 2D box
+
+        Args:
+            upper_x (float): x coordinate of upper left Point
+            upper_y (float): y coordinate of upper left Point
+            bottom_x (float): x coordinate of bottom right Point
+            bottom_y (float): y coordinate of bottom right Point
+        """
         self.__upperLeft = Point(upper_x, upper_y)
         self.__bottomRight = Point(bottom_x, bottom_y)
         
     def getUpperLeft(self) -> Point:
+        """gets upper left Point
+
+        Returns:
+            Point: point class of upper left Point boundarie
+        """
         return self.__upperLeft
     
     def getBottomRight(self) -> Point:
+        """gets bottom right Point
+
+        Returns:
+            Point: point class of bottom right Point boundarie
+        """
         return self.__bottomRight
     
     def getBoundaries(self) -> tuple[float, float, float, float]:
+        """get all boundaries at once
+
+        Returns:
+            tuple[float, float, float, float]: _description_
+        """
         return (self.__upperLeft.getX(), self.__upperLeft.getY(), self.__bottomRight.getX(), self.__bottomRight.getY())
     
     def getBoundariesNormalized(self, coordinateManager) -> tuple[int, int, int, int]:
+        """get the boundaries normalized to the screen resolution
+        perfect for screenshots
+
+        Args:
+            coordinateManager (_type_): initialized CoordinateManager class
+
+        Returns:
+            tuple[int, int, int, int]: returns as (upperx,uppery,bottomx,bottomy)
+        """
         return (coordinateManager.convertFloatToWidth(self.__upperLeft.getX()),
                 coordinateManager.convertFloatToHeigth(self.__upperLeft.getY()),
                 coordinateManager.convertFloatToWidth(self.__bottomRight.getX()),
@@ -76,6 +108,15 @@ class Box:
         
     
     def isPointInBoundaries(self, point : Point) -> bool:
+        """checks if a point is in the given boundaries only based on their values
+        will not convert it automatically to relative coordinates if they arent already
+
+        Args:
+            point (Point): a point to check if it is in the box
+
+        Returns:
+            bool: True if it is in the box
+        """
         x, y = point.getPos()
         x1, y1 = self.__upperLeft.getPos()
         x2, y2 = self.__bottomRight.getPos()
