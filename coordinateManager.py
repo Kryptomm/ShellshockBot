@@ -2,22 +2,53 @@ from pyautogui import size
 
 class Point:
     def __init__(self, x : float, y : float) -> None:
+        """a simple class for a 2D Point
+
+        Args:
+            x (float): x coordinate
+            y (float): y coordinate
+        """        
         self.__x = x
         self.__y = y
     
     def setX(self, x : float) -> None:
+        """sets the x coordinate
+
+        Args:
+            x (float): x coordinate
+        """
         self.__x = x
         
     def setY(self, y : float) -> None:
+        """sets the y coordinate
+
+        Args:
+            y (float): y coordinate
+        """
         self.__y = y
     
     def getX(self) -> float:
+        """getter fot the x Coordinate
+
+        Returns:
+            float: x coordinate
+        """
         return self.__x
     
     def getY(self) -> float:
+        """getter fot the y Coordinate
+
+        Returns:
+            float: y coordinate
+        """
         return self.__y
     
     def getPos(self) -> tuple[float, float]:
+        """getter for both position as a vector
+
+        Returns:
+            tuple[float, float]: returns x,y as (x,y)
+        """
         return (self.getX(), self.getY())
     
     def __repr__(self) -> str:
