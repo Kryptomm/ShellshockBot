@@ -2,6 +2,6 @@ __pycache__/
 .vs/
 build/
 dist/
-sonstiges/
 
+*test*.py
 **.spec**
