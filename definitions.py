@@ -112,7 +112,10 @@ RULES = """
                 -Obstacles: Med / Secure: Low
             Aktiviere den Bot in der Lobby und sei nicht bereit!
         """
-        
+
+
+
+
 if __name__ == "__main__":
     output = ""
     for i,w in enumerate(WEPS["normal"]):

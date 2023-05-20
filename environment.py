@@ -7,6 +7,11 @@ from definitions import WEPS
 
 class GameEnvironment:
     def __init__(self, coordManager : CoordinateManager) -> None:
+        """a class for managing the Environment like pressing buttons or read out text
+
+        Args:
+            coordManager (CoordinateManager): an initlaized CoordinateManager class
+        """        
         self.coordManager = coordManager
         
         self.__WEAPONPIXELS = self.__loadPixelData('data/WeaponPixels.txt') 
@@ -20,9 +25,15 @@ class GameEnvironment:
         self.isShootingState = False
         self.inLobbyState = False
         
-        print("Game Environment ready to go")
-        
-    def __loadPixelData(self, path : str) -> None:
+    def __loadPixelData(self, path : str) -> list[list[int], str, int]:
+        """loads data out of a txt file for KNN-Recognition
+
+        Args:
+            path (str): path to the txt file
+
+        Returns:
+            list[list[int], str, int]: a list of all the data
+        """
         file = open(path, 'r')
         Lines = file.readlines()
         data = []
@@ -41,6 +52,11 @@ class GameEnvironment:
         return data
     
     def __makeScreenFromWeapons(self) -> Image:
+        """makes a screenshot and applies different filters for weapon recognition
+
+        Returns:
+            Image: returns the edited image
+        """
         screenshotBoundarie = self.coordManager.WEAPON_FIELD.getBoundariesNormalized(self.coordManager)
         cap = ImageGrab.grab(bbox = (screenshotBoundarie[0],screenshotBoundarie[1],screenshotBoundarie[2],screenshotBoundarie[3]))
         filter = ImageEnhance.Color(cap)
@@ -59,6 +75,11 @@ class GameEnvironment:
         return newCap
 
     def __makeScreenFromWind(self) -> Image:
+        """makes a screenshot and applies different filters for wind recognition
+
+        Returns:
+            Image: returns the edited image
+        """
         screenshotBoundarie = self.coordManager.WIND_FIELD.getBoundariesNormalized(self.coordManager)
         cap = ImageGrab.grab(bbox = (screenshotBoundarie[0],screenshotBoundarie[1],screenshotBoundarie[2],screenshotBoundarie[3]))
 
@@ -78,6 +99,14 @@ class GameEnvironment:
         return newCap
 
     def __convertTo1DArray(self, cap):
+        """generates a screenshot to a list of ones and zeros based on gray-scale value
+
+        Args:
+            cap (_type_): an image that was edited already
+
+        Returns:
+            (list, int): returns the list ones and zeros and number of ones
+        """
         arr = []
         num = 0
         for x in range(cap.width):
@@ -88,7 +117,7 @@ class GameEnvironment:
                     arr.append(1)
                     num += 1
                 else: arr.append(0)
-        return arr, num
+        return (arr, num)
     
     def getSelectedWeapon(self) -> tuple[str, str]:
         cap = self.__makeScreenFromWeapons()
