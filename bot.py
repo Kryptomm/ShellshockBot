@@ -6,6 +6,7 @@ from definitions import RULES
 from environment import GameEnvironment
 from coordinateManager import CoordinateManager
 from tank import Tank, friendlyTank
+from botThreads import initThreads
 
 DEBUG = True
 
@@ -75,6 +76,8 @@ def main() -> None:
     
     coordManager = CoordinateManager()
     gameEnvironment = GameEnvironment(coordManager)
+    
+    initThreads(coordManager, gameEnvironment)
     
     if gameEnvironment.inLobby() == False and not DEBUG:
         print("Starte von der Lobby aus!")

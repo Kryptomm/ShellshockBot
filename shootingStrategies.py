@@ -77,8 +77,8 @@ def __isCoordinateHitting(x : float, y : float, tank) -> bool:
     Returns:
         bool: _description_
     """
-    if not (tank.getXCoordinate() - EPSILON <= x <= tank.getXCoordinate() + EPSILON): return False
-    if not (tank.getYCoordinate() - EPSILON <= y <= tank.getYCoordinate() + EPSILON): return False
+    if not (tank.getXCoordinate() - EPSILON       <= x <= tank.getXCoordinate() + EPSILON):       return False
+    if not (tank.getYCoordinate() - EPSILON * 0.5 <= y <= tank.getYCoordinate() + EPSILON * 0.5): return False
     return True
 
 def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordManager : CoordinateManager, myTank, enemyTank) -> bool:
