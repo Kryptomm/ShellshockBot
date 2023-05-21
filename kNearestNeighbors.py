@@ -1,6 +1,4 @@
 from math import sqrt
-from random import random, randint
-import time
 from threading import Thread
 
 def hammingDistanceModified(vec1, vec2, numVec1, numVec2):

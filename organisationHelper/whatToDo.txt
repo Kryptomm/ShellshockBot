@@ -3,5 +3,4 @@ Priority in descending order:
 -correct ready pushing
 -stop detecting the red triangle about yourself as an enemy
 -gear detection
--comment the code (Done: Tank.py, environment.py, coordinateManager.py, shootingStrategies.py) (Todo: Bot.py, kNearestNeighbors.py)
 -appropriate print statements
