@@ -1,5 +1,6 @@
 import kNearestNeighbors as knn
 import pyautogui
+import threading
 
 from coordinateManager import CoordinateManager, Box
 from PIL import Image, ImageEnhance, ImageGrab
@@ -22,9 +23,39 @@ class GameEnvironment:
         self.NotFireButton : str = ("Images/NotFireButton.png", coordManager.FIRE_BUTTON)
         self.ReadyButton : str = ("Images/ReadyButton.png", coordManager.READY_BUTTON)
         
-        self.isShootingState = False
-        self.inLobbyState = False
-        
+        self.__isShootingState = False
+        self.shootingStateEvent = threading.Event()
+        self.__inLobbyState = False
+        self.lobbyStateEvent = threading.Event()
+    
+    @property
+    def isShootingState(self) -> bool:
+        return self.__isShootingState
+    
+    @isShootingState.setter
+    def isShootingState(self, value : bool) -> None:
+        self.__isShootingState = value
+        if value:
+            self.shootingStateEvent.set()
+        elif not value:
+            self.shootingStateEvent.clear()
+        else:
+            raise TypeError()
+
+    @property
+    def inLobbyState(self) -> bool:
+        return self.__inLobbyState 
+    
+    @inLobbyState.setter
+    def inLobbyState(self, value : bool) -> None:
+        self.__inLobbyState = value
+        if value:
+            self.lobbyStateEvent.set()
+        elif not value:
+            self.lobbyStateEvent.clear()
+        else:
+            raise TypeError()
+    
     def __loadPixelData(self, path : str) -> list[list[int], str, int]:
         """loads data out of a txt file for KNN-Recognition
 
