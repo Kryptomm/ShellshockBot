@@ -120,6 +120,11 @@ class GameEnvironment:
         return (arr, num)
     
     def getSelectedWeapon(self) -> tuple[str, str]:
+        """reads out the screen for the current selected weapon
+
+        Returns:
+            tuple[str, str, int]: returns (weapon_name, weapon_category, extra_information like delta angle)
+        """
         cap = self.__makeScreenFromWeapons()
         arr, ones = self.__convertTo1DArray(cap)
         new_point = arr
@@ -134,7 +139,12 @@ class GameEnvironment:
                 if wep == wep_str: return wep, wep_cat, extra_information
         return ("shot", "normal", None)
     
-    def getWindRichtung(self) -> int:
+    def __getWindRichtung(self) -> int:
+        """reads out the screen for the current wind direction
+
+        Returns:
+            int: returns 1 for right, -1 for left, 1 is default to not mess up calculations
+        """
         windFieldLeftBoundaries = self.coordManager.WIND_FIELD_LEFT.getBoundariesNormalized(self.coordManager)
         windFieldRightBoundaries = self.coordManager.WIND_FIELD_RIGHT.getBoundariesNormalized(self.coordManager)
         
@@ -151,19 +161,35 @@ class GameEnvironment:
         return richtung
     
     def getWind(self) -> tuple[int, int]:
+        """reads out the screen for the current wind and direction
+
+        Returns:
+            tuple[int, int]: returns the wind as an absolute value and the wind direction it goes in. 68 to the left would be (68,-1)
+        """
         cap = self.__makeScreenFromWind()
         arr, ones = self.__convertTo1DArray(cap)
         new_point = arr
         wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, ones, fixedK=1)
-        return int(wind), self.getWindRichtung()
+        return int(wind), self.__getWindRichtung()
 
     def pressButton(self, button : tuple[str, Box]) -> None:
+        """presses a button that. Only presses is button is present on the screen
+
+        Args:
+            button (tuple[str, Box]): _description_
+        """
         button = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
         if button == None: return
         pyautogui.click(button[0],button[1])
         pyautogui.click(5,5)
     
-    def inLobby(self):
+    def inLobby(self) -> bool:
+        """checks the screen if it is in the currently in the lobby
+        will set the inLobby State according to it, but will also return it
+
+        Returns:
+            bool: True if in lobby, else False
+        """
         inLobby = pyautogui.locateOnScreen(self.ReadyButton[0], grayscale=True, confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
         if inLobby:
             self.inLobbyState = True
@@ -172,7 +198,12 @@ class GameEnvironment:
             self.inLobbyState = False
             return False
         
-    def inLoadingScreen(self):
+    def inLoadingScreen(self) -> bool:
+        """chcecks the screen if it is in the loading Screen
+
+        Returns:
+            bool: True if in loading screen. else False
+        """
         FireButton = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
         NotFireButton = pyautogui.locateOnScreen(self.NotFireButton[0], confidence=0.9, region=self.NotFireButton[1].getBoundariesNormalized(self.coordManager))
         ReadyButton = pyautogui.locateOnScreen(self.ReadyButton[0], confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
@@ -182,7 +213,12 @@ class GameEnvironment:
             return True
         return False
     
-    def isMyTurn(self):
+    def isMyTurn(self) -> bool:
+        """chcecks the screen if it is my turn to play
+
+        Returns:
+            bool: True if it my turn, else False
+        """
         myTurn = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
         if myTurn == None:
             return False
