@@ -102,6 +102,15 @@ class Tank:
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
 
     def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
+        """updates the coordinates of the tank by doing breathsearch on the screen from the last position
+        updates them automatically but also returns them. Position may be inaccurate by a few pixels.
+
+        Args:
+            everyPixel (int, optional): _description_. Defaults to 3.
+
+        Returns:
+            Point: Point class of the current position
+        """
         myPosX = self.absX
         myPosY = self.absY
         
