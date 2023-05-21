@@ -10,6 +10,14 @@ from tank import Tank, friendlyTank
 DEBUG = True
 
 def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
+    """Runs as long as one game is going. Automatically assigns tanks to given boxes,
+    shoots the friendlyTank and moves it.
+    sends you back to the lobby and fast forwards the loading screen.
+
+    Args:
+        coordManager (CoordinateManager): initialized coordinateManager class
+        gameEnvironment (GameEnvironment): initialized GameEnvironment class
+    """    
     myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
@@ -44,6 +52,12 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         gameEnvironment.isShootingState = False
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
+    """Takes control over everything that is happening in the lobby as pushing ready and waiting there until the game started
+
+    Args:
+        coordManager (CoordinateManager): initialized coordinateManager class
+        gameEnvironment (GameEnvironment): initialized GameEnvironment class
+    """
     while True:
         gameEnvironment.pressButton(gameEnvironment.ReadyButton)
         
@@ -55,6 +69,8 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
         gameEnvironment.inLobbyState = True
 
 def main() -> None:
+    """Initializes everything and starts up the bot
+    """
     print(RULES)
     
     coordManager = CoordinateManager()
