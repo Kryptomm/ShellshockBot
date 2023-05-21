@@ -30,10 +30,23 @@ class GameEnvironment:
     
     @property
     def isShootingState(self) -> bool:
+        """returns if the envioronment is currently in a state where the tank is shooting
+
+        Returns:
+            bool: True if shooting, else False
+        """
         return self.__isShootingState
     
     @isShootingState.setter
     def isShootingState(self, value : bool) -> None:
+        """Sets the state to the wished value. Also sets the flag accordingly for threads to work with
+
+        Args:
+            value (bool): True or False if in Shooting State
+
+        Raises:
+            TypeError: if not True or False
+        """
         self.__isShootingState = value
         if value:
             self.shootingStateEvent.set()
@@ -44,10 +57,23 @@ class GameEnvironment:
 
     @property
     def inLobbyState(self) -> bool:
+        """returns if the envioronment is currently in a state where they are in the lobby
+
+        Returns:
+            bool: True if in lobby, else False
+        """
         return self.__inLobbyState 
     
     @inLobbyState.setter
     def inLobbyState(self, value : bool) -> None:
+        """Sets the state to the wished value. Also sets the flag accordingly for threads to work with
+
+        Args:
+            value (bool): True or False if in Lobby
+
+        Raises:
+            TypeError: if not True or False
+        """
         self.__inLobbyState = value
         if value:
             self.lobbyStateEvent.set()
