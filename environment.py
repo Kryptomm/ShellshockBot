@@ -40,6 +40,8 @@ class GameEnvironment:
     @isShootingState.setter
     def isShootingState(self, value : bool) -> None:
         """Sets the state to the wished value. Also sets the flag accordingly for threads to work with
+        Event will be flagged to true when the value is False.
+        When you are shooting, the flag will be false so no thread is currently working.
 
         Args:
             value (bool): True or False if in Shooting State
@@ -49,9 +51,9 @@ class GameEnvironment:
         """
         self.__isShootingState = value
         if value:
-            self.shootingStateEvent.set()
-        elif not value:
             self.shootingStateEvent.clear()
+        elif not value:
+            self.shootingStateEvent.set()
         else:
             raise TypeError()
 
@@ -67,6 +69,8 @@ class GameEnvironment:
     @inLobbyState.setter
     def inLobbyState(self, value : bool) -> None:
         """Sets the state to the wished value. Also sets the flag accordingly for threads to work with
+        Event will be flagged to true when the value is False.
+        When you are in the Lobby, the flag will be false so no thread is currently working.
 
         Args:
             value (bool): True or False if in Lobby
@@ -76,9 +80,9 @@ class GameEnvironment:
         """
         self.__inLobbyState = value
         if value:
-            self.lobbyStateEvent.set()
-        elif not value:
             self.lobbyStateEvent.clear()
+        elif not value:
+            self.lobbyStateEvent.set()
         else:
             raise TypeError()
     
