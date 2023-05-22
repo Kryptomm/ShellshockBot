@@ -4,7 +4,7 @@ from pyautogui import click, FAILSAFE, FailSafeException
 import colors
 from definitions import RULES
 from environment import GameEnvironment
-from coordinateManager import CoordinateManager
+from coordinateManager import CoordinateManager, Box
 from tank import Tank, friendlyTank
 from botThreads import initThreads
 
@@ -24,7 +24,8 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     
     sleep(8)
     myTank.getAverageCoordinatesBreadth()
-    enemyTank.getAverageCoordinatesBreadth()
+    hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
+    enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
     
     while True:
         while not gameEnvironment.isMyTurn():
@@ -34,6 +35,8 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         gameEnvironment.isShootingState = True
         
         myTank.getAverageCoordinatesBreadth()
+        hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
+        enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
         enemyTank.getAverageCoordinatesBreadth()
         
         if myTank.getXCoordinate() <= enemyTank.getXCoordinate():

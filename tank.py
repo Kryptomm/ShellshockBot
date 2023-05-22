@@ -101,12 +101,13 @@ class Tank:
         """
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
 
-    def getAverageCoordinatesBreadth(self, everyPixel=3) -> Point:
+    def getAverageCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> Point:
         """updates the coordinates of the tank by doing breathsearch on the screen from the last position
         updates them automatically but also returns them. Position may be inaccurate by a few pixels.
 
         Args:
-            everyPixel (int, optional): _description_. Defaults to 3.
+            everyPixel (int, optional): skips all the pixels in between for much better performance. Defaults to 3.
+            hideRegions (list[Box], optional): a list of boxes, that is going to be hidden
 
         Returns:
             Point: Point class of the current position
@@ -117,6 +118,18 @@ class Tank:
         gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
         
         s = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
+        
+        #regions to cover
+        if hideRegions == None:
+            hideRegions = []
+            
+        for region in hideRegions:
+            regionBoundarie = region.getBoundariesNormalized(self.coordManager)
+            for x in range(regionBoundarie[0],regionBoundarie[2]):
+                for y in range(regionBoundarie[1],regionBoundarie[3]):
+                    s.putpixel((x,y),(0,0,0))
+        s.save("testBild.png")
+        
         q = deque()
         visited = set()
         
@@ -342,7 +355,6 @@ if __name__ == "__main__":
     
 
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
-    print(myTank.updateAndGetExcactPosition())
-    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3))
-    
-    myTank.shoot(enemyTank)
+    hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
+    print(hideRegion)
+    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3, hideRegions = [hideRegion]))

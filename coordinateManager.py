@@ -125,6 +125,9 @@ class Box:
             return True
         else:
             return False
+        
+    def __repr__(self) -> str:
+        return f"{self.__upperLeft} | {self.__bottomRight}"
 
 class CoordinateManager:
     def __init__(self) -> None:
