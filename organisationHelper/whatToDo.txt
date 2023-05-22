@@ -1,6 +1,5 @@
 Priority in descending order:
 
 -correct ready pushing
--stop detecting the red triangle about yourself as an enemy
 -gear detection
 -appropriate print statements

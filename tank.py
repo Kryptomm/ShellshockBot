@@ -128,8 +128,7 @@ class Tank:
             for x in range(regionBoundarie[0],regionBoundarie[2]):
                 for y in range(regionBoundarie[1],regionBoundarie[3]):
                     s.putpixel((x,y),(0,0,0))
-        s.save("testBild.png")
-        
+
         q = deque()
         visited = set()
         
