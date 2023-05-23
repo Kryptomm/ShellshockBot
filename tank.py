@@ -176,7 +176,7 @@ class Tank:
 
         self.absX = minD[0]
         self.absY = minD[1]
-        print(minD)
+
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
     def isInSameSpot(self) -> bool:
@@ -193,7 +193,7 @@ class Tank:
             for y in range(0, s.height, 1):
                 color = s.getpixel((x, y))
                 smallestD = min(numpy.linalg.norm(numpy.array(color) - numpy.array(self.color)), smallestD)
-        print(smallestD)
+
         if smallestD <= 15: return True
         return False
 

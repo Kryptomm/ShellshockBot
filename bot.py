@@ -19,10 +19,14 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         coordManager (CoordinateManager): initialized coordinateManager class
         gameEnvironment (GameEnvironment): initialized GameEnvironment class
     """    
+    #initialize Tanks
     myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
+    #Wait until screen is fully there
     sleep(8)
+    
+    #Search for the first time
     myTank.getAverageCoordinatesBreadth()
     hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
     enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
@@ -34,10 +38,11 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             
         gameEnvironment.isShootingState = True
         
-        myTank.getAverageCoordinatesBreadth()
-        hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-        enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
-        enemyTank.getAverageCoordinatesBreadth()
+        if not myTank.isInSameSpot():
+            myTank.getAverageCoordinatesBreadth()
+        if not enemyTank.isInSameSpot():
+            hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
+            enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
         
         if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
             myTank.BOUNDARIES = coordManager.TANK1BOX
