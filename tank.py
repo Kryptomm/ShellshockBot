@@ -131,7 +131,7 @@ class Tank:
 
         q = deque()
         visited = set()
-        
+
         q.append(myPosX)
         q.append(myPosY)
         
