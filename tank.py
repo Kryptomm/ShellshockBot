@@ -1,5 +1,6 @@
 import numpy
 import shootingStrategies
+import colors
 from collections import deque
 from pyautogui import press, click, screenshot, keyDown, keyUp
 from time import sleep
@@ -175,9 +176,26 @@ class Tank:
 
         self.absX = minD[0]
         self.absY = minD[1]
-
+        print(minD)
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
+    def isInSameSpot(self) -> bool:
+        """Checks if a tank is still in the spot as it was before. It can be used to skip searching the screen for it
+
+        Returns:
+            bool: True if tank has not moved, False if it has
+        """
+        delta = self.coordManager.SAMETANKBOX.getBoundariesNormalized(self.coordManager)
+        s = ImageGrab.grab(bbox = (self.absX + delta[0], self.absY + delta[1], self.absX + delta[2], self.absY + delta[3]))
+
+        smallestD = float("inf")
+        for x in range(0, s.width, 1):
+            for y in range(0, s.height, 1):
+                color = s.getpixel((x, y))
+                smallestD = min(numpy.linalg.norm(numpy.array(color) - numpy.array(self.color)), smallestD)
+        print(smallestD)
+        if smallestD <= 15: return True
+        return False
 
 class friendlyTank(Tank):
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -346,14 +364,9 @@ class friendlyTank(Tank):
         return True
     
 if __name__ == "__main__":
-    sleep(2)
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    myTank = friendlyTank((36, 245, 41), CM, GE)
-    enemyTank = Tank((194,3,3), CM)
-    
-    print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
-    hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-    print(hideRegion)
-    print(enemyTank.getAverageCoordinatesBreadth(everyPixel=3, hideRegions = [hideRegion]))
+    sleep(1)
+    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE)
+    enemyTank = Tank(colors.ENEMY_TANK, CM)
