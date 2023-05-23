@@ -6,6 +6,7 @@ from time import sleep
 from coordinateManager import CoordinateManager, Point, Box
 from environment import GameEnvironment
 from PIL import ImageEnhance, ImageGrab
+from decorators import timeit
 
 def pressKey(amount : int, key : str) -> None:
     """Presses a given key on the keyboard x times.
@@ -352,7 +353,6 @@ if __name__ == "__main__":
     myTank = friendlyTank((36, 245, 41), CM, GE)
     enemyTank = Tank((194,3,3), CM)
     
-
     print(myTank.getAverageCoordinatesBreadth(everyPixel=3))
     hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
     print(hideRegion)
