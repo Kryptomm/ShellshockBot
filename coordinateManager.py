@@ -145,7 +145,7 @@ class CoordinateManager:
         self.GAME_FIELD         = Box(0,         0,         1,         0.851852)
         self.TANK1BOX           = Box(0.260417,  -1,        0.364583,  2)
         self.TANK2BOX           = Box(0.635417,  -1,        0.739583,  2)
-        self.SAMETANKBOX        = Box(-0.03,      -0.03,      0.03,      0.03)
+        self.SAMETANKBOX        = Box(-0.02,      -0.02,    0.02,    0.02)
         
         self.RADIUS             = 0.178646 #dependent from width of the screen
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen

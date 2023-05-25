@@ -1,6 +1,4 @@
 Priority in descending order:
 
--correct ready pushing
 -gear detection
--method to determine if tank is still on same spot without searching the whole fucking screen
 -appropriate print statements

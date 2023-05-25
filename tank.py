@@ -129,7 +129,8 @@ class Tank:
             regionBoundarie = region.getBoundariesNormalized(self.coordManager)
             for x in range(regionBoundarie[0],regionBoundarie[2]):
                 for y in range(regionBoundarie[1],regionBoundarie[3]):
-                    s.putpixel((x,y),(0,0,0))
+                    try: s.putpixel((x,y),(0,0,0))
+                    except: pass
 
         q = deque()
         visited = set()
