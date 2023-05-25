@@ -103,7 +103,7 @@ class Tank:
         """
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
 
-    def getAverageCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> Point:
+    def getAverageCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> tuple[Point, int]:
         """updates the coordinates of the tank by doing breathsearch on the screen from the last position
         updates them automatically but also returns them. Position may be inaccurate by a few pixels.
 
@@ -113,6 +113,7 @@ class Tank:
 
         Returns:
             Point: Point class of the current position
+            int: the closest distance of the color to another color
         """
         myPosX = self.absX
         myPosY = self.absY
@@ -178,7 +179,7 @@ class Tank:
         self.absX = minD[0]
         self.absY = minD[1]
 
-        return Point(self.getXCoordinate(), self.getYCoordinate())
+        return (Point(self.getXCoordinate(), self.getYCoordinate()), minD[2])
     
     def isInSameSpot(self) -> bool:
         """Checks if a tank is still in the spot as it was before. It can be used to skip searching the screen for it

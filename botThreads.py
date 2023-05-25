@@ -1,9 +1,11 @@
 import colors
 
+from pyautogui import moveTo
 from threading import Thread
 from time import sleep
 from coordinateManager import CoordinateManager
 from environment import GameEnvironment
+from tank import Tank
 
 """
 Threads should only run if the bot is currently waiting for something
@@ -18,15 +20,20 @@ def __gearDetection(coordManager : CoordinateManager, gameEnvironment : GameEnvi
     Args:
         coordManager (CoordinateManager): initialized CoordinateManager Class
         gameEnvironment (GameEnvironment): initialized GameEnvironment Class
-    """    """"""
+    """
+    
+    #Take a Tank as a blueprint for the gear since it has every function a gear needs.
+    gear = Tank(colors.GEAR, coordManager)
+    
     while True:
         gameEnvironment.shootingStateEvent.wait()
         gameEnvironment.lobbyStateEvent.wait()
 
-        #Implement gear detection here
-        
-        
-        sleep(0.01)
+        _, colorDistance = gear.getAverageCoordinatesBreadth()
+        if colorDistance <= 15:
+            moveTo(gear.absX, gear.absY)
+        else:
+            sleep(0.01)
 
 thread_methods = [__gearDetection]
 
