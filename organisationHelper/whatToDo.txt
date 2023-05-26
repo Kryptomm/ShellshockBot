@@ -1,6 +1,5 @@
 Priority in descending order:
 
 -ground avoidance
--x3 picture
 -bumper detection
 -appropriate print statements

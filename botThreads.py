@@ -23,7 +23,7 @@ def __gearDetection(coordManager : CoordinateManager, gameEnvironment : GameEnvi
     """
     
     #Take a Tank as a blueprint for the gear since it has every function a gear needs.
-    gear = Tank(colors.GEAR, coordManager)
+    gear = Tank(colors.GEAR, coordManager, name="Gear")
     
     while True:
         gameEnvironment.shootingStateEvent.wait()

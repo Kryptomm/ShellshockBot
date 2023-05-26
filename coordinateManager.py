@@ -1,4 +1,5 @@
 from pyautogui import size
+from decorators import timeit
 
 class Point:
     def __init__(self, x : float, y : float) -> None:
@@ -136,13 +137,16 @@ class Box:
             return False
         
     def __repr__(self) -> str:
-        return f"{self.__upperLeft} | {self.__bottomRight}"
+        return f"Upperleft: ({self.__upperLeft}) | BottomRight: ({self.__bottomRight})"
 
 class CoordinateManager:
+    @timeit("Class: CoordinateManager __init__")
     def __init__(self) -> None:
         """A class where all needed coordinates are already preset
         """
         self.__screenWidth, self.__screenHeigth = size()
+        self.__heigthWidthRatio = self.__screenHeigth / self.__screenWidth
+        self.__widthHeightRatio = self.__screenWidth / self.__screenHeigth
         
         self.READY_BUTTON       = Box(0.582813,  0.789815,  0.854167,  0.999074)
         self.FIRE_BUTTON        = Box(0.534375,  0.865741,  0.735417,  0.991667)
@@ -180,6 +184,22 @@ class CoordinateManager:
             int: return screen heigth in absolute units
         """
         return self.__screenHeigth
+    
+    def getHeigthWidthRatio(self) -> float:
+        """getter for the ratio between heigth and width
+
+        Returns:
+            float: ratio between heigth and width
+        """
+        return self.__heigthWidthRatio
+    
+    def getWidthHeightRatio(self) -> float:
+        """getter for the ratio between width and heigth
+
+        Returns:
+            float: ratio between width and heigth
+        """
+        return self.__widthHeightRatio
     
     def convertFloatToWidth(self, normalizedNumber : float) -> int:
         """converts a float number to an absolute number of width
@@ -236,6 +256,8 @@ class CoordinateManager:
         """
         return (self.convertFloatToWidth(normalizedPoint.getX()), self.convertFloatToWidth(normalizedPoint.getY()))
     
+    def __repr__(self) -> str:
+        return f"Width: {self.__screenWidth} | Heigth: {self.__screenHeigth}"
 
 
 if __name__ == "__main__":

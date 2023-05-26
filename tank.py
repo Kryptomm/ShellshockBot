@@ -30,7 +30,7 @@ def holdKey(time : float, key : str) -> None:
     keyUp(key)
 
 class Tank:
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager):
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank"):
         """Tank class to store variables as position and color
         to quickly find them and also convert coordinates to absolute units
         and relative units.
@@ -42,6 +42,7 @@ class Tank:
         self.__position : Point = Point(0.5, 0.5)
         self.color = color
         self.coordManager = coordManager
+        self.__name = name
     
     def setPosition(self, position : Point) -> None:
         """Sets the position to a new point
@@ -110,7 +111,7 @@ class Tank:
             value (int): absolute y position
         """
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
-
+    
     def getAverageCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> tuple[Point, int]:
         """updates the coordinates of the tank by doing breathsearch on the screen from the last position
         updates them automatically but also returns them. Position may be inaccurate by a few pixels.
@@ -206,9 +207,12 @@ class Tank:
 
         if smallestD <= 15: return True
         return False
+    
+    def __repr__(self) -> str:
+        return f"{self.__name}: | Positon: {self.__position}"
 
 class friendlyTank(Tank):
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment, name : str = "friendlyTank") -> None:
         """Addition to tank class. Can also control a tank. It has the ability to shoot and move your cannon.
 
         Args:
@@ -216,7 +220,7 @@ class friendlyTank(Tank):
             coordManager (CoordinateManager): initialized CoordinateManager class
             gameEnvironment (GameEnvironment): initialized GameEnvironment class
         """
-        super().__init__(color, coordManager)
+        super().__init__(color, coordManager, name=name)
         
         self.BOUNDARIES : Box = None
         self.__lastAngle : int = 0
@@ -383,6 +387,10 @@ class friendlyTank(Tank):
         else: holdKey(1.25, "a")
         return True
     
+    def __repr__(self) -> str:
+        baseRepr = super().__repr__()
+        return f"{baseRepr} | Angle,Power: {(self.__lastAngle, self.__lastStrength)} "
+
 if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)

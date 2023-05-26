@@ -5,8 +5,10 @@ import threading
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
 from definitions import WEPS
+from decorators import timeit
 
 class GameEnvironment:
+    @timeit("Class: GameEnvironment __init__")
     def __init__(self, coordManager : CoordinateManager) -> None:
         """a class for managing the Environment like pressing buttons or read out text
 
@@ -111,10 +113,7 @@ class GameEnvironment:
             d = txt.split(" ")
             for i in range(2,len(d)):
                 d[i] = int(d[i])
-            data.append([d[2:], d[0].replace("#"," "), int(d[1])])
-            if count % 30 == 0: print(f"{count} von {len(Lines)} geladen")
-        print(f"{count} von {len(Lines)} geladen")
-        
+            data.append([d[2:], d[0].replace("#"," "), int(d[1])])        
         return data
     
     def __makeScreenFromWeapons(self) -> Image:

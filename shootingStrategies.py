@@ -2,10 +2,11 @@ import math
 
 from typing import Union
 from coordinateManager import CoordinateManager, Point
+from decorators import timeit
 
 GRAVITY = 0.359413
 WIND_FACTOR = 0.000252 / 2
-EPSILON = 0.015
+EPSILON = 0.01
 MINTIME = 0
 MAXTIME = 10
 ITERATIONS = 15
@@ -13,6 +14,7 @@ ITERATIONS = 15
 MIN_STRENGTH = 20
 MAX_STRENGTH = 100
 
+@timeit("Calculate Angle and Power", print_result=True)
 def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffPosition, CM : CoordinateManager) -> tuple[int,int]:
     """based on Tank positions and wind and the weapon data, it generates the perfect angle and strength to shoot the enemy at
 
@@ -60,7 +62,7 @@ def __calculatePosition(angle : int, strength : int ,wind : int, time : float, c
     strength = 0.009133*strength - 0.0009244
     wind = WIND_FACTOR*wind
     
-    x = (strength * coordManager.getScreenHeigth() / coordManager.getScreenWidth() * math.cos(angle) + wind * time) * time + x_offset
+    x = (strength * coordManager.getHeigthWidthRatio() * math.cos(angle) + wind * time) * time + x_offset
     y = -1* (strength * math.sin(angle) * time - 0.5 * GRAVITY * time**2) + y_offset
     
     return x,y
@@ -207,7 +209,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
     hittingPosition = (angle, 100)
     foundOne = False
     for i in range(0,20):
-        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+        for s in range(MIN_STRENGTH,MAX_STRENGTH):
             if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
                 if not foundOne:
                     hittingPosition = (angle-i, s)
@@ -215,7 +217,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
                     return hittingPosition
             
     for i in range(0,20):
-        for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
+        for s in range(MIN_STRENGTH,MAX_STRENGTH):
             if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
                 if not foundOne:
                     hittingPosition = (angle-i, s)
