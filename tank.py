@@ -306,10 +306,11 @@ class friendlyTank(Tank):
             buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
             
         buffTank = None
-        if not (buffPosition == None):
+        if buffPosition:
             buffTank = Tank((0,0,0), self.coordManager)
             buffTank.setPosition(buffPosition)
-    
+            print(f"Buff found at {buffTank.getPosition()}")
+        
         angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
         
         if weapon_category != "instant":
@@ -400,3 +401,4 @@ if __name__ == "__main__":
     sleep(1)
     myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE)
     enemyTank = Tank(colors.ENEMY_TANK, CM)
+    

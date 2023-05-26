@@ -42,10 +42,12 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         
         if not myTank.isInSameSpot():
             myTank.getAverageCoordinatesBreadth()
-            
+        print(myTank)
+        
         if not enemyTank.isInSameSpot():
             hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
             enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
+        print(enemyTank)
         
         if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
             myTank.BOUNDARIES = coordManager.TANK1BOX
@@ -61,10 +63,6 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             pass
         
         myTank.shoot(enemyTank)
-        
-        print(myTank)
-        print(enemyTank)
-        
         gameEnvironment.isShootingState = False
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:

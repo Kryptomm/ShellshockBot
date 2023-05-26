@@ -2,4 +2,3 @@ Priority in descending order:
 
 -ground avoidance
 -bumper detection
--appropriate print statements

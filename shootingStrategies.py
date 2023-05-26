@@ -148,15 +148,19 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
                 if not foundOne:
                     hittingPosition = (angle - i, s)
                 if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, buffTank):
+                    if buffTank:
+                        print("Found a way to hit Buff AND Enemy")
                     return hittingPosition
             
             if __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank):
                 if not foundOne:
                     hittingPosition = (angle + i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    if buffTank:
+                        print("Found a way to hit Buff AND Enemy")
                     return hittingPosition
                     
-    #Einfach davon ausgehen das sowieso was hittet
+    print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
     return hittingPosition
 
 def __straight(myTank, enemyTank) -> tuple[int,int]:
@@ -214,6 +218,8 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
                 if not foundOne:
                     hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    if buffTank:
+                        print("Found a way to hit Buff AND Enemy")
                     return hittingPosition
             
     for i in range(0,20):
@@ -222,9 +228,11 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
                 if not foundOne:
                     hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    if buffTank:
+                        print("Found a way to hit Buff AND Enemy")
                     return hittingPosition
             
-    #Einfach davon ausgehen das sowieso was hittet
+    print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
     return hittingPosition
 
 def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -> tuple[int,int]:
@@ -252,6 +260,8 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
                 if not foundOne:
                     hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    if buffTank:
+                        print("Found a way to hit Buff AND Enemy")
                     return hittingPosition
             
     for i in range(0,20):
@@ -260,9 +270,11 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
                 if not foundOne:
                     hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    if buffTank:
+                        print("Found a way to hit Buff AND Enemy")
                     return hittingPosition
             
-    #Einfach davon ausgehen das sowieso was hittet
+    print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
     return hittingPosition
 
 def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]:
@@ -300,9 +312,7 @@ if __name__ == "__main__":
     myTank.getAverageCoordinatesBreadth()
     
     enemyTank = Tank((194,3,3), CM)
-    enemyTank.setPosition(Point(0.721875, 0.7833333333333333))
-    
-    print(enemyTank.getPosition())
+    enemyTank.setPosition(Point(0.2984375, 0.638888888888888))
     
     myTank.shoot(enemyTank)
     exit()
