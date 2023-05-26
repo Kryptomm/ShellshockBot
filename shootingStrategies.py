@@ -36,7 +36,7 @@ def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, weapon_ext
     if weapon_cat == "landing": return __landing(myTank, enemyTank, wind, buffPosition, CM)
     if weapon_cat == "radius": return __radius(myTank, enemyTank, weapon_extra_info, CM)
     
-    return __normal(myTank, enemyTank, wind, CM)
+    return __normal(myTank, enemyTank, wind, buffPosition, CM)
 
 def __calculatePosition(angle : int, strength : int ,wind : int, time : float, coordManager : CoordinateManager, x_offset : float, y_offset : float) -> tuple[float,float]:
     """Formulas for calculating x,y positions at a given time t with

@@ -35,7 +35,7 @@ def __gearDetection(coordManager : CoordinateManager, gameEnvironment : GameEnvi
         else:
             sleep(0.01)
 
-thread_methods = [__gearDetection]
+thread_methods = []
 
 def initThreads(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
     for func in thread_methods:

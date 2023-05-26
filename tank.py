@@ -112,6 +112,7 @@ class Tank:
         """
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
     
+    @timeit("getAverageCoordinatesBreadth")
     def getAverageCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> tuple[Point, int]:
         """updates the coordinates of the tank by doing breathsearch on the screen from the last position
         updates them automatically but also returns them. Position may be inaccurate by a few pixels.
@@ -190,6 +191,7 @@ class Tank:
 
         return (Point(self.getXCoordinate(), self.getYCoordinate()), minD[2])
     
+    @timeit(print_result=True)
     def isInSameSpot(self) -> bool:
         """Checks if a tank is still in the spot as it was before. It can be used to skip searching the screen for it
 

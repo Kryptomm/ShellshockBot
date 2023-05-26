@@ -1,5 +1,5 @@
 from time import sleep
-from pyautogui import click, FAILSAFE, FailSafeException
+from pyautogui import click, FailSafeException
 
 import colors
 from definitions import RULES
@@ -7,9 +7,11 @@ from environment import GameEnvironment
 from coordinateManager import CoordinateManager, Box
 from tank import Tank, friendlyTank
 from botThreads import initThreads
+from decorators import timeit
 
 DEBUG = True
 
+@timeit("Play Game")
 def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
     """Runs as long as one game is going. Automatically assigns tanks to given boxes,
     shoots the friendlyTank and moves it.
@@ -33,13 +35,14 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     
     while True:
         while not gameEnvironment.isMyTurn():
-            if gameEnvironment.inLoadingScreen(): click(1013, 1050)
+            if gameEnvironment.inLoadingScreen(): click(coordManager.convertFloatToWidth(0.527604), coordManager.convertFloatToHeigth(0.9722222))
             if gameEnvironment.inLobby(): return
             
         gameEnvironment.isShootingState = True
         
         if not myTank.isInSameSpot():
             myTank.getAverageCoordinatesBreadth()
+            
         if not enemyTank.isInSameSpot():
             hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
             enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
@@ -58,6 +61,10 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             pass
         
         myTank.shoot(enemyTank)
+        
+        print(myTank)
+        print(enemyTank)
+        
         gameEnvironment.isShootingState = False
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -67,6 +74,7 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
         coordManager (CoordinateManager): initialized coordinateManager class
         gameEnvironment (GameEnvironment): initialized GameEnvironment class
     """
+    roundsPlayed = 0
     while True:
         gameEnvironment.pressButton(gameEnvironment.ReadyButton)
         
@@ -75,6 +83,8 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
         
         gameEnvironment.inLobbyState = False
         gameLoop(coordManager, gameEnvironment)
+        roundsPlayed += 1
+        print(f"Rounds already played: {roundsPlayed}")
         gameEnvironment.inLobbyState = True
 
 def main() -> None:

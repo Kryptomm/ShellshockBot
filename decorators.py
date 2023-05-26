@@ -21,9 +21,9 @@ def timing_wrapper(func, custom_name=None, print_result=False):
             function_name = func.__name__
 
         if print_result:
-            print(f"The function '{function_name}' took {execution_time:.4f} seconds to execute. Result: {result}")
+            print(f"'{function_name}' needed {execution_time:.4f} seconds to execute. Result: {result}")
         else:
-            print(f"The function '{function_name}' took {execution_time:.4f} seconds to execute.")
+            print(f"'{function_name}' needed {execution_time:.4f} seconds to execute.")
         
         return result
     return wrapper
