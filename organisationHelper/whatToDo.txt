@@ -1,4 +1,6 @@
 Priority in descending order:
 
--gear detection
+-ground avoidance
+-x2 & x3 detection and shooting with it
+-bumper detection
 -appropriate print statements
