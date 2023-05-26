@@ -160,6 +160,7 @@ class CoordinateManager:
         self.SAMETANKBOX        = Box(-0.02,      -0.02,    0.02,    0.02)
         
         self.X2                 = Box(0,         0,         1,         0.851852)
+        self.X3                 = Box(0,         0,         1,         0.851852)
         
         self.RADIUS             = 0.178646 #dependent from width of the screen
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen

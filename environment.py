@@ -26,6 +26,7 @@ class GameEnvironment:
         
         #Perks
         self.x2 : tuple[str, CoordinateManager] = ("Images/x2.png", coordManager.X2)
+        self.x2 : tuple[str, CoordinateManager] = ("Images/x3.png", coordManager.X3)
         
         self.__isShootingState = False
         self.shootingStateEvent = threading.Event()

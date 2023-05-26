@@ -294,13 +294,16 @@ class friendlyTank(Tank):
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
         
-        buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
+        
+        buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
+        if buffPosition == None:
+            buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
+            
         buffTank = None
         if not (buffPosition == None):
             buffTank = Tank((0,0,0), self.coordManager)
             buffTank.setPosition(buffPosition)
     
-        
         angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
         
         if weapon_category != "instant":
