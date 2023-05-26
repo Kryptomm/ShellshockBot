@@ -139,15 +139,18 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
     angle = 90
     
     hittingPosition = (angle, 100)
+    foundOne = False
     for i in range(0,45):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank):
-                hittingPosition = (angle - i, s)
+                if not foundOne:
+                    hittingPosition = (angle - i, s)
                 if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, buffTank):
                     return hittingPosition
             
             if __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank):
-                hittingPosition = (angle + i, s)
+                if not foundOne:
+                    hittingPosition = (angle + i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
                     return hittingPosition
                     
@@ -202,17 +205,20 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
     angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
 
     hittingPosition = (angle, 100)
+    foundOne = False
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
-                hittingPosition = (angle-i, s)
+                if not foundOne:
+                    hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
                     return hittingPosition
             
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
-                hittingPosition = (angle-i, s)
+                if not foundOne:
+                    hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
                     return hittingPosition
             
@@ -237,17 +243,20 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
     angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
     
     hittingPosition = (angle, 100)
+    foundOne = False
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
-                hittingPosition = (angle-i, s)
+                if not foundOne:
+                    hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
                     return hittingPosition
             
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
-                hittingPosition = (angle-i, s)
+                if not foundOne:
+                    hittingPosition = (angle-i, s)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
                     return hittingPosition
             
