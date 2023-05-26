@@ -18,11 +18,14 @@ class GameEnvironment:
         self.__WEAPONPIXELS = self.__loadPixelData('data/WeaponPixels.txt') 
         self.__WINDPIXELS = self.__loadPixelData('data/WindPixels.txt')
         
-        self.FireButton : str = ("Images/FireButton.png", coordManager.FIRE_BUTTON)
-        self.LockedInButton : str = ("Images/LockedInButton.png", coordManager.FIRE_BUTTON)
-        self.NotFireButton : str = ("Images/NotFireButton.png", coordManager.FIRE_BUTTON)
-        self.ReadyButton : str = ("Images/ReadyButton.png", coordManager.READY_BUTTON)
-        self.x2 : str = ("Images/x2.png", coordManager.X2)
+        #Buttons
+        self.FireButton : tuple[str, CoordinateManager] = ("Images/FireButton.png", coordManager.FIRE_BUTTON)
+        self.LockedInButton : tuple[str, CoordinateManager] = ("Images/LockedInButton.png", coordManager.FIRE_BUTTON)
+        self.NotFireButton : tuple[str, CoordinateManager] = ("Images/NotFireButton.png", coordManager.FIRE_BUTTON)
+        self.ReadyButton : tuple[str, CoordinateManager] = ("Images/ReadyButton.png", coordManager.READY_BUTTON)
+        
+        #Perks
+        self.x2 : tuple[str, CoordinateManager] = ("Images/x2.png", coordManager.X2)
         
         self.__isShootingState = False
         self.shootingStateEvent = threading.Event()
@@ -304,4 +307,4 @@ if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     while True:
-        print(GameEnv.findPicture(GameEnv.x2))
+        print(GameEnv.findPicture(GameEnv.circleBumper))
