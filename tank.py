@@ -42,7 +42,15 @@ class Tank:
         self.__position : Point = Point(0.5, 0.5)
         self.color = color
         self.coordManager = coordManager
-        
+    
+    def setPosition(self, position : Point) -> None:
+        """Sets the position to a new point
+
+        Args:
+            position (Point): a Point where the tank is now
+        """
+        self.__position = position
+    
     def getPosition(self) -> Point:
         """getter Function for the Position
 
@@ -282,11 +290,18 @@ class friendlyTank(Tank):
         Args:
             enemyTank (_type_): a tank class to attack
         """
-        weapon, weapon_category, extra_info = self.gameEnvironment.getSelectedWeapon()
+        weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
         
-        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, extra_info ,self.coordManager)
+        buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
+        buffTank = None
+        if not (buffPosition == None):
+            buffTank = Tank((0,0,0), self.coordManager)
+            buffTank.setPosition(buffPosition)
+    
+        
+        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
         
         if weapon_category != "instant":
             self.moveCannon(angle, power)

@@ -2,7 +2,7 @@ import kNearestNeighbors as knn
 import pyautogui
 import threading
 
-from coordinateManager import CoordinateManager, Box
+from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
 from definitions import WEPS
 
@@ -22,6 +22,7 @@ class GameEnvironment:
         self.LockedInButton : str = ("Images/LockedInButton.png", coordManager.FIRE_BUTTON)
         self.NotFireButton : str = ("Images/NotFireButton.png", coordManager.FIRE_BUTTON)
         self.ReadyButton : str = ("Images/ReadyButton.png", coordManager.READY_BUTTON)
+        self.x2 : str = ("Images/x2.png", coordManager.X2)
         
         self.__isShootingState = False
         self.shootingStateEvent = threading.Event()
@@ -237,7 +238,7 @@ class GameEnvironment:
         """presses a button that. Only presses is button is present on the screen
 
         Args:
-            button (tuple[str, Box]): _description_
+            button (tuple[tuple[str, CoordinateManager], Box]): a button
         """
         button = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
         if button == None: return
@@ -285,8 +286,22 @@ class GameEnvironment:
             return False
         else: return True
     
+    def findPicture(self, button : tuple[str, Box]) -> Point:
+        """_summary_
+
+        Args:
+            button (tuple[str, Box]): a button
+
+        Returns:
+            Point: a point where the picture is located, None if not found
+        """
+        location = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
+        if location == None:
+            return None
+        return Point(self.coordManager.convertWidthToFloat(location[0]), self.coordManager.convertHeigthToFloat(location[1]))
+        
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     while True:
-        print("lobby", GameEnv.inLobby(), "loading", GameEnv.inLoadingScreen())
+        print(GameEnv.findPicture(GameEnv.x2))

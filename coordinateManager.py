@@ -54,6 +54,15 @@ class Point:
     def __repr__(self) -> str:
         return f"x:{self.getX()}, y:{self.getY()}"
 
+    def __call__(self) -> tuple[float, float]:
+        """Returns x and y as a tuple when called like p = Point(), x,y = p()
+
+        Returns:
+            tuple[float, float]: returns x and y as a tuple
+        """
+        return self.__x, self.__y
+
+    
 class Box:
     def __init__(self, upper_x : float, upper_y : float, bottom_x : float, bottom_y : float)  -> None:
         """a simple class for a 2D box
@@ -137,15 +146,20 @@ class CoordinateManager:
         
         self.READY_BUTTON       = Box(0.582813,  0.789815,  0.854167,  0.999074)
         self.FIRE_BUTTON        = Box(0.534375,  0.865741,  0.735417,  0.991667)
+        
         self.WIND_FIELD         = Box(0.492708,  0.071296,  0.506771,  0.087963)
         self.WIND_FIELD_RIGHT   = Box(0.513021,  0.068519,  0.520833,  0.086111)
         self.WIND_FIELD_LEFT    = Box(0.478646,  0.068519,  0.486458,  0.086111)
+        
         self.WEAPON_FIELD       = Box(0.371354,  0.961111,  0.494792,  0.985185)
         self.SHOOTLINE_FIELD    = Box(-0.015625, -0.277778, 0.015625,  0.018519)
         self.GAME_FIELD         = Box(0,         0,         1,         0.851852)
+        
         self.TANK1BOX           = Box(0.260417,  -1,        0.364583,  2)
         self.TANK2BOX           = Box(0.635417,  -1,        0.739583,  2)
         self.SAMETANKBOX        = Box(-0.02,      -0.02,    0.02,    0.02)
+        
+        self.X2                 = Box(0,         0,         1,         0.851852)
         
         self.RADIUS             = 0.178646 #dependent from width of the screen
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen

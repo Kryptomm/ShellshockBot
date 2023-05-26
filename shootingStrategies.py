@@ -1,7 +1,7 @@
 import math
 
 from typing import Union
-from coordinateManager import CoordinateManager
+from coordinateManager import CoordinateManager, Point
 
 GRAVITY = 0.359413
 WIND_FACTOR = 0.000252 / 2
@@ -13,7 +13,7 @@ ITERATIONS = 15
 MIN_STRENGTH = 20
 MAX_STRENGTH = 100
 
-def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, extra_info : Union[int, tuple],CM : CoordinateManager) -> tuple[int,int]:
+def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffPosition, CM : CoordinateManager) -> tuple[int,int]:
     """based on Tank positions and wind and the weapon data, it generates the perfect angle and strength to shoot the enemy at
 
     Args:
@@ -27,12 +27,12 @@ def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, extra_info
     Returns:
         tuple[int,int]: (angle, strength). angle starting at the right going up.
     """    
-    if weapon_cat == "normal": return __normal(myTank, enemyTank, wind, CM)
+    if weapon_cat == "normal": return __normal(myTank, enemyTank, wind, buffPosition, CM)
     if weapon_cat == "straight": return __straight(myTank, enemyTank)
     if weapon_cat == "instant": return __instant()
-    if weapon_cat == "45degrees": return __45degrees(myTank, enemyTank, wind, CM)
-    if weapon_cat == "landing": return __landing(myTank, enemyTank, wind, CM)
-    if weapon_cat == "radius": return __radius(myTank, enemyTank, extra_info, CM)
+    if weapon_cat == "45degrees": return __45degrees(myTank, enemyTank, wind, buffPosition, CM)
+    if weapon_cat == "landing": return __landing(myTank, enemyTank, wind, buffPosition, CM)
+    if weapon_cat == "radius": return __radius(myTank, enemyTank, weapon_extra_info, CM)
     
     return __normal(myTank, enemyTank, wind, CM)
 
@@ -94,8 +94,10 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         enemyTank (_type_): initialized Tank class
 
     Returns:
-        bool: True if it is hitting, False if not
+        bool: True if it is hitting, False if not, returns also True if enemyTank = None
     """
+    if enemyTank == None: return True
+    
     desiredX = enemyTank.getXCoordinate()
     time = MAXTIME / 2
     timeSize = MAXTIME / 4
@@ -118,7 +120,7 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         if __isCoordinateHitting(calculatedPosition[0]+i, calculatedPosition[1], enemyTank): return True
     return False
 
-def __normal(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -> tuple[int,int]:
     """calculates angle and power for the shot type "normal".
     Start from angle 90 and tries its best to find a strength to it.
     if not strength found for angle 90, it goes to 89, then 91, then 88, then 92, ...,45,135
@@ -135,16 +137,22 @@ def __normal(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int
         tuple[int,int]: (angle, strength)
     """
     angle = 90
-
+    
+    hittingPosition = (angle, 100)
     for i in range(0,45):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
-            if __isAngleAndPowerHitting(angle-i, s, wind, CM, myTank, enemyTank):
-                return (angle-i, s)
-            if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, enemyTank):
-                return (angle+i, s)
-    
+            if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank):
+                hittingPosition = (angle - i, s)
+                if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, buffTank):
+                    return hittingPosition
+            
+            if __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank):
+                hittingPosition = (angle + i, s)
+                if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    return hittingPosition
+                    
     #Einfach davon ausgehen das sowieso was hittet
-    return angle,100
+    return hittingPosition
 
 def __straight(myTank, enemyTank) -> tuple[int,int]:
     """calculates the angle for myTank to shoot at enemyTank if it has a weapon that goes straight at him.
@@ -176,7 +184,7 @@ def __instant() -> tuple[int,int]:
     """
     return 90,100
 
-def __45degrees(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
     strength for the angle 45, if non is found, go to angle 46, 47, 48, ... 65
     if really there was no strength found for all of them go to
@@ -193,21 +201,25 @@ def __45degrees(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[
     """
     angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
 
+    hittingPosition = (angle, 100)
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
-                return (angle-i, s)
+                hittingPosition = (angle-i, s)
+                if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    return hittingPosition
             
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
-                return (angle-i, s)
+                hittingPosition = (angle-i, s)
+                if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    return hittingPosition
             
-    
     #Einfach davon ausgehen das sowieso was hittet
-    return angle,100
+    return hittingPosition
 
-def __landing(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[int,int]:
+def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "landing". Does it by calculating the
     strength for the angle 67, if non is found, go to angle 68, 69, 70, ... 86
     if really there was no strength found for all of them go to
@@ -223,20 +235,24 @@ def __landing(myTank, enemyTank, wind : int, CM : CoordinateManager) -> tuple[in
         tuple[int,int]: (angle, strength)
     """
     angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
-
+    
+    hittingPosition = (angle, 100)
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle+i,s,wind,CM,myTank,enemyTank):
-                return (angle-i, s)
+                hittingPosition = (angle-i, s)
+                if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    return hittingPosition
             
     for i in range(0,20):
         for s in range(MAX_STRENGTH,MIN_STRENGTH,-1):
             if __isAngleAndPowerHitting(angle-i,s,wind,CM,myTank,enemyTank):
-                return (angle-i, s)
+                hittingPosition = (angle-i, s)
+                if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank):
+                    return hittingPosition
             
-    
     #Einfach davon ausgehen das sowieso was hittet
-    return angle,100
+    return hittingPosition
 
 def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]:
     """Calculates Angle AND Strength for a weapon that needs to go straight at someone with a needed strength.
@@ -273,7 +289,9 @@ if __name__ == "__main__":
     myTank.getAverageCoordinatesBreadth()
     
     enemyTank = Tank((194,3,3), CM)
-    enemyTank.getAverageCoordinatesBreadth()
+    enemyTank.setPosition(Point(0.721875, 0.7833333333333333))
+    
+    print(enemyTank.getPosition())
     
     myTank.shoot(enemyTank)
     exit()
