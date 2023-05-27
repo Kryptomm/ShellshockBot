@@ -1,4 +1,1 @@
 Priority in descending order:
-
--ground avoidance
--bumper detection

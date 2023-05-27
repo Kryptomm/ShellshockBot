@@ -1,12 +1,15 @@
 import math
 import numpy as np
 import visualizer
+import colors
+import globals
 
 from typing import Union
 from PIL import Image, ImageGrab
 from scipy.ndimage import binary_dilation
 from coordinateManager import CoordinateManager, Point
 from decorators import timeit
+from skimage.feature import canny
 
 GRAVITY = 0.359413
 WIND_FACTOR = 0.000252 / 2
@@ -131,7 +134,7 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         
     return (False, time)
 
-def __getBumperScreenshot(coordManager : CoordinateManager) -> Image:
+def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
     """Returns a screenshot where everything is black except the bumpers.
 
     Args:
@@ -140,7 +143,7 @@ def __getBumperScreenshot(coordManager : CoordinateManager) -> Image:
     Returns:
         Image: Leaves whites pixels everywhere where is a bumper
     """
-    colors_to_preserve = [(253,253,253)]
+    colors_to_preserve = [colors.BUMPER]
     image = ImageGrab.grab(bbox=coordManager.GAME_FIELD.getBoundariesNormalized(coordManager)).convert("RGBA")
 
     np_image = np.array(image)
@@ -150,13 +153,23 @@ def __getBumperScreenshot(coordManager : CoordinateManager) -> Image:
         color_mask |= np.all(np_image[:, :, :3] == color, axis=2)
     dilated_mask = binary_dilation(color_mask, iterations=5)
 
-    np_image[dilated_mask] = [255, 255, 255, 255]
-    np_image[~dilated_mask] = [0, 0, 0, 0]
+    blue_channel = np_image[:, :, 2]
+    edges = canny(blue_channel, sigma=10)
+    dilated_edges = binary_dilation(edges, iterations=3)
+
+    combined_mask = np.logical_or(dilated_mask, dilated_edges)
+    
+    np_image[combined_mask] = [255, 255, 255, 255]
+    np_image[~combined_mask] = [0, 0, 0, 0]
 
     filtered_image = Image.fromarray(np_image)
+    
+    if globals.CREATE_PICTURE:
+        globals.CURRENT_PICTURE.paste(filtered_image, (0, 0), mask=filtered_image)
+    
     return filtered_image
 
-def __isHittingBumper(angle : int, strength: int, wind : float, myTank, enemyTank, floatingTime : float ,bumperScreenshot : Image, buffTank, coordManager : CoordinateManager) -> bool:
+def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank, floatingTime : float ,bumperScreenshot : Image, buffTank, coordManager : CoordinateManager) -> bool:
     """Tells you if a shot is hitting a bumper
 
     Args:
@@ -189,7 +202,7 @@ def __isHittingBumper(angle : int, strength: int, wind : float, myTank, enemyTan
         color = bumperScreenshot.getpixel((x,y))
         if color[0] == 255 and color[1] == 255 and color[2] == 255:
             return True
-        
+    
     return False
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
@@ -211,7 +224,7 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
         tuple[int,int]: (angle, strength)
     """
     angle = 90
-    bumperScreenshot = __getBumperScreenshot(CM)
+    bumperScreenshot = __getEdgesScreenshot(CM)
     
     hittingPosition = (angle, 100)
     foundOne = False
@@ -219,9 +232,10 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank)
             if isHitting:
-                if __isHittingBumper(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
+                if __isHittingEdge(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
                 if not foundOne:
                     hittingPosition = (angle - i, s)
+                    foundOne = True
                 if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
@@ -229,9 +243,10 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
             
             isHitting, whenHitting = __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank)
             if isHitting:
-                if __isHittingBumper(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
+                if __isHittingEdge(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
                 if not foundOne:
                     hittingPosition = (angle + i, s)
+                    foundOne = True
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
@@ -258,7 +273,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
     """
     angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
 
-    bumperScreenshot = __getBumperScreenshot(CM)
+    bumperScreenshot = __getEdgesScreenshot(CM)
 
     hittingPosition = (angle, 100)
     foundOne = False
@@ -266,9 +281,10 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank)
             if isHitting:
-                if __isHittingBumper(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
+                if __isHittingEdge(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
                 if not foundOne:
                     hittingPosition = (angle+i, s)
+                    foundOne = True
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
@@ -278,9 +294,10 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank)
             if isHitting:
-                if __isHittingBumper(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
+                if __isHittingEdge(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
                 if not foundOne:
                     hittingPosition = (angle-i, s)
+                    foundOne = True
                 if __isAngleAndPowerHitting(angle-i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
@@ -307,7 +324,7 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
     """
     angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
     
-    bumperScreenshot = __getBumperScreenshot(CM)
+    bumperScreenshot = __getEdgesScreenshot(CM)
     
     hittingPosition = (angle, 100)
     foundOne = False
@@ -315,9 +332,10 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank)
             if isHitting:
-                if __isHittingBumper(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
+                if __isHittingEdge(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
                 if not foundOne:
                     hittingPosition = (angle+i, s)
+                    foundOne = True
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
@@ -327,9 +345,10 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank)
             if isHitting:
-                if __isHittingBumper(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
+                if __isHittingEdge(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
                 if not foundOne:
                     hittingPosition = (angle-i, s)
+                    foundOne = True
                 if __isAngleAndPowerHitting(angle-i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
@@ -398,6 +417,7 @@ if __name__ == "__main__":
     from tank import friendlyTank, Tank
     from environment import GameEnvironment
     from time import sleep
+    import os, glob
     
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
@@ -406,40 +426,9 @@ if __name__ == "__main__":
     
     visualizer.createImage(CM)
     myTank = friendlyTank((36, 245, 41), CM, GE)
-    myTank.getAverageCoordinatesBreadth()
+    myTank.setPosition(Point(0,0))
     
     enemyTank = Tank((194,3,3), CM)
-    enemyTank.getAverageCoordinatesBreadth()
+    enemyTank.setPosition(Point(1,1))
     
-    myTank.shoot(enemyTank)
-    visualizer.saveImage()
-    exit()
-    strength = 100
-    angle = 99
-    wind = 37
-    
-    print(__normal(myTank, enemyTank, wind, 1, CM))
-    print(enemyTank.getPosition())
-
-    t = 0
-    maxT = 5
-    step = 0.01
-    
-    X = []
-    Y = []
-    while t < maxT:
-        x,y = __calculatePosition(angle, strength, wind, t, CM,myTank.getXCoordinate(),myTank.getYCoordinate())
-        if __isCoordinateHitting(x,y,enemyTank):
-            print("Ja",t)
-        X.append(x)
-        Y.append(y)
-        t += step
-        
-    
-    connectedList = []
-    colors = []
-    for i in range(len(X)):
-        connectedList.append([X[i]*CM.getScreenWidth(), Y[i]*CM.getScreenHeigth()])
-        colors.append((255,255,255))
-    
-    drawCirclesAroundPixels(connectedList,5,colors,CM,"Z_bild.png")
+    getAngleAndPower(myTank, enemyTank, "normal", 0, None, None, CM)
