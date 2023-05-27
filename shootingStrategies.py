@@ -1,6 +1,8 @@
 import math
+import numpy as np
 
 from typing import Union
+from PIL import Image, ImageGrab
 from coordinateManager import CoordinateManager, Point
 from decorators import timeit
 
@@ -122,6 +124,31 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         if __isCoordinateHitting(calculatedPosition[0]+i, calculatedPosition[1], enemyTank): return True
     return False
 
+def __getBumperScreenshot(coordManager : CoordinateManager) -> Image:
+    """Returns a screenshot where everything is black except the bumpers.
+
+    Args:
+        coordManager (CoordinateManager): initialized coordinateManager class
+
+    Returns:
+        Image: Leaves whites pixels everywhere where is a bumper
+    """
+    colors_to_preserve = [(255,255,255),(254,254,254),(253,253,253),(252,252,252),(251,251,251)]
+    image = ImageGrab.grab(bbox=(0,0,1920,1080)).convert("RGBA")
+
+    # Convert the image to a NumPy array
+    np_image = np.array(image)
+
+    color_mask = np.zeros(np_image.shape[:2], dtype=bool)
+    for color in colors_to_preserve:
+        color_mask |= np.all(np_image[:, :, :3] == color, axis=2)
+
+    filtered_np_image = np.zeros_like(np_image)
+    filtered_np_image[color_mask] = np_image[color_mask]
+
+    filtered_image = Image.fromarray(filtered_np_image, "RGBA")
+    return filtered_image
+
 def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -> tuple[int,int]:
     """calculates angle and power for the shot type "normal".
     Start from angle 90 and tries its best to find a strength to it.
@@ -162,36 +189,6 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
                     
     print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
     return hittingPosition
-
-def __straight(myTank, enemyTank) -> tuple[int,int]:
-    """calculates the angle for myTank to shoot at enemyTank if it has a weapon that goes straight at him.
-    calculates the slope between them. multiplies by -1, because the y-coordinate 0 is on top.
-    then takes the atan to take the angle and converts it to degrees.
-    Adds 360 to not be in the negatives. and adds 180 if im on the left because slope would have said shoot left.
-
-    Args:
-        myTank (_type_): initialized friendlyTank class, can also be Tank class
-        enemyTank (_type_): initialized Tank class
-
-    Returns:
-        tuple[int,int]: (angle, strength)
-    """
-    m = -1 * (myTank.absY - enemyTank.absY) / (myTank.absX - enemyTank.absX)
-    angle = math.degrees(math.atan(m))
-
-    angle += 360
-    if enemyTank.getXCoordinate() < myTank.getXCoordinate():
-        angle += 180
-    
-    return (round(angle) % 360, 100)
-
-def __instant() -> tuple[int,int]:
-    """does nothing than returning the basic angle 90 and 100
-
-    Returns:
-        tuple[int,int]: (90,100)
-    """
-    return 90,100
 
 def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
@@ -277,6 +274,36 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
     print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
     return hittingPosition
 
+def __straight(myTank, enemyTank) -> tuple[int,int]:
+    """calculates the angle for myTank to shoot at enemyTank if it has a weapon that goes straight at him.
+    calculates the slope between them. multiplies by -1, because the y-coordinate 0 is on top.
+    then takes the atan to take the angle and converts it to degrees.
+    Adds 360 to not be in the negatives. and adds 180 if im on the left because slope would have said shoot left.
+
+    Args:
+        myTank (_type_): initialized friendlyTank class, can also be Tank class
+        enemyTank (_type_): initialized Tank class
+
+    Returns:
+        tuple[int,int]: (angle, strength)
+    """
+    m = -1 * (myTank.absY - enemyTank.absY) / (myTank.absX - enemyTank.absX)
+    angle = math.degrees(math.atan(m))
+
+    angle += 360
+    if enemyTank.getXCoordinate() < myTank.getXCoordinate():
+        angle += 180
+    
+    return (round(angle) % 360, 100)
+
+def __instant() -> tuple[int,int]:
+    """does nothing than returning the basic angle 90 and 100
+
+    Returns:
+        tuple[int,int]: (90,100)
+    """
+    return 90,100
+
 def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]:
     """Calculates Angle AND Strength for a weapon that needs to go straight at someone with a needed strength.
     does it by getting the angle from the __straight function and the calculates the distance to the other tank
@@ -299,6 +326,8 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
     strengh = min(round(radia * delta),100)
     
     return angle, strengh
+
+
 
 if __name__ == "__main__":
     from tank import friendlyTank, Tank
