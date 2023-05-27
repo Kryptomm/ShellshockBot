@@ -216,7 +216,7 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
     hittingPosition = (angle, 100)
     foundOne = False
     for i in range(0,45):
-        for s in range(MAX_STRENGTH, MIN_STRENGTH,-1):
+        for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank)
             if isHitting:
                 if __isHittingBumper(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
@@ -312,7 +312,7 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
     hittingPosition = (angle, 100)
     foundOne = False
     for i in range(0,20):
-        for s in range(MAX_STRENGTH, MIN_STRENGTH,-1):
+        for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank)
             if isHitting:
                 if __isHittingBumper(angle + i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue
@@ -324,7 +324,7 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
                     return hittingPosition
             
     for i in range(0,20):
-        for s in range(MAX_STRENGTH, MIN_STRENGTH,-1):
+        for s in range(MIN_STRENGTH, MAX_STRENGTH):
             isHitting, whenHitting = __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, enemyTank)
             if isHitting:
                 if __isHittingBumper(angle - i, s, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffTank, CM): continue

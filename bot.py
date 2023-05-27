@@ -27,8 +27,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
     #Wait until screen is fully there
-    if not globals.DEBUG:
-        sleep(8)
+    sleep(8)
     
     #Search for the first time
     myTank.getAverageCoordinatesBreadth()
@@ -94,17 +93,21 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
 def main() -> None:
     """Initializes everything and starts up the bot
     """
-    print(globals.RULES)
-    
     coordManager = CoordinateManager()
-    gameEnvironment = GameEnvironment(coordManager)
-    
-    initThreads(coordManager, gameEnvironment)
     
     png_files = glob.glob(os.path.join(os.path.dirname(os.path.realpath(__file__)), "*.png"))
     for file_path in png_files:
         os.remove(file_path)
         
+    visualizer.createImage(coordManager)
+    visualizer.saveImage()
+    
+    print(globals.RULES)
+    
+    gameEnvironment = GameEnvironment(coordManager)
+    
+    initThreads(coordManager, gameEnvironment)
+    
     if gameEnvironment.inLobby() == False and not globals.DEBUG:
         print("Starte von der Lobby aus!")
         return

@@ -161,7 +161,7 @@ class CoordinateManager:
         
         self.TANK1BOX           = Box(0.260417,  -1,        0.364583,  2)
         self.TANK2BOX           = Box(0.635417,  -1,        0.739583,  2)
-        self.SAMETANKBOX        = Box(-0.02,      -0.02,    0.02,    0.02)
+        self.SAMETANKBOX        = Box(-0.015,    -0.015,    0.015,     0.015)
         
         self.X2                 = Box(0,         0,         1,         0.851852)
         self.X3                 = Box(0,         0,         1,         0.851852)
