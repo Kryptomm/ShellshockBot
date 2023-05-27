@@ -13,7 +13,7 @@ from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 from datetime import datetime
 from threading import Thread 
 
-from definitions import WEPS, RULES
+from globals import WEPS, RULES
 
 
 #Variablen

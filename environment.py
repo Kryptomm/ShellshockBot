@@ -1,10 +1,10 @@
 import kNearestNeighbors as knn
 import pyautogui
 import threading
+import globals
 
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
-from definitions import WEPS
 from decorators import timeit
 
 class GameEnvironment:
@@ -196,8 +196,8 @@ class GameEnvironment:
         wep_str = knn.multiThreadfindCategory(new_point, self.__WEAPONPIXELS, 8, ones, fixedK=1)
         
         extra_information = None
-        for wep_cat in WEPS:
-            for wep in WEPS[wep_cat]:
+        for wep_cat in globals.WEPS:
+            for wep in globals.WEPS[wep_cat]:
                 if type(wep) is tuple:
                     extra_information = wep[1]
                     wep = wep[0]

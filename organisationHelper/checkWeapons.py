@@ -1,4 +1,4 @@
-from definitions import WEPS
+from globals import WEPS
 import pyautogui
 from PIL import Image, ImageEnhance, ImageGrab, ImageFilter
 import kNearestNeighbors as knn

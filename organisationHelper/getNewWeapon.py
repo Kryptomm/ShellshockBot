@@ -1,6 +1,6 @@
 import pytesseract, numpy, cv2, pyautogui, difflib, time
 from PIL import Image, ImageEnhance, ImageGrab
-from definitions import WEPS
+from globals import WEPS
 import keyboard
 pyautogui.FAILSAFE = False
 

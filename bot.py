@@ -2,7 +2,7 @@ from time import sleep
 from pyautogui import click, FailSafeException
 
 import colors
-from definitions import RULES
+import globals
 from environment import GameEnvironment
 from coordinateManager import CoordinateManager, Box
 from tank import Tank, friendlyTank
@@ -88,7 +88,7 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
 def main() -> None:
     """Initializes everything and starts up the bot
     """
-    print(RULES)
+    print(globals.RULES)
     
     coordManager = CoordinateManager()
     gameEnvironment = GameEnvironment(coordManager)
