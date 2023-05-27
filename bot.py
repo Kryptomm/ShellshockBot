@@ -99,14 +99,18 @@ def main() -> None:
     for file_path in png_files:
         os.remove(file_path)
         
-    visualizer.createImage(coordManager)
-    visualizer.saveImage()
+
     
     print(globals.RULES)
     
     gameEnvironment = GameEnvironment(coordManager)
     
     initThreads(coordManager, gameEnvironment)
+    
+    globals.initializeGlobals()
+    if globals.CREATE_PICTURE:
+        visualizer.createImage(coordManager)
+        visualizer.saveImage()
     
     if gameEnvironment.inLobby() == False and not globals.DEBUG:
         print("Starte von der Lobby aus!")

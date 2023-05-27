@@ -2,8 +2,8 @@ import sys
 from random import randint
 
 #Setting Variables
-DEBUG = True
-CREATE_PICTURE = True
+DEBUG = False
+CREATE_PICTURE = False
 PICTURE_PATH = f"{randint(0,sys.maxsize)}.png"
 CURRENT_PICTURE = None
 
@@ -124,10 +124,26 @@ RULES = """
         """
 
 
+def __get_argument_value(arg_name):
+    """Retrieve the value of the command-line argument with the specified name."""
+    for i, arg in enumerate(sys.argv):
+        if arg == arg_name and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    return None
 
-if __name__ == "__main__":
-    output = ""
-    for i,w in enumerate(WEPS["normal"]):
-        if i % 5 == 0: output += "\n"
-        output += f'"{w}", '
-    print(output)
+def initializeGlobals() -> None:
+    """Initialzes globals to standart values or through given things from command line
+    """    
+    global DEBUG
+    global CREATE_PICTURE
+    
+    debug = bool(__get_argument_value("--debug"))
+    picture = __get_argument_value("--picture")
+    
+    if debug and type(debug) == bool:
+        DEBUG = True
+        
+    if picture and type(picture) == bool:
+        CREATE_PICTURE = True
+        
+    print(f"{DEBUG=}\n{CREATE_PICTURE=}")
