@@ -1,6 +1,7 @@
 import numpy
 import shootingStrategies
 import colors
+import visualizer
 from collections import deque
 from pyautogui import press, click, screenshot, keyDown, keyUp
 from time import sleep
@@ -310,6 +311,7 @@ class friendlyTank(Tank):
             buffTank = Tank((0,0,0), self.coordManager)
             buffTank.setPosition(buffPosition)
             print(f"Buff found at {buffTank.getPosition()}")
+            visualizer.paintPixels(buffTank.getPosition()(), 40, (255,144,0), self.coordManager)
         
         angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
         

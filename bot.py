@@ -3,13 +3,14 @@ from pyautogui import click, FailSafeException
 
 import colors
 import globals
+import os
+import glob
+import visualizer
 from environment import GameEnvironment
 from coordinateManager import CoordinateManager, Box
 from tank import Tank, friendlyTank
 from botThreads import initThreads
 from decorators import timeit
-
-DEBUG = True
 
 @timeit("Play Game")
 def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -26,7 +27,8 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
     #Wait until screen is fully there
-    sleep(8)
+    if not globals.DEBUG:
+        sleep(8)
     
     #Search for the first time
     myTank.getAverageCoordinatesBreadth()
@@ -62,7 +64,11 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         except FailSafeException:
             pass
         
+        visualizer.createImage(coordManager)
         myTank.shoot(enemyTank)
+        visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
+        visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, coordManager)
+        visualizer.saveImage()
         gameEnvironment.isShootingState = False
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -95,7 +101,11 @@ def main() -> None:
     
     initThreads(coordManager, gameEnvironment)
     
-    if gameEnvironment.inLobby() == False and not DEBUG:
+    png_files = glob.glob(os.path.join(os.path.dirname(os.path.realpath(__file__)), "*.png"))
+    for file_path in png_files:
+        os.remove(file_path)
+        
+    if gameEnvironment.inLobby() == False and not globals.DEBUG:
         print("Starte von der Lobby aus!")
         return
 

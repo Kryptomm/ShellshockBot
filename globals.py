@@ -1,3 +1,13 @@
+import sys
+from random import randint
+
+#Setting Variables
+DEBUG = True
+CREATE_PICTURE = True
+PICTURE_PATH = f"{randint(0,sys.maxsize)}.png"
+CURRENT_PICTURE = None
+
+#Definitions
 WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce",
                     "three-bounce", "five-bounce", "seven-bounce", "digger", "mega-digger",   
                     "breaker", "double-breaker", "super-breaker", "breakerchain", "twinkler", 

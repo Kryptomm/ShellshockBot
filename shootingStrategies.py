@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import visualizer
 
 from typing import Union
 from PIL import Image, ImageGrab
@@ -180,14 +181,15 @@ def __isHittingBumper(angle : int, strength: int, wind : float, myTank, enemyTan
     while currentTime < (floatingTime - ignoreTime):
         x,y = __calculatePosition(angle, strength, wind, currentTime, coordManager, myTank.getXCoordinate(), myTank.getYCoordinate())
         currentTime += timeSteps
+        visualizer.paintPixels((x,y),1,(255,255,255),coordManager)
         x,y = coordManager.convertFloatToWidth(x), coordManager.convertFloatToHeigth(y)
-        
         if not (0 <= x < bumperScreenshot.width and 0 <= y < bumperScreenshot.height):
             continue
         
         color = bumperScreenshot.getpixel((x,y))
         if color[0] == 255 and color[1] == 255 and color[2] == 255:
             return True
+        
     return False
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
@@ -395,7 +397,6 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
 if __name__ == "__main__":
     from tank import friendlyTank, Tank
     from environment import GameEnvironment
-    from visualizer import drawCirclesAroundPixels
     from time import sleep
     
     CM = CoordinateManager()
@@ -403,6 +404,7 @@ if __name__ == "__main__":
     
     sleep(1)
     
+    visualizer.createImage(CM)
     myTank = friendlyTank((36, 245, 41), CM, GE)
     myTank.getAverageCoordinatesBreadth()
     
@@ -410,6 +412,7 @@ if __name__ == "__main__":
     enemyTank.getAverageCoordinatesBreadth()
     
     myTank.shoot(enemyTank)
+    visualizer.saveImage()
     exit()
     strength = 100
     angle = 99

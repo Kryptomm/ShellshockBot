@@ -2,6 +2,7 @@ import kNearestNeighbors as knn
 import pyautogui
 import threading
 import globals
+import win32gui
 
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
@@ -269,6 +270,11 @@ class GameEnvironment:
         Returns:
             bool: True if in loading screen. else False
         """
+        foreground_window = win32gui.GetForegroundWindow()
+        current_window_title = win32gui.GetWindowText(foreground_window)
+        
+        if current_window_title != "ShellShock Live": return False
+        
         FireButton = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
         NotFireButton = pyautogui.locateOnScreen(self.NotFireButton[0], confidence=0.9, region=self.NotFireButton[1].getBoundariesNormalized(self.coordManager))
         ReadyButton = pyautogui.locateOnScreen(self.ReadyButton[0], confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
@@ -298,7 +304,7 @@ class GameEnvironment:
         Returns:
             Point: a point where the picture is located, None if not found
         """
-        location = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
+        location = pyautogui.locateCenterOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
         if location == None:
             return None
         return Point(self.coordManager.convertWidthToFloat(location[0]), self.coordManager.convertHeigthToFloat(location[1]))
