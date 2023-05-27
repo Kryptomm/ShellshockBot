@@ -170,7 +170,7 @@ def __isHittingBumper(angle : int, strength: int, wind : float, myTank, enemyTan
     """
     if buffTank:
         for x in range(coordManager.convertFloatToWidth(buffTank.getXCoordinate() - 0.03), coordManager.convertFloatToWidth(buffTank.getXCoordinate() + 0.03)):
-            for y in range(coordManager.convertFloatToHeigth(buffTank.getYCoordinate() - 0.04), coordManager.convertFloatToHeigth(buffTank.getYCoordinate() + 0.04)):
+            for y in range(coordManager.convertFloatToHeigth(buffTank.getYCoordinate() - 0.05), coordManager.convertFloatToHeigth(buffTank.getYCoordinate() + 0.05)):
                 try: bumperScreenshot.putpixel((x,y),(0,0,0))
                 except: pass
         
