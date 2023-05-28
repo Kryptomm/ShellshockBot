@@ -31,7 +31,7 @@ def holdKey(time : float, key : str) -> None:
     keyUp(key)
 
 class Tank:
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank"):
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank", epsilon : float = 0.01):
         """Tank class to store variables as position and color
         to quickly find them and also convert coordinates to absolute units
         and relative units.
@@ -39,11 +39,15 @@ class Tank:
         Args:
             color (tuple[int, int, int]): color of the tank. one that is the most common in him
             coordManager (CoordinateManager): coordinate Manager class
+            name (str, optional): _description_. Defaults to "Tank".
+            epsilon (float, optional): _description_. Defaults to 0.01.
         """
+        
         self.__position : Point = Point(0.5, 0.5)
         self.color = color
         self.coordManager = coordManager
         self.__name = name
+        self.epsilon = epsilon
     
     def setPosition(self, position : Point) -> None:
         """Sets the position to a new point
@@ -193,7 +197,7 @@ class Tank:
         return (Point(self.getXCoordinate(), self.getYCoordinate()), minD[2])
     
     @timeit(print_result=True)
-    def isInSameSpot(self) -> bool:
+    def isInSameSpot(self, x : float, y : float) -> bool:
         """Checks if a tank is still in the spot as it was before. It can be used to skip searching the screen for it
 
         Returns:
@@ -211,19 +215,36 @@ class Tank:
         if smallestD <= 15: return True
         return False
     
+    def isPointHitting(self) -> bool:
+        """checks if a given coordinate is in hit range to an tank.
+        it compares the relative coordinates of the tank!
+
+        Args:
+            x (float): x coordinate.
+            y (float): y coordinate.
+
+        Returns:
+            bool: returns True if a coordinate is in the given range
+        """
+        if not (self.getXCoordinate() - self.epsilon       <= x <= self.getXCoordinate() + self.epsilon):       return False
+        if not (self.getYCoordinate() - self.epsilon * 0.5 <= y <= self.getYCoordinate() + self.epsilon * 0.5): return False
+        return True
+    
     def __repr__(self) -> str:
         return f"{self.__name}: | Positon: {self.__position}"
 
 class friendlyTank(Tank):
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment, name : str = "friendlyTank") -> None:
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment, name : str = "friendlyTank", epsilon : float = 0.01) -> None:
         """Addition to tank class. Can also control a tank. It has the ability to shoot and move your cannon.
 
         Args:
             color (tuple[int, int, int]): color of the tank. one that is the most common in him
             coordManager (CoordinateManager): initialized CoordinateManager class
             gameEnvironment (GameEnvironment): initialized GameEnvironment class
+            name (str, optional): _description_. Defaults to "Tank".
+            delta (float, optional): _description_. Defaults to 0.01.
         """
-        super().__init__(color, coordManager, name=name)
+        super().__init__(color, coordManager, name=name, epsilon=epsilon)
         
         self.BOUNDARIES : Box = None
         self.__lastAngle : int = 0

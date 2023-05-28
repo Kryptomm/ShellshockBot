@@ -1,1 +1,4 @@
 Priority in descending order:
+
+-recognise every 2x and 3x
+-deltaAngle weapons

@@ -78,22 +78,6 @@ def __calculatePosition(angle : int, strength : int ,wind : int, time : float, c
     
     return x,y
 
-def __isCoordinateHitting(x : float, y : float, tank) -> bool:
-    """checks if a given coordinate is in hit range to an tank.
-    it compares the relative coordinates of the tank!
-
-    Args:
-        x (float): x coordinate.
-        y (float): y coordinate.
-        enemyTank (Tank): initialized Tank class
-
-    Returns:
-        bool: _description_
-    """
-    if not (tank.getXCoordinate() - EPSILON       <= x <= tank.getXCoordinate() + EPSILON):       return False
-    if not (tank.getYCoordinate() - EPSILON * 0.5 <= y <= tank.getYCoordinate() + EPSILON * 0.5): return False
-    return True
-
 def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordManager : CoordinateManager, myTank, enemyTank) -> tuple[bool,float]:
     """checks if an angle and power is hitting by doing binary search on the time to search the time it hits
     the enemy tank and then checks if the y coordinate matches the enemytank at this point in time.
@@ -126,11 +110,11 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
             time = time + timeSize * lookingFactor
         timeSize = timeSize / 2
             
-        if __isCoordinateHitting(calculatedPosition[0], calculatedPosition[1], enemyTank): return (True, time)
+        if enemyTank.isPointHitting(calculatedPosition[0], calculatedPosition[1]): return (True, time)
     
     for i in range(-3,4):
         i = i/10
-        if __isCoordinateHitting(calculatedPosition[0]+i, calculatedPosition[1], enemyTank): return (True, time)
+        if enemyTank.isPointHitting(calculatedPosition[0]+i, calculatedPosition[1]): return (True, time)
         
     return (False, time)
 
