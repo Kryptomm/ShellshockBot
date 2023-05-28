@@ -223,7 +223,7 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
                 if __isAngleAndPowerHitting(angle - i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
-                    return hittingPosition
+                    return (angle - i, s)
             
             isHitting, whenHitting = __isAngleAndPowerHitting(angle + i, s, wind, CM, myTank, enemyTank)
             if isHitting:
@@ -234,7 +234,7 @@ def __normal(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) ->
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
-                    return hittingPosition
+                    return (angle + i, s)
                 
     if buffTank:  
         print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
@@ -272,7 +272,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
-                    return hittingPosition
+                    return (angle + i, s)
             
     for i in range(0,20):
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
@@ -285,7 +285,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager)
                 if __isAngleAndPowerHitting(angle-i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
-                    return hittingPosition
+                    return (angle - i, s)
             
     if buffTank:  
         print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
@@ -323,7 +323,7 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
                 if __isAngleAndPowerHitting(angle+i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
-                    return hittingPosition
+                    return (angle + i, s)
             
     for i in range(0,20):
         for s in range(MIN_STRENGTH, MAX_STRENGTH):
@@ -336,7 +336,7 @@ def __landing(myTank, enemyTank, wind : int, buffTank, CM : CoordinateManager) -
                 if __isAngleAndPowerHitting(angle-i, s, wind, CM, myTank, buffTank)[0]:
                     if buffTank:
                         print("Found a way to hit Buff AND Enemy")
-                    return hittingPosition
+                    return (angle - i, s)
             
     if buffTank:  
         print("Did not find a way to hit Buff AND Enemy, now only hitting Enemy")
@@ -406,13 +406,18 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    sleep(1)
+    globals.CREATE_PICTURE = True
     
+    sleep(1)
     visualizer.createImage(CM)
     myTank = friendlyTank((36, 245, 41), CM, GE)
-    myTank.setPosition(Point(0,0))
+    myTank.getAverageCoordinatesBreadth()
     
     enemyTank = Tank((194,3,3), CM)
-    enemyTank.setPosition(Point(1,1))
+    enemyTank.setPosition(Point(0.66875, 0.4444444444444444))
     
-    getAngleAndPower(myTank, enemyTank, "normal", 0, None, None, CM)
+    print(myTank)
+    print(enemyTank)
+    
+    myTank.shoot(enemyTank)
+    visualizer.saveImage()

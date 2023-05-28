@@ -4,7 +4,8 @@ from random import randint
 #Setting Variables
 DEBUG = False
 CREATE_PICTURE = False
-PICTURE_PATH = f"{randint(0,sys.maxsize)}.png"
+ID = randint(0,sys.maxsize)
+PICTURE_PATH = f"{ID}.png"
 CURRENT_PICTURE = None
 
 #Definitions
@@ -146,4 +147,4 @@ def initializeGlobals() -> None:
     if picture and type(picture) == bool:
         CREATE_PICTURE = True
         
-    print(f"{DEBUG=}\n{CREATE_PICTURE=}")
+    print(f"{DEBUG=}\n{CREATE_PICTURE=}\n{ID=}")

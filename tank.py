@@ -324,9 +324,9 @@ class friendlyTank(Tank):
         
         
         buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
-        epsilon = 0.029167
+        epsilon = 0.014584
         if buffPosition == None:
-            epsilon=0.047917
+            epsilon= 0.023959
             buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
             
         buffTank = None
