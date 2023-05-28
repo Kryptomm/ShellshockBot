@@ -31,7 +31,7 @@ def holdKey(time : float, key : str) -> None:
     keyUp(key)
 
 class Tank:
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank", epsilon : float = 0.01):
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank", epsilon : float = 0.006):
         """Tank class to store variables as position and color
         to quickly find them and also convert coordinates to absolute units
         and relative units.
@@ -215,7 +215,7 @@ class Tank:
         if smallestD <= 15: return True
         return False
     
-    def isPointHitting(self) -> bool:
+    def isPointHitting(self, x : float, y : float) -> bool:
         """checks if a given coordinate is in hit range to an tank.
         it compares the relative coordinates of the tank!
 
@@ -227,14 +227,14 @@ class Tank:
             bool: returns True if a coordinate is in the given range
         """
         if not (self.getXCoordinate() - self.epsilon       <= x <= self.getXCoordinate() + self.epsilon):       return False
-        if not (self.getYCoordinate() - self.epsilon * 0.5 <= y <= self.getYCoordinate() + self.epsilon * 0.5): return False
+        if not (self.getYCoordinate() - self.epsilon * self.coordManager.getWidthHeightRatio() <= y <= self.getYCoordinate() + self.epsilon * self.coordManager.getWidthHeightRatio()): return False
         return True
     
     def __repr__(self) -> str:
         return f"{self.__name}: | Positon: {self.__position}"
 
 class friendlyTank(Tank):
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment, name : str = "friendlyTank", epsilon : float = 0.01) -> None:
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment, name : str = "friendlyTank", epsilon : float = 0.006) -> None:
         """Addition to tank class. Can also control a tank. It has the ability to shoot and move your cannon.
 
         Args:
@@ -324,12 +324,14 @@ class friendlyTank(Tank):
         
         
         buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
+        epsilon = 0.029167
         if buffPosition == None:
+            epsilon=0.047917
             buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
             
         buffTank = None
         if buffPosition:
-            buffTank = Tank((0,0,0), self.coordManager)
+            buffTank = Tank((0,0,0), self.coordManager, epsilon=epsilon)
             buffTank.setPosition(buffPosition)
             print(f"Buff found at {buffTank.getPosition()}")
             visualizer.paintPixels(buffTank.getPosition()(), 40, (255,144,0), self.coordManager)
