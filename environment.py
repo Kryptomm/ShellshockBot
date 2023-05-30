@@ -295,18 +295,20 @@ class GameEnvironment:
             return False
         else: return True
     
-    def findPicture(self, button : tuple[str, Box]) -> Point:
-        """_summary_
+    def findPicture(self, picture : tuple[str, Box]) -> Point:
+        """Finds a specific picture on the screen
 
         Args:
-            button (tuple[str, Box]): a button
+            picture (tuple[str, Box]): a picture
 
         Returns:
             Point: a point where the picture is located, None if not found
         """
-        location = pyautogui.locateCenterOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
+        location = pyautogui.locateCenterOnScreen(picture[0], grayscale=True, confidence=0.9, region=picture[1].getBoundariesNormalized(self.coordManager))
+        pyautogui.locateAllOnScreen
         if location == None:
             return None
+        
         return Point(self.coordManager.convertWidthToFloat(location[0]), self.coordManager.convertHeigthToFloat(location[1]))
         
 if __name__ == "__main__":
