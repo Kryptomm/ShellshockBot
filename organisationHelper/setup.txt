@@ -1,1 +1,1 @@
-pyinstaller --onefile --hidden-import=skimage.data_fetchers bot.py
+pyinstaller --hidden-import=skimage.data._fetchers --onefile --icon=icon.ico bot.py
