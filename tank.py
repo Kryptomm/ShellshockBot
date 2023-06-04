@@ -2,6 +2,8 @@ import numpy
 import shootingStrategies
 import colors
 import visualizer
+import colorama
+from colorama import Fore, Back, Style
 from collections import deque
 from pyautogui import press, click, screenshot, keyDown, keyUp
 from time import sleep
@@ -197,7 +199,7 @@ class Tank:
         return (Point(self.getXCoordinate(), self.getYCoordinate()), minD[2])
     
     @timeit(print_result=True)
-    def isInSameSpot(self, x : float, y : float) -> bool:
+    def isInSameSpot(self) -> bool:
         """Checks if a tank is still in the spot as it was before. It can be used to skip searching the screen for it
 
         Returns:
@@ -231,7 +233,8 @@ class Tank:
         return True
     
     def __repr__(self) -> str:
-        return f"{self.__name}: | Positon: {self.__position}"
+        text = f"{Style.BRIGHT}{colors.convert_rgb_to_text_color(self.color)}{self.__name}{Style.RESET_ALL}: | Positon: {self.__position}"
+        return text
 
 class friendlyTank(Tank):
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, gameEnvironment : GameEnvironment, name : str = "friendlyTank", epsilon : float = 0.006) -> None:
@@ -423,7 +426,8 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    sleep(1)
-    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE)
-    enemyTank = Tank(colors.ENEMY_TANK, CM)
+    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    enemyTank = Tank(colors.ENEMY_TANK, CM, "Gegner")
     
+    print(enemyTank)
+    print(myTank)

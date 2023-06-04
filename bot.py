@@ -6,6 +6,8 @@ import globals
 import os
 import glob
 import visualizer
+import colorama
+from colorama import Fore, Back, Style
 from environment import GameEnvironment
 from coordinateManager import CoordinateManager, Box
 from tank import Tank, friendlyTank
@@ -100,13 +102,13 @@ def main() -> None:
         os.remove(file_path)
         
 
-    
     print(globals.RULES)
     
     gameEnvironment = GameEnvironment(coordManager)
     
     initThreads(coordManager, gameEnvironment)
     
+    colorama.init()
     globals.initializeGlobals()
     if globals.CREATE_PICTURE:
         visualizer.createImage(coordManager)
