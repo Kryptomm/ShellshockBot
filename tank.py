@@ -206,16 +206,19 @@ class Tank:
             bool: True if tank has not moved, False if it has
         """
         delta = self.coordManager.SAMETANKBOX.getBoundariesNormalized(self.coordManager)
-        s = ImageGrab.grab(bbox = (self.absX + delta[0], self.absY + delta[1], self.absX + delta[2], self.absY + delta[3]))
+        s = ImageGrab.grab(bbox=(self.absX + delta[0], self.absY + delta[1], self.absX + delta[2], self.absY + delta[3]))
 
         smallestD = float("inf")
-        for x in range(0, s.width, 1):
-            for y in range(0, s.height, 1):
-                color = s.getpixel((x, y))
-                smallestD = min(numpy.linalg.norm(numpy.array(color) - numpy.array(self.color)), smallestD)
 
-        if smallestD <= 15: return True
-        return False
+        image_array = numpy.array(s)
+
+        color_diff = numpy.linalg.norm(image_array - numpy.array(self.color), axis=2)
+        smallestD = numpy.min(color_diff)
+
+        if smallestD <= 15:
+            return True
+        else:
+            return False
     
     def isPointHitting(self, x : float, y : float) -> bool:
         """checks if a given coordinate is in hit range to an tank.
