@@ -3,7 +3,7 @@ from colorama import Fore
 
 FRIENDLY_TANK = (36, 245, 41)
 ENEMY_TANK = (253,57,64)
-GEAR = (244,245,126)
+GEAR = (253,251,119)
 BUMPER = (253,253,253)
 
 COLOR_MAPPING = {

@@ -30,10 +30,11 @@ def __gearDetection(coordManager : CoordinateManager, gameEnvironment : GameEnvi
         gameEnvironment.lobbyStateEvent.wait()
 
         _, colorDistance = gear.getCoordinatesBrute()
-        if colorDistance <= 5:
+        print(colorDistance)
+        if colorDistance <= 10:
             moveTo(gear.absX, gear.absY)
         else:
-            sleep(0.01)
+            sleep(0.05)
 
 thread_methods = [__gearDetection]
 
