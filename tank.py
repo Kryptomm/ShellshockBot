@@ -3,6 +3,8 @@ import shootingStrategies
 import colors
 import visualizer
 import colorama
+import globals
+from scipy.spatial import distance
 from colorama import Fore, Back, Style
 from collections import deque
 from pyautogui import press, click, screenshot, keyDown, keyUp
@@ -119,8 +121,8 @@ class Tank:
         """
         self.__position.setY(self.coordManager.convertHeigthToFloat(value))
     
-    @timeit("getAverageCoordinatesBreadth")
-    def getAverageCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> tuple[Point, int]:
+    @timeit("getCoordinatesBreadth")
+    def getCoordinatesBreadth(self, everyPixel=3, hideRegions=None) -> tuple[Point, float]:
         """updates the coordinates of the tank by doing breathsearch on the screen from the last position
         updates them automatically but also returns them. Position may be inaccurate by a few pixels.
 
@@ -130,7 +132,7 @@ class Tank:
 
         Returns:
             Point: Point class of the current position
-            int: the closest distance of the color to another color
+            float: the closest distance of the color to another color
         """
         myPosX = self.absX
         myPosY = self.absY
@@ -197,6 +199,50 @@ class Tank:
         self.absY = minD[1]
 
         return (Point(self.getXCoordinate(), self.getYCoordinate()), minD[2])
+    
+    @timeit("getCoordinatesBrute")
+    def getCoordinatesBrute(self, everyPixel=3, hideRegions=None) -> tuple[Point, float]:
+        """updates the coordinates of the tank by doing brute force search on the screen
+        updates them automatically but also returns them. Position may be inaccurate by a few pixels.
+
+        Args:
+            everyPixel (int, optional): skips all the pixels in between for much better performance. Defaults to 3.
+            hideRegions (list[Box], optional): a list of boxes, that is going to be hidden
+
+        Returns:
+            Point: Point class of the current position
+            float: the closest distance of the color to another color
+        """
+        gamefieldBoundaries = self.coordManager.GAME_FIELD.getBoundariesNormalized(self.coordManager)
+        image = ImageGrab.grab(bbox = (gamefieldBoundaries[0],gamefieldBoundaries[1],gamefieldBoundaries[2],gamefieldBoundaries[3]))
+        
+        #regions to cover
+        if hideRegions == None:
+            hideRegions = []
+            
+        for region in hideRegions:
+            regionBoundarie = region.getBoundariesNormalized(self.coordManager)
+            for x in range(regionBoundarie[0],regionBoundarie[2]):
+                for y in range(regionBoundarie[1],regionBoundarie[3]):
+                    try: image.putpixel((x,y),(0,0,0))
+                    except: pass
+        
+        image = numpy.array(image)
+        image = image[:, :, ::-1]
+
+        subset_image = image[::everyPixel, ::everyPixel]
+        color_distances = distance.cdist([self.color], subset_image.reshape(-1, 3)).squeeze()
+
+        min_distance_idx = numpy.argmin(color_distances)
+        min_distance = color_distances[min_distance_idx]
+
+        y, x = numpy.unravel_index(min_distance_idx, subset_image.shape[:2])
+        x, y = x * everyPixel, y * everyPixel
+        
+        self.absX = x
+        self.absY = y
+        
+        return (Point(self.getXCoordinate(), self.getYCoordinate()), min_distance)
     
     @timeit(print_result=True)
     def isInSameSpot(self) -> bool:
@@ -429,8 +475,13 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
-    enemyTank = Tank(colors.ENEMY_TANK, CM, "Gegner")
+    globals.CREATE_PICTURE = True
     
-    print(enemyTank)
+    visualizer.createImage(CM)
+    
+    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    myTank.getCoordinatesBrute()
+    
+    visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
+    visualizer.saveImage()
     print(myTank)

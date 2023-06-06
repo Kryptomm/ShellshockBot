@@ -32,9 +32,9 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     sleep(8)
     
     #Search for the first time
-    myTank.getAverageCoordinatesBreadth()
+    myTank.getCoordinatesBreadth()
     hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-    enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
+    enemyTank.getCoordinatesBreadth(hideRegions = [hideRegion])
     
     while True:
         while not gameEnvironment.isMyTurn():
@@ -44,12 +44,12 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         gameEnvironment.isShootingState = True
         
         if not myTank.isInSameSpot():
-            myTank.getAverageCoordinatesBreadth()
+            myTank.getCoordinatesBreadth()
         print(myTank)
         
         if not enemyTank.isInSameSpot():
             hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-            enemyTank.getAverageCoordinatesBreadth(hideRegions = [hideRegion])
+            enemyTank.getCoordinatesBreadth(hideRegions = [hideRegion])
         print(enemyTank)
         
         if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
@@ -61,7 +61,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             
         try:
             if myTank.move():
-                myTank.getAverageCoordinatesBreadth()
+                myTank.getCoordinatesBreadth()
         except FailSafeException:
             pass
         

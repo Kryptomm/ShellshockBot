@@ -29,7 +29,7 @@ def __gearDetection(coordManager : CoordinateManager, gameEnvironment : GameEnvi
         gameEnvironment.shootingStateEvent.wait()
         gameEnvironment.lobbyStateEvent.wait()
 
-        _, colorDistance = gear.getAverageCoordinatesBreadth()
+        _, colorDistance = gear.getCoordinatesBreadth()
         if colorDistance <= 15:
             moveTo(gear.absX, gear.absY)
         else:

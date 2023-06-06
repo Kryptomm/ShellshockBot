@@ -411,7 +411,7 @@ if __name__ == "__main__":
     sleep(1)
     visualizer.createImage(CM)
     myTank = friendlyTank((36, 245, 41), CM, GE)
-    myTank.getAverageCoordinatesBreadth()
+    myTank.getCoordinatesBreadth()
     
     enemyTank = Tank((194,3,3), CM)
     enemyTank.setPosition(Point(0.66875, 0.4444444444444444))
