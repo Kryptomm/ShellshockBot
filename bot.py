@@ -32,9 +32,9 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     sleep(8)
     
     #Search for the first time
-    myTank.getCoordinatesBreadth()
+    myTank.getCoordinatesBrute()
     hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-    enemyTank.getCoordinatesBreadth(hideRegions = [hideRegion])
+    enemyTank.getCoordinatesBrute(hideRegions = [hideRegion])
     
     while True:
         while not gameEnvironment.isMyTurn():
@@ -67,10 +67,10 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         
         visualizer.createImage(coordManager)
         myTank.shoot(enemyTank)
+        gameEnvironment.isShootingState = False
         visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
         visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, coordManager)
         visualizer.saveImage()
-        gameEnvironment.isShootingState = False
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
     """Takes control over everything that is happening in the lobby as pushing ready and waiting there until the game started

@@ -29,15 +29,23 @@ def __gearDetection(coordManager : CoordinateManager, gameEnvironment : GameEnvi
         gameEnvironment.shootingStateEvent.wait()
         gameEnvironment.lobbyStateEvent.wait()
 
-        _, colorDistance = gear.getCoordinatesBreadth()
-        if colorDistance <= 15:
+        _, colorDistance = gear.getCoordinatesBrute()
+        if colorDistance <= 5:
             moveTo(gear.absX, gear.absY)
         else:
             sleep(0.01)
 
-thread_methods = []
+thread_methods = [__gearDetection]
 
 def initThreads(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
     for func in thread_methods:
         t = Thread(target=func, args=(coordManager, gameEnvironment))
         t.start()
+        
+
+
+if __name__ == "__main__":
+    CM = CoordinateManager()
+    GE = GameEnvironment(CM)
+    
+    __gearDetection(CM, GE)
