@@ -111,8 +111,10 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
 
 RULES = """
         ~~~DAS IST EIN FARMBOT FÜR XP~~~
-            REGELN:
+            UMGEBUNG:
                 -Fenster: Vollbild
+                -Auflösung: 1920x1080 (An anderen wird gearbeitet)
+            SPIEL-REGELN:
                 -Map-Color: Nicht Gelb/Rot/Grün
                 -Map-Mode: Generated  / Secure: Eine Flache Map
                 -Mode: Deathmatch
