@@ -1,5 +1,4 @@
 import json
-from pywinauto.application import Application
 from pyautogui import locateOnScreen, click
 from time import sleep
 from threading import Thread

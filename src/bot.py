@@ -52,6 +52,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             enemyTank.getCoordinatesBreadth(hideRegions = [hideRegion])
         print(enemyTank)
         
+        #has to be updatet every round since it could alternate because of random teleporters, or the round 2 alternation
         if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
             myTank.BOUNDARIES = coordManager.TANK1BOX
             enemyTank.BOUNDARIES = coordManager.TANK2BOX
@@ -65,12 +66,16 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         except FailSafeException:
             pass
         
-        visualizer.createImage(coordManager)
+        if globals.CREATE_PICTURE:
+            visualizer.createImage(coordManager)
+            
         myTank.shoot(enemyTank)
         gameEnvironment.isShootingState = False
-        visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
-        visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, coordManager)
-        visualizer.saveImage()
+        
+        if globals.CREATE_PICTURE:
+            visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
+            visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, coordManager)
+            visualizer.saveImage()
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
     """Takes control over everything that is happening in the lobby as pushing ready and waiting there until the game started

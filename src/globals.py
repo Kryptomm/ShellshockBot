@@ -115,14 +115,14 @@ RULES = """
                 -Fenster: Vollbild
                 -Auflösung: 1920x1080 (An anderen wird gearbeitet)
             SPIEL-REGELN:
-                -Map-Color: Nicht Gelb/Rot/Grün
+                -Map-Color: Nicht Gelb/Rot/Grün, Recommended: Blau
                 -Map-Mode: Generated  / Secure: Eine Flache Map
                 -Mode: Deathmatch
                 -Players: 2
-                -Wind: High
+                -Wind: Low-High, Recommended: High
                 -Shot-Type: Single
-                -Mod: One-Wep
-                -Obstacles: Med / Secure: Low
+                -Mod: Recommended: High
+                -Obstacles: Recommended: Med, Secure: Low (Less XP)
             Aktiviere den Bot in der Lobby und sei nicht bereit!
         """
 
