@@ -106,8 +106,6 @@ def main() -> None:
     
     gameEnvironment = GameEnvironment(coordManager)
     
-    initThreads(coordManager, gameEnvironment)
-    
     colorama.init()
     globals.initializeGlobals()
     if globals.CREATE_PICTURE:
@@ -118,6 +116,7 @@ def main() -> None:
         print("Starte von der Lobby aus!")
         return
 
+    initThreads(coordManager, gameEnvironment)
     lobbyWrapperLoop(coordManager, gameEnvironment)
 
 if __name__ == "__main__":
