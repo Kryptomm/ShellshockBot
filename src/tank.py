@@ -371,14 +371,15 @@ class friendlyTank(Tank):
             enemyTank (_type_): a tank class to attack
         """
         weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getSelectedWeapon()
+        print(f"{super().__repr__()}: | {weapon=} | {weapon_category=} | {weapon_extra_info=}")
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
         
-        
+        #Versuche erst ein x3 zu identifizieren, da dies potenziell besser ist.
         buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
         epsilon = 0.014584
         if buffPosition == None:
-            epsilon= 0.023959
+            epsilon = 0.023959
             buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
             
         buffTank = None
