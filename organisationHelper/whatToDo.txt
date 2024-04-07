@@ -1,3 +1,0 @@
-Priority in descending order:
-
--deltaAngle weapons

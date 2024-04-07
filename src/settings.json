@@ -6,7 +6,7 @@
     },
     "macro":{
         "exit": "ä",
-        "fortify": "ö",
-        "overcharge": "ü"
+        "overcharge": "ü",
+        "shootweps": "ö"
     }
 }

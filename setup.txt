@@ -1,0 +1,3 @@
+pyinstaller --hidden-import=skimage.data._fetchers --onefile --icon=bot_icon.ico bot.py
+
+pyinstaller --onefile --icon=macros_icon.ico macros.py

@@ -68,7 +68,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
 
         "instant": ["earthquake", "mega-quake", "shockwave", "sonic pulse", "drone",
                     "heavy drone", "attractoids", "imploder", "ultimate imploder", "health aura",
-                    "health aura+", "health aura++",],
+                    "health aura+", "health aura++"],
 
         "45degrees": ["three-ball", "five-ball", "eleven-ball", "twentyfive-ball", "stream",
                     "creek", "river", "tsunami", "flame", "blaze",
