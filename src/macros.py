@@ -43,13 +43,17 @@ def overcharge():
         lastFoundWeapons = deque(maxlen=4)
         currentDirection = False
         adjusted = False
+
         while macros["overcharge"] and not macros["overcharge"] == "exit":
             click(530,1000)
             sleep(0.25)
             
             #Solange ich noch nicht Pressen kann
             isGonnaShoot = False
+            checks, maxChecks = 0, 6
             while not (isVisible("FireButton", region=(1000,900, 1420, 1100))) and not macros["overcharge"] == "exit":
+                if checks >= maxChecks: continue
+                
                 selected_weapon = gameEnvironment.getSelectedWeapon()
                 isGonnaShoot = selected_weapon[0] in targettedWeapons
                 if not isGonnaShoot:
@@ -63,6 +67,8 @@ def overcharge():
                         press_key("s")
                     else:
                         press_key("w")
+                        
+                checks += 1
                     
             if isGonnaShoot: 
                 print("shooting")
@@ -73,7 +79,7 @@ def overcharge():
                     adjusted = True
                 gameEnvironment.pressButton(gameEnvironment.FireButton)
             else:
-                print("overcharge: Klick")
+                print("Overcharge")
                 click(493,460)
                 
             if currentDirection:

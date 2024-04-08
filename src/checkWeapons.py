@@ -75,10 +75,14 @@ def getSelectedWeaponNeighbors():
 if __name__ == "__main__":
     loadWeaponPixels()
     sleep(3)
+    oneTime = True
     while True:
         wep_data = getSelectedWeaponNeighbors()
         
         print(wep_data)
+        
+        if oneTime:
+            break
         
         pyautogui.keyDown("w")
         pyautogui.keyUp("w")

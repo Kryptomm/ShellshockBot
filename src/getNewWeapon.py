@@ -1,4 +1,4 @@
-wimport pytesseract, numpy, cv2, pyautogui, difflib, time
+import pytesseract, numpy, cv2, pyautogui, difflib, time
 from PIL import Image, ImageEnhance, ImageGrab
 from globals import WEPS
 import keyboard
@@ -52,6 +52,7 @@ def convertTo1DArray(cap):
 
 if __name__ == "__main__":
     wait = 3
+    oneTime = True
     time.sleep(wait)
     print("Starting")
     while True:
@@ -73,5 +74,8 @@ if __name__ == "__main__":
         print(name)
         pyautogui.keyDown("w")
         pyautogui.keyUp("w")
+        
+        if oneTime:
+            break
     
     print("Gestoppt")
