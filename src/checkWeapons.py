@@ -8,7 +8,6 @@ WEAPON_FIELD = [713,1038,950,1064]
 WEAPONPIXELS = []
 
 def loadWeaponPixels():
-    global WEAPONPIXELS_ACTIVE
     print("----------------------------------------------------------------")
     print("lade Waffen-Trainings-Daten")
     print("----------------------------------------------------------------")
@@ -25,11 +24,6 @@ def loadWeaponPixels():
         WEAPONPIXELS.append([d[2:], d[0].replace("#"," "), int(d[1])])
         if count % 10 == 0: print(f"WAFFEN | {count} von {len(Lines)} geladen")
 
-    WEAPONPIXELS_ACTIVE = True
-    print("----------------------------------------------------------------")
-    print("Trainings-Daten wurden geladen, schalte nun auf bessere Waffenerkennung um.")
-    print("----------------------------------------------------------------")
-    
 def makeScreenFromWeapons():
     cap = ImageGrab.grab(bbox = (WEAPON_FIELD[0],WEAPON_FIELD[1],WEAPON_FIELD[2],WEAPON_FIELD[3]))
     filter = ImageEnhance.Color(cap)

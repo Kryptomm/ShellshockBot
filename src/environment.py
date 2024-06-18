@@ -3,7 +3,9 @@ import pyautogui
 import threading
 import globals
 import win32gui
+import numpy as np
 
+from math import sqrt
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
 from decorators import timeit
@@ -117,14 +119,40 @@ class GameEnvironment:
             data.append([d[2:], d[0].replace("#"," "), int(d[1])])        
         return data
     
+    def __calculateColorDistance(self, c1 : tuple[int, int, int], c2 : tuple[int, int, int]) -> float:
+        """Calculates the euclidean Distance between two colors
+
+        Args:
+            color1 (_type_): color1
+            color2 (_type_): color2
+        """
+        return sqrt((c1[0] - c2[0])**2 + (c1[1] - c2[1])**2 + (c1[2] - c2[2])**2)
+    
+    def __convertScreenshotToImage(self, screenshot : Image) -> Image:
+        """Convert a screenshot from the pyautogui library to an Image
+
+        Args:
+            screenshot (_type_): The screenshot
+
+        Returns:
+            Image: A convert Image
+        """
+        return ImageGrab.Image.frombytes(
+            screenshot.mode, 
+            screenshot.size, 
+            screenshot.tobytes()
+        )
+
+    
     def __makeScreenFromWeapons(self) -> Image:
         """makes a screenshot and applies different filters for weapon recognition
 
         Returns:
             Image: returns the edited image
         """
-        screenshotBoundarie = self.coordManager.WEAPON_FIELD.getBoundariesNormalized(self.coordManager)
-        cap = ImageGrab.grab(bbox = (screenshotBoundarie[0],screenshotBoundarie[1],screenshotBoundarie[2],screenshotBoundarie[3]))
+        screenshotBoundaries = self.coordManager.WEAPON_FIELD.getBoundariesNormalizedForScreenshot(self.coordManager)
+        cap = self.__convertScreenshotToImage(pyautogui.screenshot(region=screenshotBoundaries))
+        cap = cap.resize((237, 26), Image.NEAREST)
         filter = ImageEnhance.Color(cap)
         cap = filter.enhance(50)
         enhancer = ImageEnhance.Contrast(cap)
@@ -146,8 +174,9 @@ class GameEnvironment:
         Returns:
             Image: returns the edited image
         """
-        screenshotBoundarie = self.coordManager.WIND_FIELD.getBoundariesNormalized(self.coordManager)
-        cap = ImageGrab.grab(bbox = (screenshotBoundarie[0],screenshotBoundarie[1],screenshotBoundarie[2],screenshotBoundarie[3]))
+        screenshotBoundaries = self.coordManager.WIND_FIELD.getBoundariesNormalizedForScreenshot(self.coordManager)
+        cap = self.__convertScreenshotToImage(pyautogui.screenshot(region=screenshotBoundaries))
+        cap = cap.resize((27, 18), Image.NEAREST)
 
         filter = ImageEnhance.Color(cap)
         new_cap = filter.enhance(0)
@@ -203,7 +232,7 @@ class GameEnvironment:
                     extra_information = wep[1]
                     wep = wep[0]
                 if wep == wep_str: return wep, wep_cat, extra_information
-        return ("shot", "normal", None)
+        return ("undefined", "normal", None)
     
     def __getWindRichtung(self) -> int:
         """reads out the screen for the current wind direction
@@ -244,7 +273,7 @@ class GameEnvironment:
         Args:
             button (tuple[tuple[str, CoordinateManager], Box]): a button
         """
-        button = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalized(self.coordManager))
+        button = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalizedForScreenshot(self.coordManager))
         if button == None: return
         pyautogui.click(button[0],button[1])
         pyautogui.click(5,5)
@@ -256,13 +285,15 @@ class GameEnvironment:
         Returns:
             bool: True if in lobby, else False
         """
-        inLobby = pyautogui.locateOnScreen(self.ReadyButton[0], grayscale=True, confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
-        if inLobby:
-            self.inLobbyState = True
+        cap = pyautogui.screenshot(region=self.ReadyButton[1].getBoundariesNormalizedForScreenshot(self.coordManager))
+        
+        image_np = np.array(cap)
+        avg_color = image_np.mean(axis=(0, 1))
+        avg_color = tuple(map(int, avg_color))
+        
+        if self.__calculateColorDistance((31,39,51), avg_color) < 3 or  self.__calculateColorDistance((36, 43, 56), avg_color) < 3:
             return True
-        else: 
-            self.inLobbyState = False
-            return False
+        return False
         
     def inLoadingScreen(self) -> bool:
         """chcecks the screen if it is in the loading Screen
@@ -290,10 +321,15 @@ class GameEnvironment:
         Returns:
             bool: True if it my turn, else False
         """
-        myTurn = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
-        if myTurn == None:
-            return False
-        else: return True
+        cap = pyautogui.screenshot(region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
+        cap = cap.resize((358,110), Image.NEAREST)
+        image_np = np.array(cap)
+        avg_color = image_np.mean(axis=(0, 1))
+        avg_color = tuple(map(int, avg_color))
+        
+        if self.__calculateColorDistance((189,30,30), avg_color) < 3:
+            return True
+        return False
     
     def findPicture(self, picture : tuple[str, Box]) -> Point:
         """Finds a specific picture on the screen
@@ -314,5 +350,7 @@ class GameEnvironment:
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
-    while True:
-        print(GameEnv.findPicture(GameEnv.circleBumper))
+    
+    for i in range(1000000):
+        data = GameEnv.getWind()
+        print(i, data)

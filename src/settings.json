@@ -5,7 +5,9 @@
         "debug": true
     },
     "macro":{
-        "exit": "ä",
-        "overcharge": "ü"
+        "overchargewithweps": "ü",
+        "shooting_weapons": ["earthquake", "mega-quake", "shockwave", "sonic pulse", "drone", "heavy drone", "shockshell", "shockshell trio",
+                            "health aura", "health aura+", "health aura++", "small potion", "medium potion", "large potion", "huge potion",
+                            "partition", "division"]
     }
 }

@@ -101,7 +101,7 @@ class Box:
         """
         return (self.__upperLeft.getX(), self.__upperLeft.getY(), self.__bottomRight.getX(), self.__bottomRight.getY())
     
-    def getBoundariesNormalized(self, coordinateManager) -> tuple[int, int, int, int]:
+    def getBoundariesNormalizedForScreenshot(self, coordinateManager) -> tuple[int, int, int, int]:
         """get the boundaries normalized to the screen resolution
         perfect for screenshots
 
@@ -111,10 +111,27 @@ class Box:
         Returns:
             tuple[int, int, int, int]: returns as (upperx,uppery,bottomx,bottomy)
         """
-        return (coordinateManager.convertFloatToWidth(self.__upperLeft.getX()),
-                coordinateManager.convertFloatToHeigth(self.__upperLeft.getY()),
-                coordinateManager.convertFloatToWidth(self.__bottomRight.getX()),
-                coordinateManager.convertFloatToHeigth(self.__bottomRight.getY()))
+        x1 = coordinateManager.convertFloatToWidth(self.__upperLeft.getX())
+        y1 = coordinateManager.convertFloatToHeigth(self.__upperLeft.getY())
+        x2 = coordinateManager.convertFloatToWidth(self.__bottomRight.getX()) - x1
+        y2 = coordinateManager.convertFloatToHeigth(self.__bottomRight.getY()) - y1
+        return (x1,y1,x2,y2)
+    
+    def getBoundariesNormalized(self, coordinateManager) -> tuple[int, int, int, int]:
+        """get the boundaries normalized to the screen resolution
+        perfect absolute boxes
+
+        Args:
+            coordinateManager (_type_): initialized CoordinateManager class
+
+        Returns:
+            tuple[int, int, int, int]: returns as (upperx,uppery,bottomx,bottomy)
+        """
+        x1 = coordinateManager.convertFloatToWidth(self.__upperLeft.getX())
+        y1 = coordinateManager.convertFloatToHeigth(self.__upperLeft.getY())
+        x2 = coordinateManager.convertFloatToWidth(self.__bottomRight.getX())
+        y2 = coordinateManager.convertFloatToHeigth(self.__bottomRight.getY())
+        return (x1,y1,x2,y2)
         
     
     def isPointInBoundaries(self, point : Point) -> bool:

@@ -13,16 +13,13 @@ try:
     settings = json.load(open("settings.json", encoding='utf-8'))
 except:
     settings = json.load(open(f"{os.getcwd()}/src/settings.json", encoding='utf-8'))
-macros = {}
 
-targettedWeapons = ["earthquake", "mega-quake", "shockwave", "sonic pulse", "drone", "heavy drone",
-                    "health aura", "health aura+", "health aura++", "small potion", "medium potion", "large potion", "huge potion"]
+targettedWeapons = settings["macro"]["shooting_weapons"]
 
 coordManager = coordinateManager.CoordinateManager()
 gameEnvironment = environment.GameEnvironment(coordManager)
 
-for m in settings["macro"]: macros[m] = False
-
+OVERCHARGEWITHWEPS = False
 def press_key(key, timer=0):
     keyboard.press(key)
     sleep(timer)
@@ -34,31 +31,31 @@ def isVisible(picture, region):
     else: return False
 
 def overcharge():
+    global OVERCHARGEWITHWEPS
     while True:
         sleep(1)
 
-        if macros["overcharge"] == "exit":exit()
-        if not macros["overcharge"]: continue
+        if not OVERCHARGEWITHWEPS: continue
         
         lastFoundWeapons = deque(maxlen=4)
         currentDirection = False
         adjusted = False
 
-        while macros["overcharge"] and not macros["overcharge"] == "exit":
+        while OVERCHARGEWITHWEPS:
             click(530,1000)
             sleep(0.25)
             
             #Solange ich noch nicht Pressen kann
             isGonnaShoot = False
-            checks, maxChecks = 0, 6
-            while not (isVisible("FireButton", region=(1000,900, 1420, 1100))) and not macros["overcharge"] == "exit":
+            checks, maxChecks = 0, 8
+            while not (isVisible("FireButton", region=(1000,900, 1420, 1100))):
                 if checks >= maxChecks: continue
                 
                 selected_weapon = gameEnvironment.getSelectedWeapon()
                 isGonnaShoot = selected_weapon[0] in targettedWeapons
                 if not isGonnaShoot:
                     #In eine Richtung bewegen beim Waffen sortieren
-                    if selected_weapon in lastFoundWeapons:
+                    if selected_weapon in lastFoundWeapons and selected_weapon != "undefined":
                         print("changing search direction")
                         currentDirection = not currentDirection
                         lastFoundWeapons.clear()
@@ -75,7 +72,10 @@ def overcharge():
                 if not adjusted:
                     for _ in range(100):
                         press_key("down", timer=0.05)
-                    press_key("up",timer=0.05)
+                    
+                    for _ in range(3):
+                        sleep(0.2)
+                        press_key("up",timer=0.05)
                     adjusted = True
                 gameEnvironment.pressButton(gameEnvironment.FireButton)
             else:
@@ -88,17 +88,13 @@ def overcharge():
                 press_key("w")
 
 def on_press(key):
+    global OVERCHARGEWITHWEPS
     key = "{0}".format(key).replace("'","")
 
-    if key == settings["macro"]["exit"]:
-        for m in macros: macros[m] = "exit"
-        exit()
-
-    for m in settings["macro"]:
-        if key == settings["macro"][m]:
-            macros[m] = not macros[m]
-            if macros[m]: print(f"{m} activated")
-            else: print(f"{m} deactivated")
+    if key == settings["macro"]["overchargewithweps"]:
+        OVERCHARGEWITHWEPS = not OVERCHARGEWITHWEPS
+        if OVERCHARGEWITHWEPS: print(f"Overcharge with Weapons activated")
+        else: print(f"Overcharge with Weapons deactivated")
 
 def on_release(key):
     pass
