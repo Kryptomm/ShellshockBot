@@ -165,7 +165,8 @@ class CoordinateManager:
         self.__heigthWidthRatio = self.__screenHeigth / self.__screenWidth
         self.__widthHeightRatio = self.__screenWidth / self.__screenHeigth
         
-        self.READY_BUTTON       = Box(0.582813,  0.789815,  0.854167,  0.999074)
+        self.READY_BUTTON       = Box(0.582813,  0.880555,  0.854167,  0.908333)
+        self.READY_BUTTON_SINGLE= Box(0.582813,  0.850930,  0.854167,  0.878703)
         self.FIRE_BUTTON        = Box(0.534375,  0.865741,  0.735417,  0.991667)
         
         self.WIND_FIELD         = Box(0.492708,  0.071296,  0.506771,  0.087963)

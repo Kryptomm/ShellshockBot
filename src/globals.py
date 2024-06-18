@@ -2,7 +2,7 @@ import sys
 from random import randint
 
 #Setting Variables
-DEBUG = False
+DEBUG = True
 CREATE_PICTURE = False
 ID = randint(0,sys.maxsize)
 PICTURE_PATH = f"{ID}.png"

@@ -29,7 +29,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     enemyTank = Tank(colors.ENEMY_TANK, coordManager)
     
     #Wait until screen is fully there
-    sleep(8)
+    if not globals.DEBUG: sleep(8)
     
     #Search for the first time
     myTank.getCoordinatesBrute()
@@ -38,8 +38,9 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     
     while True:
         while not gameEnvironment.isMyTurn():
-            if gameEnvironment.inLoadingScreen(): click(coordManager.convertFloatToWidth(0.527604), coordManager.convertFloatToHeigth(0.9722222))
-            if gameEnvironment.inLobby(): return
+            #if gameEnvironment.inLoadingScreen(): click(coordManager.convertFloatToWidth(0.527604), coordManager.convertFloatToHeigth(0.9722222))
+            if gameEnvironment.inLobby(): 
+                return
             
         gameEnvironment.isShootingState = True
         
@@ -86,7 +87,7 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
     """
     roundsPlayed = 0
     while True:
-        gameEnvironment.pressButton(gameEnvironment.ReadyButton)
+        gameEnvironment.pressButton(coordManager.READY_BUTTON_SINGLE)
         
         while gameEnvironment.inLobby():
             sleep(0.1)

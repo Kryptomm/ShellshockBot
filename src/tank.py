@@ -394,7 +394,7 @@ class friendlyTank(Tank):
         if weapon_category != "instant":
             self.moveCannon(angle, power)
             
-        self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
+        self.gameEnvironment.pressButton(self.coordManager.FIRE_BUTTON)
     
     def updateAndGetExcactPosition(self) -> Point:
         """Will get the excact pixel the tank is located on

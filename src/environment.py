@@ -5,6 +5,7 @@ import globals
 import win32gui
 import numpy as np
 
+from time import sleep
 from math import sqrt
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
@@ -268,15 +269,14 @@ class GameEnvironment:
         return int(wind), self.__getWindRichtung()
 
     def pressButton(self, button : tuple[str, Box]) -> None:
-        """presses a button that. Only presses is button is present on the screen
+        """presses a button that. Only presses is button is present on the screen.
+        ASSUMES that it is visible
 
         Args:
             button (tuple[tuple[str, CoordinateManager], Box]): a button
         """
-        button = pyautogui.locateOnScreen(button[0], grayscale=True, confidence=0.9, region=button[1].getBoundariesNormalizedForScreenshot(self.coordManager))
-        if button == None: return
-        pyautogui.click(button[0],button[1])
-        pyautogui.click(5,5)
+        region = button.getBoundariesNormalized(self.coordManager)
+        pyautogui.click((region[0] + region[2]) // 2, (region[1] + region[3]) // 2)
     
     def inLobby(self) -> bool:
         """checks the screen if it is in the currently in the lobby
@@ -291,7 +291,7 @@ class GameEnvironment:
         avg_color = image_np.mean(axis=(0, 1))
         avg_color = tuple(map(int, avg_color))
         
-        if self.__calculateColorDistance((31,39,51), avg_color) < 3 or  self.__calculateColorDistance((36, 43, 56), avg_color) < 3:
+        if self.__calculateColorDistance((27, 37, 50), avg_color) < 3 or  self.__calculateColorDistance((33, 44, 57), avg_color) < 3:
             return True
         return False
         
@@ -321,7 +321,7 @@ class GameEnvironment:
         Returns:
             bool: True if it my turn, else False
         """
-        cap = pyautogui.screenshot(region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
+        cap = pyautogui.screenshot(region=self.FireButton[1].getBoundariesNormalizedForScreenshot(self.coordManager))
         cap = cap.resize((358,110), Image.NEAREST)
         image_np = np.array(cap)
         avg_color = image_np.mean(axis=(0, 1))
@@ -352,5 +352,6 @@ if __name__ == "__main__":
     GameEnv = GameEnvironment(CoordMan)
     
     for i in range(1000000):
-        data = GameEnv.getWind()
+        data = GameEnv.isMyTurn()
         print(i, data)
+        sleep(1)
