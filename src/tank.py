@@ -226,6 +226,7 @@ class Tank:
                 for y in range(regionBoundarie[1],regionBoundarie[3]):
                     try: image.putpixel((x,y),(0,0,0))
                     except: pass
+        image.save("test.png")
         
         image = numpy.array(image)
         image = image[:, :, ::-1]
@@ -387,7 +388,7 @@ class friendlyTank(Tank):
             buffTank = Tank((0,0,0), self.coordManager, epsilon=epsilon)
             buffTank.setPosition(buffPosition)
             print(f"Buff found at {buffTank.getPosition()}")
-            visualizer.paintPixels(buffTank.getPosition()(), 40, (255,144,0), self.coordManager)
+            visualizer.paintPixels(buffTank.getPosition(), 40, (255,144,0), self.coordManager)
         
         angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
         

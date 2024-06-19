@@ -33,7 +33,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     
     #Search for the first time
     myTank.getCoordinatesBrute()
-    hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
+    hideRegion = Box(myTank.getXCoordinate() - 0.03 , myTank.getYCoordinate() - 0.03, myTank.getXCoordinate() + 0.03, myTank.getYCoordinate() + 0.05)
     enemyTank.getCoordinatesBrute(hideRegions = [hideRegion])
     
     while True:
