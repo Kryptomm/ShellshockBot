@@ -53,25 +53,31 @@ class EnemyTanks:
         self.initEnemyTanks()
         
     def initEnemyTanks(self):   
-        found = True
         hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
-        while found:
-            newEnemy = Tank(colors.ENEMY_TANK, self.coordManager)
+        while True:
+            newEnemy = Tank(colors.ENEMY_TANK, self.coordManager, name=f"Enemy Tank {len(self.enemies) + 1}")
             res = newEnemy.getCoordinatesBreadth(hideRegions=hideRegions)
             
             if res[1] >= 15:
+                print(f"Found {len(self.enemies)} enemy Tanks!")
+                
+                #try again if no one is found
+                if len(self.enemies) == 0:
+                    self.initEnemyTanks()
+                    
                 return
             
             hr = Box(newEnemy.getXCoordinate() - 0.03 , newEnemy.getYCoordinate() - 0.03, newEnemy.getXCoordinate() + 0.03, newEnemy.getYCoordinate() + 0.05)
             hideRegions.append(hr)
             self.enemies.append(newEnemy)
-        print(f"Found {len(self.enemies)} enemy Tanks!")
-    
+        
+        
     def updateEnemyTanks(self):
         hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
         for enemy in self.enemies:
             if not enemy.isInSameSpot():
                 res = enemy.getCoordinatesBreadth(hideRegions = hideRegions)
+    
     
     def paintEnemies(self):
         for enemyTank in self.enemies:
@@ -86,8 +92,8 @@ class Tank:
         Args:
             color (tuple[int, int, int]): color of the tank. one that is the most common in him
             coordManager (CoordinateManager): coordinate Manager class
-            name (str, optional): _description_. Defaults to "Tank".
-            epsilon (float, optional): _description_. Defaults to 0.01.
+            name (str, optional): name of the tank for better identification. Defaults to "Tank".
+            epsilon (float, optional): Radius of the tank. Defaults to 0.006.
         """
         
         self.__position : Point = Point(0.5, 0.5)
@@ -418,23 +424,20 @@ class friendlyTank(Tank):
         wind = wind * wind_richtung
         print(f"{super().__repr__()}: | {weapon=} | {weapon_category=} | {weapon_extra_info=} | {wind=}")
         
-        #Versuche erst ein x3 zu identifizieren, da dies potenziell besser ist.
-        buffTank = None
-        """
-        buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
-        epsilon = 0.014584
-        if buffPosition == None:
-            epsilon = 0.023959
-            buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
-            
-        if buffPosition:
-            buffTank = Tank((0,0,0), self.coordManager, epsilon=epsilon)
-            buffTank.setPosition(buffPosition)
-            print(f"Buff found at {buffTank.getPosition()}")
-            visualizer.paintPixels(buffTank.getPosition(), 40, (255,144,0), self.coordManager)
-        """
+        buffs = self.gameEnvironment.findBuffs()
         
-        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
+        #convert buffs to tanks
+        for key in buffs:
+            newList = []
+            for buff in buffs[key]:
+                buffTank = Tank(colors.GEAR, self.coordManager, name=key, epsilon=0.01)
+                buffTank.setPosition(buff)
+                newList.append(buffTank)
+            buffs[key] = newList
+            
+        print(f"{buffs=}")
+            
+        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, self.coordManager)
         random_key = random.choice(list(calculations.keys()))
         angle, power = calculations[random_key]
         
@@ -527,8 +530,19 @@ if __name__ == "__main__":
     sleep(1)
     visualizer.createImage(CM)
     
-    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
-    myTank.getCoordinatesBrute()
+    #myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    #myTank.getCoordinatesBrute()
+    
+    buffs = GE.findBuffs()
+    for key in buffs:
+        newList = []
+        for buff in buffs[key]:
+            buffTank = Tank(colors.GEAR, CoordinateManager, name=key, epsilon=0.024)
+            buffTank.setPosition(buff)
+            newList.append(buffTank)
+        buffs[key] = newList
+    print(buffs["x2"][0].absX)
+    exit()
     
     enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
     enemyTanks.paintEnemies()

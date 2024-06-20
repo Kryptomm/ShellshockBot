@@ -33,6 +33,7 @@ class GameEnvironment:
         #Perks
         self.x2 : tuple[str, CoordinateManager] = ("Images/x2.png", coordManager.X2)
         self.x3 : tuple[str, CoordinateManager] = ("Images/x3.png", coordManager.X3)
+        self.drone : tuple[str, CoordinateManager] = ("Images/drone.png", coordManager.DRONE)
         
         self.__isShootingState = False
         self.shootingStateEvent = threading.Event()
@@ -331,27 +332,73 @@ class GameEnvironment:
             return True
         return False
     
-    def findPicture(self, picture : tuple[str, Box]) -> Point:
+    def findPicture(self, image : Image, region : Box) -> Point:
         """Finds a specific picture on the screen
 
         Args:
-            picture (tuple[str, Box]): a picture
+            picture Image: a picture
+            region Box: a region to search in
 
         Returns:
             Point: a point where the picture is located, None if not found
         """
-        location = pyautogui.locateCenterOnScreen(picture[0], grayscale=True, confidence=0.9, region=picture[1].getBoundariesNormalized(self.coordManager))
+        location = pyautogui.locateCenterOnScreen(image, grayscale=True, confidence=0.9, region=region.getBoundariesNormalized(self.coordManager))
         pyautogui.locateAllOnScreen
         if location == None:
             return None
         
         return Point(self.coordManager.convertWidthToFloat(location[0]), self.coordManager.convertHeigthToFloat(location[1]))
+    
+    def scaleUpPicture(self, image : Image) -> Image:
+        """Scales up the picture by the ratio
+
+        Args:
+            image (Image): The picture to scale up
+
+        Returns:
+            Image: The scaled up picture
+        """
+        widthRatioTo1k = self.coordManager.getScreenWidth() / 1920
+        heightRatioTo1k = self.coordManager.getScreenHeigth() / 1080
+        
+        image = Image.open(image[0])
+        
+        newWidth = round(widthRatioTo1k * image.width)
+        newHeight = round(heightRatioTo1k * image.height)
+        
+        image = image.resize((newWidth, newHeight), Image.BICUBIC)
+        
+        return image
+    
+    def findBuffs(self) -> dict[str, list[object]]:
+        """A method to find all buffs on the field
+
+        Returns:
+            dict[str, object]: returns a dictionary containing the type of buff to the buffs Point-objects
+            Example: {"x3": [Point(...)], "x2": [Point(...),Point(...)] ,"drone": [], "crate": [Point(...)]}
+            These are all buffs
+        """
+        calcs = {"x3": [], "x2": [], "drone": [], "crate": []}
+        
+        def findBuffsHelper(pic):
+            scaledUp = self.scaleUpPicture(pic)
+            buff = self.findPicture(scaledUp, pic[1])
+            
+            if buff: return [buff]
+            else: return []
+
+        calcs["x3"].extend(findBuffsHelper(self.x3))
+        calcs["x2"].extend(findBuffsHelper(self.x2))
+        calcs["drone"].extend(findBuffsHelper(self.drone))
+        #calcs["crate"].extend(findBuffsHelper(self.crate))
+        
+        return calcs
         
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     
-    for i in range(1000000):
-        data = GameEnv.isMyTurn()
-        print(i, data)
-        sleep(1)
+
+    while True:    
+        buffs = GameEnv.findBuffs()
+        print(buffs)

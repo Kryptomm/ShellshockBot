@@ -31,7 +31,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     
     #initialize Tanks
     #Search for the first time
-    myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
+    myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment, name="My Tank")
     myTank.getCoordinatesBrute()
     enemyTanks = EnemyTanks(colors.ENEMY_TANK, coordManager, myTank)
     
