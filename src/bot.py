@@ -49,23 +49,6 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         
         enemyTanks.updateEnemyTanks()
         
-        #has to be updatet every round since it could alternate because of random teleporters, or the round 2 alternation
-        #Move Boundaries IDK muss noch ändern bleib erstmal stehen
-        """
-        if myTank.getXCoordinate() <= enemyTanks[0].getXCoordinate():
-            myTank.BOUNDARIES = coordManager.TANK1BOX
-            enemyTanks[0].BOUNDARIES = coordManager.TANK2BOX
-        else:
-            myTank.BOUNDARIES = coordManager.TANK2BOX
-            enemyTanks[0].BOUNDARIES = coordManager.TANK1BOX
-            
-        try:
-            if myTank.move():
-                myTank.getCoordinatesBreadth()
-        except FailSafeException:
-            pass
-        """
-        
         if globals.CREATE_PICTURE:
             visualizer.createImage(coordManager)
             
@@ -73,7 +56,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         gameEnvironment.isShootingState = False
         
         if globals.CREATE_PICTURE:
-            visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
+            visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, coordManager)
             enemyTanks.paintEnemies()
             visualizer.saveImage()
 

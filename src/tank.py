@@ -81,7 +81,7 @@ class EnemyTanks:
     
     def paintEnemies(self):
         for enemyTank in self.enemies:
-            visualizer.paintPixels(enemyTank.getPosition()(), 15, self.color, self.coordManager)
+            visualizer.paintPixels(enemyTank.getPosition(), 15, self.color, self.coordManager)
 
 class Tank:
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank", epsilon : float = 0.006):
@@ -411,7 +411,7 @@ class friendlyTank(Tank):
         if myPosY <= 300: pressKey(60, "up")
         else: pressKey(15, "up")
         
-    def shoot(self, enemyTanks, onlyOne=True) -> None:
+    def shoot(self, enemyTanks, onlyOne=False) -> None:
         """let the tank shoot, it does not check if it is aviable to shoot
         and just proceeds with his procedure as he is able to shoot
         only call if tank is aviable to shoot
@@ -438,8 +438,14 @@ class friendlyTank(Tank):
         print(f"{buffs=}")
             
         calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, self.coordManager, onlyOne=onlyOne)
-        random_key = random.choice(list(calculations.keys()))
-        angle, power = calculations[random_key]
+        
+        b = [calculations[i] for i in calculations]
+        maxElem = max(b, key=lambda x: x[1])[1]
+        b = list(filter(lambda x: x[1] == maxElem, sorted(b, key=lambda x: x[1], reverse=True)))
+
+        
+        c = random.choice(b)
+        angle, power = c[0]
         
         if weapon_category != "instant":
             self.moveCannon(angle, power)
@@ -547,5 +553,5 @@ if __name__ == "__main__":
     enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
     enemyTanks.paintEnemies()
 
-    visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
+    visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, CM)
     visualizer.saveImage()

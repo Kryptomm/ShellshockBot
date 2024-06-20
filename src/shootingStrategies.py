@@ -227,7 +227,7 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
     while currentTime < (floatingTime - ignoreTime * 0.25):
         x,y = __calculatePosition(angle, strength, wind, currentTime, coordManager, myTank.getXCoordinate(), myTank.getYCoordinate())
         currentTime += timeSteps
-        visualizer.paintPixels((x,y),1,(255,255,255),coordManager)
+        visualizer.paintPixels(Point(x,y),1,(255,255,255),coordManager)
         x,y = coordManager.convertFloatToWidth(x), coordManager.convertFloatToHeigth(y)
         if not (0 <= x < bumperScreenshot.width and 0 <= y < bumperScreenshot.height):
             continue
@@ -286,7 +286,7 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tu
             hits, prio = __calculateHittingAndPriority(angle - i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio == maxPriority:
-                return (angle - i, strength)
+                return (angle - i, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
                 hittingPosition = (angle - i, strength)
@@ -294,12 +294,12 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tu
             hits, prio = __calculateHittingAndPriority(angle + i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio == maxPriority:
-                return (angle + i, strength)
+                return (angle + i, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
                 hittingPosition = (angle + i, strength)
     
-    return hittingPosition
+    return (hittingPosition,bestPriority)
 
 def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
@@ -328,7 +328,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) ->
             hits, prio = __calculateHittingAndPriority(angle - i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio == maxPriority:
-                return (angle - i, strength)
+                return (angle - i, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
                 hittingPosition = (angle - i, strength)
@@ -336,12 +336,12 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) ->
             hits, prio = __calculateHittingAndPriority(angle + i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio == maxPriority:
-                return (angle + i, strength)
+                return (angle + i, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
                 hittingPosition = (angle + i, strength)
     
-    return hittingPosition
+    return (hittingPosition,bestPriority)
 
 def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "landing". Does it by calculating the
@@ -370,7 +370,7 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> t
             hits, prio = __calculateHittingAndPriority(angle - i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio == maxPriority:
-                return (angle - i, strength)
+                return (angle - i, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
                 hittingPosition = (angle - i, strength)
@@ -378,12 +378,12 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> t
             hits, prio = __calculateHittingAndPriority(angle + i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio == maxPriority:
-                return (angle + i, strength)
+                return (angle + i, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
                 hittingPosition = (angle + i, strength)
     
-    return hittingPosition
+    return (hittingPosition,bestPriority)
 
 def __straight(myTank, enemyTank) -> tuple[int,int]:
     """calculates the angle for myTank to shoot at enemyTank if it has a weapon that goes straight at him.
@@ -405,7 +405,7 @@ def __straight(myTank, enemyTank) -> tuple[int,int]:
     if enemyTank.getXCoordinate() < myTank.getXCoordinate():
         angle += 180
     
-    return (round(angle) % 360, 100)
+    return ((round(angle) % 360, 100),0)
 
 def __instant() -> tuple[int,int]:
     """does nothing than returning the basic angle 90 and 100
@@ -413,7 +413,7 @@ def __instant() -> tuple[int,int]:
     Returns:
         tuple[int,int]: (90,100)
     """
-    return 90,100
+    return ((90,100),0)
 
 def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]:
     """Calculates Angle AND Strength for a weapon that needs to go straight at someone with a needed strength.
@@ -436,7 +436,7 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
     radia = distance / CM.RADIUS
     strengh = min(round(radia * delta),100)
     
-    return angle, strengh
+    return ((angle, strengh), 0)
 
 
 
@@ -459,7 +459,7 @@ if __name__ == "__main__":
     enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
     enemyTanks.paintEnemies()
 
-    visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
+    visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, CM)
     
     myTank.shoot(enemyTanks, onlyOne=False)
     visualizer.saveImage()

@@ -1,14 +1,14 @@
 import globals
 from PIL import ImageGrab, ImageDraw
-from coordinateManager import CoordinateManager
+from coordinateManager import CoordinateManager, Point
 
-def paintPixels(point : tuple[int,int], size : int, color : tuple[int,int,int], coordManager : CoordinateManager) -> None:
+def paintPixels(point : Point, size : int, color : tuple[int,int,int], coordManager : CoordinateManager) -> None:
     if not globals.CREATE_PICTURE: return
     image = globals.CURRENT_PICTURE
     draw = ImageDraw.Draw(image)
 
-    x = coordManager.convertFloatToWidth(point[0])
-    y = coordManager.convertFloatToHeigth(point[1])
+    x = coordManager.convertFloatToWidth(point.getX())
+    y = coordManager.convertFloatToHeigth(point.getY())
     
     top_left = (x - size, y - size)
     bottom_right = (x + size, y + size)
@@ -34,5 +34,5 @@ if __name__ == "__main__":
         os.remove(file_path)
     
     createImage(CM)
-    paintPixels((0.5,0.5), 50, (255,255,255), CM)
+    paintPixels(Point(0.5,0.5), 50, (255,255,255), CM)
     saveImage()

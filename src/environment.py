@@ -34,6 +34,7 @@ class GameEnvironment:
         self.x2 : tuple[str, CoordinateManager] = ("Images/x2.png", coordManager.X2)
         self.x3 : tuple[str, CoordinateManager] = ("Images/x3.png", coordManager.X3)
         self.drone : tuple[str, CoordinateManager] = ("Images/drone.png", coordManager.DRONE)
+        self.crate : tuple[str, CoordinateManager] = ("Images/crate.png", coordManager.CRATE)
         
         self.__isShootingState = False
         self.shootingStateEvent = threading.Event()
@@ -390,7 +391,7 @@ class GameEnvironment:
         calcs["x3"].extend(findBuffsHelper(self.x3))
         calcs["x2"].extend(findBuffsHelper(self.x2))
         calcs["drone"].extend(findBuffsHelper(self.drone))
-        #calcs["crate"].extend(findBuffsHelper(self.crate))
+        calcs["crate"].extend(findBuffsHelper(self.crate))
         
         return calcs
         
