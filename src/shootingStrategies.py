@@ -12,6 +12,7 @@ from scipy.ndimage import binary_dilation
 from coordinateManager import CoordinateManager, Point
 from decorators import timeit
 from skimage.feature import canny
+from threading import Thread
 
 GRAVITY = 0.359413
 WIND_FACTOR = 0.000252 / 2
@@ -39,7 +40,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         dict[object, tuple[int, int]: {Tank: (angle, strength)}. A dict mapping from a tank to angle and strength starting at the right going up.
     """
     calculations = {}
-    
+    threads = []
 
     def doCalculation(enemyTank):
         if weapon_cat == "normal": calculations[enemyTank] =  __normal(myTank, enemyTank, wind, buffs, CM)
@@ -55,7 +56,12 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         doCalculation(random_enemy)
     else:
         for enemy in enemyTanks.enemies:
-            doCalculation(enemy)
+            t = Thread(target=doCalculation, args=(enemy,))
+            t.start()
+            threads.append(t)
+            
+        for t in threads:
+            t.join()
     
     return calculations
 
@@ -455,5 +461,5 @@ if __name__ == "__main__":
 
     visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
     
-    myTank.shoot(enemyTanks)
+    myTank.shoot(enemyTanks, onlyOne=False)
     visualizer.saveImage()

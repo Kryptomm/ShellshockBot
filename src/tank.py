@@ -411,7 +411,7 @@ class friendlyTank(Tank):
         if myPosY <= 300: pressKey(60, "up")
         else: pressKey(15, "up")
         
-    def shoot(self, enemyTanks) -> None:
+    def shoot(self, enemyTanks, onlyOne=True) -> None:
         """let the tank shoot, it does not check if it is aviable to shoot
         and just proceeds with his procedure as he is able to shoot
         only call if tank is aviable to shoot
@@ -437,7 +437,7 @@ class friendlyTank(Tank):
             
         print(f"{buffs=}")
             
-        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, self.coordManager)
+        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, self.coordManager, onlyOne=onlyOne)
         random_key = random.choice(list(calculations.keys()))
         angle, power = calculations[random_key]
         
