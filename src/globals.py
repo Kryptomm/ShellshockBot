@@ -2,9 +2,9 @@ import sys
 from random import randint
 
 #Setting Variables
-DEBUG = True
-CREATE_PICTURE = False
-ID = randint(0,sys.maxsize)
+DEBUG = False
+CREATE_PICTURE = True
+ID = "VIZU_PIC" #randint(0,sys.maxsize)
 PICTURE_PATH = f"{ID}.png"
 CURRENT_PICTURE = None
 

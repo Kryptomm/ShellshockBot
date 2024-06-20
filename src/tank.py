@@ -34,6 +34,40 @@ def holdKey(time : float, key : str) -> None:
     sleep(time)
     keyUp(key)
 
+class EnemyTanks:
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, ownTank):
+        """A wrapper for holding all enemy tanks. Inplies that there is atleast one enemy
+
+        Args:
+            color (tuple[int, int, int]): color of the enemy tanks. one that is the most common in him
+            coordManager (CoordinateManager): coordinate Manager class
+            ownTank: An own tank to make it hide
+        """
+        self.color = color
+        self.__ownTank = ownTank
+        self.coordManager = coordManager
+        self.__enemies = []
+        
+        self.initEnemyTanks()
+        
+    def initEnemyTanks(self):   
+        found = True
+        hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
+        while found:
+            newEnemy = Tank(colors.ENEMY_TANK, self.coordManager)
+            res = newEnemy.getCoordinatesBreadth(hideRegions=hideRegions)
+            
+            if res[1] >= 15:
+                return
+            
+            hr = Box(newEnemy.getXCoordinate() - 0.03 , newEnemy.getYCoordinate() - 0.03, newEnemy.getXCoordinate() + 0.03, newEnemy.getYCoordinate() + 0.05)
+            hideRegions.append(hr)
+            self.__enemies.append(newEnemy)
+            
+    def paintEnemies(self):
+        for enemyTank in self.__enemies:
+            visualizer.paintPixels(enemyTank.getPosition()(), 15, self.color, self.coordManager)
+
 class Tank:
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank", epsilon : float = 0.006):
         """Tank class to store variables as position and color
@@ -226,7 +260,6 @@ class Tank:
                 for y in range(regionBoundarie[1],regionBoundarie[3]):
                     try: image.putpixel((x,y),(0,0,0))
                     except: pass
-        image.save("test.png")
         
         image = numpy.array(image)
         image = image[:, :, ::-1]
@@ -372,9 +405,9 @@ class friendlyTank(Tank):
             enemyTank (_type_): a tank class to attack
         """
         weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getSelectedWeapon()
-        print(f"{super().__repr__()}: | {weapon=} | {weapon_category=} | {weapon_extra_info=}")
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
+        print(f"{super().__repr__()}: | {weapon=} | {weapon_category=} | {weapon_extra_info=} | {wind=}")
         
         #Versuche erst ein x3 zu identifizieren, da dies potenziell besser ist.
         buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
@@ -478,12 +511,15 @@ if __name__ == "__main__":
     GE = GameEnvironment(CM)
     
     globals.CREATE_PICTURE = True
-    
+    sleep(1)
     visualizer.createImage(CM)
     
     myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
     myTank.getCoordinatesBrute()
     
+    enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
+    enemyTanks.paintEnemies()
+
     visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
     visualizer.saveImage()
     print(myTank)

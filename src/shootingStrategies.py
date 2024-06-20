@@ -173,9 +173,9 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
                 except: pass
         
     timeSteps = floatingTime / abs(enemyTank.absX - myTank.absX) / 3
-    ignoreTime = ((floatingTime / timeSteps) * 0.04) * timeSteps
+    ignoreTime = floatingTime * 0.04
     currentTime = 0 + ignoreTime
-    while currentTime < (floatingTime - ignoreTime):
+    while currentTime < (floatingTime - ignoreTime * 0.25):
         x,y = __calculatePosition(angle, strength, wind, currentTime, coordManager, myTank.getXCoordinate(), myTank.getYCoordinate())
         currentTime += timeSteps
         visualizer.paintPixels((x,y),1,(255,255,255),coordManager)
@@ -407,17 +407,21 @@ if __name__ == "__main__":
     GE = GameEnvironment(CM)
     
     globals.CREATE_PICTURE = True
+    globals.ID = 1
     
     sleep(1)
     visualizer.createImage(CM)
     myTank = friendlyTank((36, 245, 41), CM, GE)
     myTank.getCoordinatesBreadth()
     
-    enemyTank = Tank((194,3,3), CM)
-    enemyTank.setPosition(Point(0.66875, 0.4444444444444444))
+    enemyTank = Tank(colors.ENEMY_TANK, CM)
+    enemyTank.getCoordinatesBreadth()
     
     print(myTank)
     print(enemyTank)
+    
+    visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
+    visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, CM)
     
     myTank.shoot(enemyTank)
     visualizer.saveImage()

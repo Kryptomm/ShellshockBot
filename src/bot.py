@@ -26,7 +26,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     """    
     #initialize Tanks
     myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
-    enemyTank = Tank(colors.ENEMY_TANK, coordManager)
+    enemyTanks = [Tank(colors.ENEMY_TANK, coordManager)]
     
     #Wait until screen is fully there
     if not globals.DEBUG: sleep(8)
@@ -34,7 +34,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     #Search for the first time
     myTank.getCoordinatesBrute()
     hideRegion = Box(myTank.getXCoordinate() - 0.03 , myTank.getYCoordinate() - 0.03, myTank.getXCoordinate() + 0.03, myTank.getYCoordinate() + 0.05)
-    enemyTank.getCoordinatesBrute(hideRegions = [hideRegion])
+    enemyTanks[0].getCoordinatesBrute(hideRegions = [hideRegion])
     
     while True:
         while not gameEnvironment.isMyTurn():
@@ -48,18 +48,18 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             myTank.getCoordinatesBreadth()
         print(myTank)
         
-        if not enemyTank.isInSameSpot():
+        if not enemyTanks[0].isInSameSpot():
             hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-            enemyTank.getCoordinatesBreadth(hideRegions = [hideRegion])
-        print(enemyTank)
+            enemyTanks[0].getCoordinatesBreadth(hideRegions = [hideRegion])
+        print(enemyTanks[0])
         
         #has to be updatet every round since it could alternate because of random teleporters, or the round 2 alternation
-        if myTank.getXCoordinate() <= enemyTank.getXCoordinate():
+        if myTank.getXCoordinate() <= enemyTanks[0].getXCoordinate():
             myTank.BOUNDARIES = coordManager.TANK1BOX
-            enemyTank.BOUNDARIES = coordManager.TANK2BOX
+            enemyTanks[0].BOUNDARIES = coordManager.TANK2BOX
         else:
             myTank.BOUNDARIES = coordManager.TANK2BOX
-            enemyTank.BOUNDARIES = coordManager.TANK1BOX
+            enemyTanks[0].BOUNDARIES = coordManager.TANK1BOX
             
         try:
             if myTank.move():
@@ -70,12 +70,12 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         if globals.CREATE_PICTURE:
             visualizer.createImage(coordManager)
             
-        myTank.shoot(enemyTank)
+        myTank.shoot(enemyTanks[0])
         gameEnvironment.isShootingState = False
         
         if globals.CREATE_PICTURE:
             visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
-            visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, coordManager)
+            visualizer.paintPixels(enemyTanks[0].getPosition()(), 15, colors.ENEMY_TANK, coordManager)
             visualizer.saveImage()
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
