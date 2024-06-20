@@ -22,12 +22,12 @@ MIN_STRENGTH = 20
 MAX_STRENGTH = 100
 
 @timeit("Calculate Angle and Power", print_result=True)
-def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffPosition, CM : CoordinateManager) -> tuple[int,int]:
+def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffPosition, CM : CoordinateManager) -> dict[object, tuple[int, int]]:
     """based on Tank positions and wind and the weapon data, it generates the perfect angle and strength to shoot the enemy at
 
     Args:
         myTank (friendlyTank): initialized friendlyTank class
-        enemyTank (Tank): initialized Tank class
+        enemyTanks (EnemyTanks): initialized EnemyTank class
         weapon_cat (str): Weapon Category, NOT the weapon itself
         wind (int): calculated wind. wind * wind direction. 68 to the left = -68
         extra_info (Union[int, tuple, None]): extra information provided by the weapon
@@ -35,15 +35,19 @@ def getAngleAndPower(myTank, enemyTank, weapon_cat : str, wind : int, weapon_ext
 
     Returns:
         tuple[int,int]: (angle, strength). angle starting at the right going up.
-    """    
-    if weapon_cat == "normal": return __normal(myTank, enemyTank, wind, buffPosition, CM)
-    if weapon_cat == "straight": return __straight(myTank, enemyTank)
-    if weapon_cat == "instant": return __instant()
-    if weapon_cat == "45degrees": return __45degrees(myTank, enemyTank, wind, buffPosition, CM)
-    if weapon_cat == "landing": return __landing(myTank, enemyTank, wind, buffPosition, CM)
-    if weapon_cat == "radius": return __radius(myTank, enemyTank, weapon_extra_info, CM)
+    """
+    calculations = {}
     
-    return __normal(myTank, enemyTank, wind, buffPosition, CM)
+    for enemyTank in enemyTanks.enemies:
+        if weapon_cat == "normal": calculations[enemyTank] =  __normal(myTank, enemyTank, wind, buffPosition, CM)
+        elif weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
+        elif weapon_cat == "instant": calculations[enemyTank] = __instant()
+        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffPosition, CM)
+        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffPosition, CM)
+        elif weapon_cat == "radius": calculations[enemyTank] = __radius(myTank, enemyTank, weapon_extra_info, CM)
+        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffPosition, CM)
+        
+    return calculations
 
 
 
@@ -398,7 +402,7 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
 
 
 if __name__ == "__main__":
-    from tank import friendlyTank, Tank
+    from tank import friendlyTank, Tank, EnemyTanks
     from environment import GameEnvironment
     from time import sleep
     import os, glob
@@ -407,21 +411,18 @@ if __name__ == "__main__":
     GE = GameEnvironment(CM)
     
     globals.CREATE_PICTURE = True
-    globals.ID = 1
-    
     sleep(1)
     visualizer.createImage(CM)
-    myTank = friendlyTank((36, 245, 41), CM, GE)
-    myTank.getCoordinatesBreadth()
     
-    enemyTank = Tank(colors.ENEMY_TANK, CM)
-    enemyTank.getCoordinatesBreadth()
+    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    myTank.getCoordinatesBrute()
     
-    print(myTank)
-    print(enemyTank)
-    
+    enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
+    enemyTanks.paintEnemies()
+
     visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
-    visualizer.paintPixels(enemyTank.getPosition()(), 15, colors.ENEMY_TANK, CM)
     
-    myTank.shoot(enemyTank)
+    myTank.shoot(enemyTanks)
+    sleep(7)
+    myTank.shoot(enemyTanks)
     visualizer.saveImage()

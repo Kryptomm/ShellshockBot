@@ -4,6 +4,8 @@ import colors
 import visualizer
 import colorama
 import globals
+import random
+
 from scipy.spatial import distance
 from colorama import Fore, Back, Style
 from collections import deque
@@ -46,7 +48,7 @@ class EnemyTanks:
         self.color = color
         self.__ownTank = ownTank
         self.coordManager = coordManager
-        self.__enemies = []
+        self.enemies = []
         
         self.initEnemyTanks()
         
@@ -62,10 +64,17 @@ class EnemyTanks:
             
             hr = Box(newEnemy.getXCoordinate() - 0.03 , newEnemy.getYCoordinate() - 0.03, newEnemy.getXCoordinate() + 0.03, newEnemy.getYCoordinate() + 0.05)
             hideRegions.append(hr)
-            self.__enemies.append(newEnemy)
-            
+            self.enemies.append(newEnemy)
+        print(f"Found {len(self.enemies)} enemy Tanks!")
+    
+    def updateEnemyTanks(self):
+        hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
+        for enemy in self.enemies:
+            if not enemy.isInSameSpot():
+                res = enemy.getCoordinatesBreadth(hideRegions = hideRegions)
+    
     def paintEnemies(self):
-        for enemyTank in self.__enemies:
+        for enemyTank in self.enemies:
             visualizer.paintPixels(enemyTank.getPosition()(), 15, self.color, self.coordManager)
 
 class Tank:
@@ -396,13 +405,13 @@ class friendlyTank(Tank):
         if myPosY <= 300: pressKey(60, "up")
         else: pressKey(15, "up")
         
-    def shoot(self, enemyTank) -> None:
+    def shoot(self, enemyTanks) -> None:
         """let the tank shoot, it does not check if it is aviable to shoot
         and just proceeds with his procedure as he is able to shoot
         only call if tank is aviable to shoot
 
         Args:
-            enemyTank (_type_): a tank class to attack
+            enemyTank (_type_): EnemyTanks class so it can choose its target
         """
         weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
@@ -410,20 +419,24 @@ class friendlyTank(Tank):
         print(f"{super().__repr__()}: | {weapon=} | {weapon_category=} | {weapon_extra_info=} | {wind=}")
         
         #Versuche erst ein x3 zu identifizieren, da dies potenziell besser ist.
+        buffTank = None
+        """
         buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x3)
         epsilon = 0.014584
         if buffPosition == None:
             epsilon = 0.023959
             buffPosition = self.gameEnvironment.findPicture(self.gameEnvironment.x2)
             
-        buffTank = None
         if buffPosition:
             buffTank = Tank((0,0,0), self.coordManager, epsilon=epsilon)
             buffTank.setPosition(buffPosition)
             print(f"Buff found at {buffTank.getPosition()}")
             visualizer.paintPixels(buffTank.getPosition(), 40, (255,144,0), self.coordManager)
+        """
         
-        angle, power = shootingStrategies.getAngleAndPower(self, enemyTank, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
+        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffTank, self.coordManager)
+        random_key = random.choice(list(calculations.keys()))
+        angle, power = calculations[random_key]
         
         if weapon_category != "instant":
             self.moveCannon(angle, power)
@@ -522,4 +535,3 @@ if __name__ == "__main__":
 
     visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, CM)
     visualizer.saveImage()
-    print(myTank)

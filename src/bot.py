@@ -10,7 +10,7 @@ import colorama
 from colorama import Fore, Back, Style
 from environment import GameEnvironment
 from coordinateManager import CoordinateManager, Box
-from tank import Tank, friendlyTank
+from tank import Tank, friendlyTank, EnemyTanks
 from botThreads import initThreads
 from decorators import timeit
 
@@ -24,17 +24,16 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         coordManager (CoordinateManager): initialized coordinateManager class
         gameEnvironment (GameEnvironment): initialized GameEnvironment class
     """    
-    #initialize Tanks
-    myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
-    enemyTanks = [Tank(colors.ENEMY_TANK, coordManager)]
+    
     
     #Wait until screen is fully there
     if not globals.DEBUG: sleep(8)
     
+    #initialize Tanks
     #Search for the first time
+    myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment)
     myTank.getCoordinatesBrute()
-    hideRegion = Box(myTank.getXCoordinate() - 0.03 , myTank.getYCoordinate() - 0.03, myTank.getXCoordinate() + 0.03, myTank.getYCoordinate() + 0.05)
-    enemyTanks[0].getCoordinatesBrute(hideRegions = [hideRegion])
+    enemyTanks = EnemyTanks(colors.ENEMY_TANK, coordManager, myTank)
     
     while True:
         while not gameEnvironment.isMyTurn():
@@ -48,12 +47,11 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             myTank.getCoordinatesBreadth()
         print(myTank)
         
-        if not enemyTanks[0].isInSameSpot():
-            hideRegion = Box(myTank.getXCoordinate() - 0.05 , myTank.getYCoordinate() - 0.05 - 0.06, myTank.getXCoordinate() + 0.05, myTank.getYCoordinate() + 0.05 - 0.06)
-            enemyTanks[0].getCoordinatesBreadth(hideRegions = [hideRegion])
-        print(enemyTanks[0])
+        enemyTanks.updateEnemyTanks()
         
         #has to be updatet every round since it could alternate because of random teleporters, or the round 2 alternation
+        #Move Boundaries IDK muss noch ändern bleib erstmal stehen
+        """
         if myTank.getXCoordinate() <= enemyTanks[0].getXCoordinate():
             myTank.BOUNDARIES = coordManager.TANK1BOX
             enemyTanks[0].BOUNDARIES = coordManager.TANK2BOX
@@ -66,16 +64,17 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
                 myTank.getCoordinatesBreadth()
         except FailSafeException:
             pass
+        """
         
         if globals.CREATE_PICTURE:
             visualizer.createImage(coordManager)
             
-        myTank.shoot(enemyTanks[0])
+        myTank.shoot(enemyTanks)
         gameEnvironment.isShootingState = False
         
         if globals.CREATE_PICTURE:
             visualizer.paintPixels(myTank.getPosition()(), 15, colors.FRIENDLY_TANK, coordManager)
-            visualizer.paintPixels(enemyTanks[0].getPosition()(), 15, colors.ENEMY_TANK, coordManager)
+            enemyTanks.paintEnemies()
             visualizer.saveImage()
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
@@ -122,7 +121,7 @@ def main() -> None:
         print("Starte von der Lobby aus!")
         return
 
-    initThreads(coordManager, gameEnvironment)
+    #initThreads(coordManager, gameEnvironment)
     lobbyWrapperLoop(coordManager, gameEnvironment)
 
 if __name__ == "__main__":
