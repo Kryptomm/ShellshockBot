@@ -57,7 +57,7 @@ class EnemyTanks:
         hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
         while True:
             newEnemy = Tank(colors.ENEMY_TANK, self.coordManager, name=f"Enemy Tank {len(self.enemies) + 1}")
-            res = newEnemy.getCoordinatesBreadth(hideRegions=hideRegions)
+            res = newEnemy.getCoordinatesBrute(hideRegions=hideRegions)
             
             if res[1] >= 15:
                 print(f"Found {len(self.enemies)} enemy Tanks!")
@@ -77,7 +77,7 @@ class EnemyTanks:
         hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
         for enemy in self.enemies:
             if not enemy.isInSameSpot():
-                res = enemy.getCoordinatesBreadth(hideRegions = hideRegions)
+                enemy.getCoordinatesBreadth(hideRegions = hideRegions)
                 
         #Sort out Tanks that have the same coordinate
         newEnemies = []
@@ -291,7 +291,7 @@ class Tank:
                     except: pass
         
         image = numpy.array(image)
-        image = image[:, :, ::-1]
+        #image = image[:, :, ::-1]
 
         subset_image = image[::everyPixel, ::everyPixel]
         color_distances = distance.cdist([self.color], subset_image.reshape(-1, 3)).squeeze()
@@ -487,10 +487,10 @@ class friendlyTank(Tank):
         if executeShoot:
             self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
             click(50, 50)
-            
+        
         if globals.CREATE_PICTURE:
-            for key in buffs:
-                for b in buffs[key]:
+            for array in buffs.values():
+                for b in array:
                     b.paintTank()
     
     def updateAndGetExcactPosition(self) -> Point:
@@ -577,22 +577,11 @@ if __name__ == "__main__":
     sleep(1)
     visualizer.createImage(CM)
     
-    #myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
-    #myTank.getCoordinatesBrute()
-    
-    buffs = GE.findBuffs()
-    for key in buffs:
-        newList = []
-        for buff in buffs[key]:
-            buffTank = Tank(colors.GEAR, CoordinateManager, name=key, epsilon=0.024)
-            buffTank.setPosition(buff)
-            newList.append(buffTank)
-        buffs[key] = newList
-    print(buffs["x2"][0].absX)
-    exit()
+    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    myTank.getCoordinatesBrute()
+    myTank.paintTank()
     
     enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
     enemyTanks.paintEnemies()
-
-    visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, CM)
+    
     visualizer.saveImage()

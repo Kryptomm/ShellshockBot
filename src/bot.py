@@ -59,6 +59,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         if globals.CREATE_PICTURE:
             visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, coordManager)
             enemyTanks.paintEnemies()
+            myTank.paintTank()
             visualizer.saveImage()
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:
