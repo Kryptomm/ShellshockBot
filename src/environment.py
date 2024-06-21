@@ -278,8 +278,7 @@ class GameEnvironment:
             button (tuple[tuple[str, CoordinateManager], Box]): a button
         """
         whereImage = self.findPicture(button)
-
-        print(whereImage)
+        
         if whereImage:
             pyautogui.click(self.coordManager.convertFloatToWidth(whereImage.getX()), self.coordManager.convertFloatToHeigth(whereImage.getY()))
     

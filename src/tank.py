@@ -6,6 +6,7 @@ import colorama
 import globals
 import random
 
+from math import sqrt
 from scipy.spatial import distance
 from colorama import Fore, Back, Style
 from collections import deque
@@ -77,7 +78,20 @@ class EnemyTanks:
         for enemy in self.enemies:
             if not enemy.isInSameSpot():
                 res = enemy.getCoordinatesBreadth(hideRegions = hideRegions)
-    
+                
+        #Sort out Tanks that have the same coordinate
+        newEnemies = []
+        for enemy in self.enemies:
+            add = True
+            for otherEnemy in newEnemies:
+                if enemy.areCloseToEachOther(otherEnemy):
+                    add = False
+            if add:
+                newEnemies.append(enemy)
+            else:
+                print(f"deleted {enemy}")
+                
+        self.enemies = newEnemies    
     
     def paintEnemies(self):
         for enemyTank in self.enemies:
@@ -330,6 +344,19 @@ class Tank:
         if not (self.getYCoordinate() - self.epsilon * self.coordManager.getWidthHeightRatio() <= y <= self.getYCoordinate() + self.epsilon * self.coordManager.getWidthHeightRatio()): return False
         return True
     
+    def areCloseToEachOther(self, other) -> bool:
+        """Checkfs if two tanks are consideres close to each other
+
+        Args:
+            other (Tank): the other Tank
+
+        Returns:
+            bool: True if close, False otherwise
+        """
+        if sqrt((self.getXCoordinate() - other.getXCoordinate())**2 + (self.getYCoordinate() - other.getYCoordinate())**2) < 0.03:
+            return True
+        return False
+
     def __repr__(self) -> str:
         text = f"{Style.BRIGHT}{colors.convert_rgb_to_text_color(self.color)}{self.__name}{Style.RESET_ALL}: | Positon: {self.__position}"
         return text
@@ -451,6 +478,7 @@ class friendlyTank(Tank):
             self.moveCannon(angle, power)
             
         self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
+        click(50, 50)
     
     def updateAndGetExcactPosition(self) -> Point:
         """Will get the excact pixel the tank is located on

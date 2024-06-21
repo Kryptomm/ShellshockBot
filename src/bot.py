@@ -37,7 +37,8 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     
     while True:
         while not gameEnvironment.isMyTurn():
-            #if gameEnvironment.inLoadingScreen(): click(coordManager.convertFloatToWidth(0.527604), coordManager.convertFloatToHeigth(0.9722222))
+            #click on fast forward
+            if gameEnvironment.inLoadingScreen(): click(coordManager.convertFloatToWidth(0.527604), coordManager.convertFloatToHeigth(0.9722222))
             if gameEnvironment.inLobby(): 
                 return
             
@@ -69,7 +70,8 @@ def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnv
     """
     roundsPlayed = 0
     while True:
-        gameEnvironment.pressButton(coordManager.READY_BUTTON_SINGLE)
+        gameEnvironment.pressButton(gameEnvironment.ReadyButton)
+        click(50,50)
         
         while gameEnvironment.inLobby():
             sleep(0.1)
