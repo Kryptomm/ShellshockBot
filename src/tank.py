@@ -95,7 +95,7 @@ class EnemyTanks:
     
     def paintEnemies(self):
         for enemyTank in self.enemies:
-            visualizer.paintPixels(enemyTank.getPosition(), 15, self.color, self.coordManager)
+            enemyTank.paintTank()
 
 class Tank:
     def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, name : str ="Tank", epsilon : float = 0.006):
@@ -356,7 +356,10 @@ class Tank:
         if sqrt((self.getXCoordinate() - other.getXCoordinate())**2 + (self.getYCoordinate() - other.getYCoordinate())**2) < 0.03:
             return True
         return False
-
+    
+    def paintTank(self) -> None:
+        visualizer.paintPixels(self.getPosition(), self.epsilon * self.coordManager.getScreenWidth(), self.color, self.coordManager)
+    
     def __repr__(self) -> str:
         text = f"{Style.BRIGHT}{colors.convert_rgb_to_text_color(self.color)}{self.__name}{Style.RESET_ALL}: | Positon: {self.__position}"
         return text
@@ -438,14 +441,17 @@ class friendlyTank(Tank):
         if myPosY <= 300: pressKey(60, "up")
         else: pressKey(15, "up")
         
-    def shoot(self, enemyTanks, onlyOne=False) -> None:
+    def shoot(self, enemyTanks, onlyOne=False, executeShoot=True) -> None:
         """let the tank shoot, it does not check if it is aviable to shoot
         and just proceeds with his procedure as he is able to shoot
         only call if tank is aviable to shoot
 
         Args:
-            enemyTank (_type_): EnemyTanks class so it can choose its target
+            enemyTank (EnemyTanks): EnemyTanks class so it can choose its target
+            onlyOne (bool, optional): it should only calculate one random target. Defaults to False.
+            executeShoot (bool, optional): Clicks on the buttons to execute the shot. Defaults to True.
         """
+        
         weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getSelectedWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
@@ -454,10 +460,11 @@ class friendlyTank(Tank):
         buffs = self.gameEnvironment.findBuffs()
         
         #convert buffs to tanks
+        key_to_epsilon = {"x3": 0.01, "x2": 0.02, "drone": 0.01, "crate": 0.01}
         for key in buffs:
             newList = []
             for buff in buffs[key]:
-                buffTank = Tank(colors.GEAR, self.coordManager, name=key, epsilon=0.01)
+                buffTank = Tank(colors.GEAR, self.coordManager, name=key, epsilon=key_to_epsilon[key])
                 buffTank.setPosition(buff)
                 newList.append(buffTank)
             buffs[key] = newList
@@ -474,11 +481,17 @@ class friendlyTank(Tank):
         c = random.choice(b)
         angle, power = c[0]
         
-        if weapon_category != "instant":
+        if weapon_category != "instant" and executeShoot:
             self.moveCannon(angle, power)
             
-        self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
-        click(50, 50)
+        if executeShoot:
+            self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
+            click(50, 50)
+            
+        if globals.CREATE_PICTURE:
+            for key in buffs:
+                for b in buffs[key]:
+                    b.paintTank()
     
     def updateAndGetExcactPosition(self) -> Point:
         """Will get the excact pixel the tank is located on
