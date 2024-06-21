@@ -277,8 +277,11 @@ class GameEnvironment:
         Args:
             button (tuple[tuple[str, CoordinateManager], Box]): a button
         """
-        region = button.getBoundariesNormalized(self.coordManager)
-        pyautogui.click((region[0] + region[2]) // 2, (region[1] + region[3]) // 2)
+        whereImage = self.findPicture(button)
+
+        print(whereImage)
+        if whereImage:
+            pyautogui.click(self.coordManager.convertFloatToWidth(whereImage.getX()), self.coordManager.convertFloatToHeigth(whereImage.getY()))
     
     def inLobby(self) -> bool:
         """checks the screen if it is in the currently in the lobby
@@ -287,15 +290,7 @@ class GameEnvironment:
         Returns:
             bool: True if in lobby, else False
         """
-        cap = pyautogui.screenshot(region=self.ReadyButton[1].getBoundariesNormalizedForScreenshot(self.coordManager))
-        
-        image_np = np.array(cap)
-        avg_color = image_np.mean(axis=(0, 1))
-        avg_color = tuple(map(int, avg_color))
-        
-        if self.__calculateColorDistance((27, 37, 50), avg_color) < 3 or  self.__calculateColorDistance((33, 44, 57), avg_color) < 3:
-            return True
-        return False
+        return True if self.findPicture(self.ReadyButton) else False
         
     def inLoadingScreen(self) -> bool:
         """chcecks the screen if it is in the loading Screen
@@ -308,10 +303,10 @@ class GameEnvironment:
         
         if current_window_title != "ShellShock Live": return False
         
-        FireButton = pyautogui.locateOnScreen(self.FireButton[0], confidence=0.9, region=self.FireButton[1].getBoundariesNormalized(self.coordManager))
-        NotFireButton = pyautogui.locateOnScreen(self.NotFireButton[0], confidence=0.9, region=self.NotFireButton[1].getBoundariesNormalized(self.coordManager))
-        ReadyButton = pyautogui.locateOnScreen(self.ReadyButton[0], confidence=0.9, region=self.ReadyButton[1].getBoundariesNormalized(self.coordManager))
-        LockedInButton = pyautogui.locateOnScreen(self.LockedInButton[0], confidence=0.9, region=self.LockedInButton[1].getBoundariesNormalized(self.coordManager))
+        FireButton = self.findPicture(self.FireButton)
+        NotFireButton = self.findPicture(self.NotFireButton)
+        ReadyButton = self.findPicture(self.ReadyButton)
+        LockedInButton = self.findPicture(self.LockedInButton)
         
         if not FireButton and not NotFireButton and not ReadyButton and not LockedInButton:
             return True
@@ -333,7 +328,7 @@ class GameEnvironment:
             return True
         return False
     
-    def findPicture(self, image : Image, region : Box) -> Point:
+    def findPicture(self, image : Image) -> Point:
         """Finds a specific picture on the screen
 
         Args:
@@ -343,8 +338,8 @@ class GameEnvironment:
         Returns:
             Point: a point where the picture is located, None if not found
         """
-        location = pyautogui.locateCenterOnScreen(image, grayscale=True, confidence=0.9, region=region.getBoundariesNormalized(self.coordManager))
-        pyautogui.locateAllOnScreen
+        scaledUp = self.scaleUpPicture(image)
+        location = pyautogui.locateCenterOnScreen(scaledUp, grayscale=True, confidence=0.9, region=image[1].getBoundariesNormalized(self.coordManager))
         if location == None:
             return None
         
@@ -382,8 +377,7 @@ class GameEnvironment:
         calcs = {"x3": [], "x2": [], "drone": [], "crate": []}
         
         def findBuffsHelper(pic):
-            scaledUp = self.scaleUpPicture(pic)
-            buff = self.findPicture(scaledUp, pic[1])
+            buff = self.findPicture(pic)
             
             if buff: return [buff]
             else: return []
@@ -399,7 +393,5 @@ if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     
-
-    while True:    
-        buffs = GameEnv.findBuffs()
-        print(buffs)
+    while True:
+        print(GameEnv.inLoadingScreen())
