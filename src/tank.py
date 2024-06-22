@@ -14,7 +14,7 @@ from pyautogui import press, click, screenshot, keyDown, keyUp
 from time import sleep
 from coordinateManager import CoordinateManager, Point, Box
 from environment import GameEnvironment
-from PIL import ImageEnhance, ImageGrab
+from PIL import ImageEnhance, ImageGrab, ImageDraw
 from decorators import timeit
 
 def pressKey(amount : int, key : str) -> None:
@@ -209,12 +209,11 @@ class Tank:
         if hideRegions == None:
             hideRegions = []
             
+        draw = ImageDraw.Draw(s)
         for region in hideRegions:
-            regionBoundarie = region.getBoundariesNormalized(self.coordManager)
-            for x in range(regionBoundarie[0],regionBoundarie[2]):
-                for y in range(regionBoundarie[1],regionBoundarie[3]):
-                    try: s.putpixel((x,y),(0,0,0))
-                    except: pass
+            regionBoundaries = region.getBoundariesNormalized(self.coordManager)
+            draw.rectangle([regionBoundaries[0], regionBoundaries[1], regionBoundaries[2], regionBoundaries[3]], fill=(0, 0, 0))
+        del draw
 
         q = deque()
         visited = set()
@@ -283,13 +282,13 @@ class Tank:
         #regions to cover
         if hideRegions == None:
             hideRegions = []
+        
+        draw = ImageDraw.Draw(image)
         for region in hideRegions:
-            regionBoundarie = region.getBoundariesNormalized(self.coordManager)
-            for x in range(regionBoundarie[0],regionBoundarie[2]):
-                for y in range(regionBoundarie[1],regionBoundarie[3]):
-                    try: image.putpixel((x,y),(0,0,0))
-                    except: pass
-                    
+            regionBoundaries = region.getBoundariesNormalized(self.coordManager)
+            draw.rectangle([regionBoundaries[0], regionBoundaries[1], regionBoundaries[2], regionBoundaries[3]], fill=(0, 0, 0))
+        del draw
+
         image = numpy.array(image)
         #image = image[:, :, ::-1]
 

@@ -2,6 +2,7 @@ __pycache__/
 .vs/
 build/
 dist/
+examples/
 
 *test*.py
 **.spec**
