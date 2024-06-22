@@ -5,7 +5,8 @@ dist/
 
 *test*.py
 **.spec**
-VIZU_PIC.png
+**VIZU_PIC.png**
+**test.png**
 
 
 # Byte-compiled / optimized / DLL files
