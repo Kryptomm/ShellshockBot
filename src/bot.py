@@ -10,7 +10,7 @@ import colorama
 from colorama import Fore, Back, Style
 from environment import GameEnvironment
 from coordinateManager import CoordinateManager, Box
-from tank import Tank, friendlyTank, EnemyTanks
+from tank import Tank, friendlyTank, TankCollection
 from botThreads import initThreads
 from decorators import timeit
 
@@ -24,16 +24,17 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         coordManager (CoordinateManager): initialized coordinateManager class
         gameEnvironment (GameEnvironment): initialized GameEnvironment class
     """    
-    
-    
+
     #Wait until screen is fully there
-    if not globals.DEBUG: sleep(8)
+    if not globals.DEBUG: sleep(24)
     
     #initialize Tanks
     #Search for the first time
-    myTank = friendlyTank(colors.FRIENDLY_TANK, coordManager, gameEnvironment, name="My Tank")
+    myTank = friendlyTank(colors.TANK_OWN, coordManager, gameEnvironment, name="My Tank")
     myTank.getCoordinatesBrute()
-    enemyTanks = EnemyTanks(colors.ENEMY_TANK, coordManager, myTank)
+    
+    mateTanks = TankCollection(colors.TANK_MATE, coordManager, hideTanks = [myTank], minimum = 0)
+    enemyTanks = TankCollection(colors.TANK_ENEMY, coordManager, hideTanks = mateTanks.tanks + [myTank])
     
     while True:
         while not gameEnvironment.isMyTurn():
@@ -48,7 +49,8 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             myTank.getCoordinatesBreadth()
         print(myTank)
         
-        enemyTanks.updateEnemyTanks()
+        mateTanks.updateTankCollection(hideTanks = [myTank])
+        enemyTanks.updateTankCollection(hideTanks = mateTanks.tanks + [myTank])
         
         if globals.CREATE_PICTURE:
             visualizer.createImage(coordManager)
@@ -57,9 +59,9 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
         gameEnvironment.isShootingState = False
         
         if globals.CREATE_PICTURE:
-            visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, coordManager)
-            enemyTanks.paintEnemies()
             myTank.paintTank()
+            mateTanks.paintTanks()
+            enemyTanks.paintTanks()
             visualizer.saveImage()
 
 def lobbyWrapperLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment) -> None:

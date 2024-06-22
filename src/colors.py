@@ -1,8 +1,9 @@
 import colorama
 from colorama import Fore
 
-FRIENDLY_TANK = (36, 245, 41)
-ENEMY_TANK = (253,57,64)
+TANK_OWN = (36, 245, 41)
+TANK_ENEMY = (217,54,28)
+TANK_MATE = (36,150,186)
 GEAR = (253,251,119)
 BUMPER = (253,253,253)
 

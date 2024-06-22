@@ -30,7 +30,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
 
     Args:
         myTank (friendlyTank): initialized friendlyTank class
-        enemyTanks (EnemyTanks): initialized EnemyTank class
+        enemyTanks (TankCollection): initialized EnemyTank class
         weapon_cat (str): Weapon Category, NOT the weapon itself
         wind (int): calculated wind. wind * wind direction. 68 to the left = -68
         extra_info (Union[int, tuple, None]): extra information provided by the weapon
@@ -52,10 +52,10 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM)
     
     if onlyOne:
-        random_enemy = random.choice(enemyTanks.enemies)
+        random_enemy = random.choice(enemyTanks.tanks)
         doCalculation(random_enemy)
     else:
-        for enemy in enemyTanks.enemies:
+        for enemy in enemyTanks.tanks:
             t = Thread(target=doCalculation, args=(enemy,))
             t.start()
             threads.append(t)
@@ -168,10 +168,40 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         if enemyTank.isPointHitting(calculatedPosition[0], calculatedPosition[1]): return (True, time)
     
     for i in range(-3,4):
-        i = i/10
+        i = i/10170
         if enemyTank.isPointHitting(calculatedPosition[0]+i, calculatedPosition[1]): return (True, time)
         
     return (False, time)
+
+def extract_yellow_channel(np_image: np.ndarray, red_threshold=128, green_threshold=128, blue_threshold=100) -> np.ndarray:
+    """
+    Extracts the yellow channel from an image using thresholds.
+
+    Args:
+        np_image (np.ndarray): An image in RGB format.
+        red_threshold (int): Minimum value for the red channel to be considered yellow.
+        green_threshold (int): Minimum value for the green channel to be considered yellow.
+        blue_threshold (int): Maximum value for the blue channel to be considered yellow.
+
+    Returns:
+        np.ndarray: A binary image where yellow regions are marked.
+    """
+    # Extract red, green, and blue channels
+    red_channel = np_image[:, :, 0]
+    green_channel = np_image[:, :, 1]
+    blue_channel = np_image[:, :, 2]
+    
+    # Create a binary mask for yellow regions
+    yellow_mask = (
+        (red_channel >= red_threshold) &
+        (green_channel >= green_threshold) &
+        (blue_channel <= blue_threshold)
+    )
+    
+    # Convert the mask to a uint8 image
+    yellow_channel = yellow_mask.astype(np.uint8) * 255
+    
+    return yellow_channel
 
 def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
     """Returns a screenshot where everything is black except the bumpers.
@@ -192,8 +222,8 @@ def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
         color_mask |= np.all(np_image[:, :, :3] == color, axis=2)
     dilated_mask = binary_dilation(color_mask, iterations=5)
 
-    blue_channel = np_image[:, :, 2]
-    edges = canny(blue_channel, sigma=10)
+    yellow_channel = extract_yellow_channel(np_image)
+    edges = canny(yellow_channel, sigma=10)
     dilated_edges = binary_dilation(edges, iterations=3)
 
     combined_mask = np.logical_or(dilated_mask, dilated_edges)
@@ -446,7 +476,7 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
 
 
 if __name__ == "__main__":
-    from tank import friendlyTank, Tank, EnemyTanks
+    from tank import friendlyTank, Tank, TankCollection
     from environment import GameEnvironment
     from time import sleep
     import os, glob
@@ -454,17 +484,23 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    globals.CREATE_PICTURE = True
     sleep(2)
+    globals.CREATE_PICTURE = True
     visualizer.createImage(CM)
     
-    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    img = __getEdgesScreenshot(CM)
+    img.save("test.png")
+    
+    visualizer.saveImage()
+    
+    exit()
+    myTank = friendlyTank(colors.TANK_OWN, CM, GE, name="Mein Panzer")
     myTank.getCoordinatesBrute()
     
-    enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
-    enemyTanks.paintEnemies()
+    enemyTanks = TankCollection(colors.TANK_ENEMY, CM, myTank)
+    enemyTanks.paintTanks()
 
-    visualizer.paintPixels(myTank.getPosition(), 15, colors.FRIENDLY_TANK, CM)
+    visualizer.paintPixels(myTank.getPosition(), 15, colors.TANK_OWN, CM)
     
     myTank.shoot(enemyTanks, onlyOne=False, executeShoot=False)
-    visualizer.saveImage()
+    

@@ -275,6 +275,23 @@ class CoordinateManager:
         """
         return (self.convertFloatToWidth(normalizedPoint.getX()), self.convertFloatToWidth(normalizedPoint.getY()))
     
+    def convertTanksToHideRegion(self, tanks) -> list[Box]:
+        """Gets a list of tanks and converts it to a list of multible hiding regions
+
+        Args:
+            tanks (list[Tank]): list of tanks
+
+        Returns:
+            list[Box]: list of multible hiding regions
+        """
+        if tanks == None:
+            return []
+        
+        hideRegions = []
+        for tank in tanks:
+            hideRegions.append(Box(tank.getXCoordinate() - 0.04 , tank.getYCoordinate() - 0.3, tank.getXCoordinate() + 0.04, tank.getYCoordinate() + 0.3))
+        return hideRegions
+    
     def __repr__(self) -> str:
         return f"Width: {self.__screenWidth} | Heigth: {self.__screenHeigth}"
 

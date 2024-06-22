@@ -37,8 +37,8 @@ def holdKey(time : float, key : str) -> None:
     sleep(time)
     keyUp(key)
 
-class EnemyTanks:
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, ownTank):
+class TankCollection:
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, minimum = 1, hideTanks=None):
         """A wrapper for holding all enemy tanks. Inplies that there is atleast one enemy
 
         Args:
@@ -47,41 +47,42 @@ class EnemyTanks:
             ownTank: An own tank to make it hide
         """
         self.color = color
-        self.__ownTank = ownTank
         self.coordManager = coordManager
-        self.enemies = []
+        self.tanks = []
+        self.minimum = minimum
         
-        self.initEnemyTanks()
+        self.initTankCollection(hideTanks=hideTanks)
         
-    def initEnemyTanks(self):   
-        hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
+    def initTankCollection(self, hideTanks=None):
+        hideRegions = self.coordManager.convertTanksToHideRegion(hideTanks) + self.coordManager.convertTanksToHideRegion(self.tanks)
+        
         while True:
-            newEnemy = Tank(colors.ENEMY_TANK, self.coordManager, name=f"Enemy Tank {len(self.enemies) + 1}")
+            newEnemy = Tank(self.color, self.coordManager, name=f"Enemy Tank {len(self.tanks) + 1}")
             res = newEnemy.getCoordinatesBrute(hideRegions=hideRegions)
             
             if res[1] >= 15:
-                print(f"Found {len(self.enemies)} enemy Tanks!")
+                print(f"Found {len(self.tanks)} Tanks in collection!")
                 
                 #try again if no one is found
-                if len(self.enemies) == 0:
-                    self.initEnemyTanks()
+                if len(self.tanks) < self.minimum:
+                    self.initTankCollection()
                     
                 return
             
-            hr = Box(newEnemy.getXCoordinate() - 0.03 , newEnemy.getYCoordinate() - 0.03, newEnemy.getXCoordinate() + 0.03, newEnemy.getYCoordinate() + 0.05)
-            hideRegions.append(hr)
-            self.enemies.append(newEnemy)
+            hr = self.coordManager.convertTanksToHideRegion([newEnemy])
+            hideRegions.extend(hr)
+            self.tanks.append(newEnemy)
         
         
-    def updateEnemyTanks(self):
-        hideRegions = [Box(self.__ownTank.getXCoordinate() - 0.05 , self.__ownTank.getYCoordinate() - 0.05 - 0.06, self.__ownTank.getXCoordinate() + 0.05, self.__ownTank.getYCoordinate() + 0.05 - 0.06)]
-        for enemy in self.enemies:
+    def updateTankCollection(self, hideTanks=None):
+        hideRegions = self.coordManager.convertTanksToHideRegion(hideTanks)
+        for enemy in self.tanks:
             if not enemy.isInSameSpot():
                 enemy.getCoordinatesBreadth(hideRegions = hideRegions)
                 
         #Sort out Tanks that have the same coordinate
         newEnemies = []
-        for enemy in self.enemies:
+        for enemy in self.tanks:
             add = True
             for otherEnemy in newEnemies:
                 if enemy.areCloseToEachOther(otherEnemy):
@@ -91,10 +92,10 @@ class EnemyTanks:
             else:
                 print(f"deleted {enemy}")
                 
-        self.enemies = newEnemies    
+        self.tanks = newEnemies    
     
-    def paintEnemies(self):
-        for enemyTank in self.enemies:
+    def paintTanks(self):
+        for enemyTank in self.tanks:
             enemyTank.paintTank()
 
 class Tank:
@@ -282,14 +283,13 @@ class Tank:
         #regions to cover
         if hideRegions == None:
             hideRegions = []
-            
         for region in hideRegions:
             regionBoundarie = region.getBoundariesNormalized(self.coordManager)
             for x in range(regionBoundarie[0],regionBoundarie[2]):
                 for y in range(regionBoundarie[1],regionBoundarie[3]):
                     try: image.putpixel((x,y),(0,0,0))
                     except: pass
-        
+                    
         image = numpy.array(image)
         #image = image[:, :, ::-1]
 
@@ -447,7 +447,7 @@ class friendlyTank(Tank):
         only call if tank is aviable to shoot
 
         Args:
-            enemyTank (EnemyTanks): EnemyTanks class so it can choose its target
+            enemyTank (TankCollection): TankCollection class so it can choose its target
             onlyOne (bool, optional): it should only calculate one random target. Defaults to False.
             executeShoot (bool, optional): Clicks on the buttons to execute the shot. Defaults to True.
         """
@@ -577,11 +577,14 @@ if __name__ == "__main__":
     sleep(1)
     visualizer.createImage(CM)
     
-    myTank = friendlyTank(colors.FRIENDLY_TANK, CM, GE, name="Mein Panzer")
+    myTank = friendlyTank(colors.TANK_OWN, CM, GE, name="Mein Panzer")
     myTank.getCoordinatesBrute()
     myTank.paintTank()
     
-    enemyTanks = EnemyTanks(colors.ENEMY_TANK, CM, myTank)
-    enemyTanks.paintEnemies()
+    mateTanks = TankCollection(colors.TANK_MATE, CM, hideTanks=[myTank], minimum=0)
+    mateTanks.paintTanks()
+    
+    enemyTanks = TankCollection(colors.TANK_ENEMY, CM, hideTanks=mateTanks.tanks + [myTank])
+    enemyTanks.paintTanks()
     
     visualizer.saveImage()
