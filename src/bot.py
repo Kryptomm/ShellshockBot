@@ -26,7 +26,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     """    
 
     #Wait until screen is fully there
-    if not globals.DEBUG: sleep(24)
+    if not globals.DEBUG: sleep(12)
     
     #initialize Tanks
     #Search for the first time
@@ -89,15 +89,18 @@ def main() -> None:
     """Initializes everything and starts up the bot
     """
     coordManager = CoordinateManager()
+    gameEnvironment = GameEnvironment(coordManager)
     
     png_files = glob.glob(os.path.join(os.path.dirname(os.path.realpath(__file__)), "*.png"))
     for file_path in png_files:
         os.remove(file_path)
         
-
     print(globals.RULES)
     
-    gameEnvironment = GameEnvironment(coordManager)
+    wait = 3
+    for x in range(wait,0,-1):
+        print(f"starting in {x}...")
+        sleep(1)
     
     colorama.init()
     globals.initializeGlobals()
@@ -113,8 +116,4 @@ def main() -> None:
     lobbyWrapperLoop(coordManager, gameEnvironment)
 
 if __name__ == "__main__":
-    wait = 3
-    for x in range(wait):
-        print(f"starting in {wait-x}...")
-        sleep(1)
     main()

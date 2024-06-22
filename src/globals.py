@@ -113,15 +113,15 @@ RULES = """
         ~~~DAS IST EIN FARMBOT FÜR XP~~~
             UMGEBUNG:
                 -Fenster: Vollbild
-                -Auflösung: 1920x1080 (An anderen wird gearbeitet)
+                -Auflösung: Alle 16:9 Auflösungen werden unterstützt
             SPIEL-REGELN:
-                -Map-Color: Nicht Gelb/Rot/Grün, Recommended: Blau
+                -Map-Color: Yellow, andere Farben machen es etwas kaputt, funktioniert dennoch
                 -Map-Mode: Generated  / Secure: Eine Flache Map
                 -Mode: Deathmatch
-                -Players: 2
+                -Players: Egal
                 -Wind: Low-High, Recommended: High
-                -Shot-Type: Single
-                -Mod: Recommended: High
+                -Shot-Type: Alles möglich
+                -Mod: Recommended: One-Wep
                 -Obstacles: Recommended: Med, Secure: Low (Less XP)
             Aktiviere den Bot in der Lobby und sei nicht bereit!
         """
