@@ -48,7 +48,7 @@ class App(ctk.CTk):
 
         main_frame = ctk.CTkFrame(self, fg_color="black")
         main_frame.place(relx=0, rely=0, relwidth=0.8, relheight=0.7, anchor='nw')
-        
+        # TODO: setup correct borders for image, remove warning and scale picture
         try:
             pil_img = Image.open("GUI-test.png")
             img = ImageTk.PhotoImage(pil_img)
