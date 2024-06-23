@@ -485,7 +485,7 @@ class friendlyTank(Tank):
             
         if executeShoot:
             self.gameEnvironment.pressButton(self.gameEnvironment.FireButton)
-            click(50, 50)
+            click(50, 200)
         
         if globals.CREATE_PICTURE:
             for array in buffs.values():
@@ -551,6 +551,18 @@ class friendlyTank(Tank):
         
         return Point(self.getXCoordinate(), self.getYCoordinate())
     
+    def setBoundaries(self, enemyTanks, mateTanks) -> None:
+        offset = 0.1
+        allTanks = [self] + enemyTanks.tanks + mateTanks.tanks
+        allTanks = sorted(allTanks, key=lambda x: x.getXCoordinate())
+        
+        boundingIndex = allTanks.index(self)
+        numTanks = len(allTanks)
+        start = (1 / numTanks) * boundingIndex + offset / 2
+        end = (1 / numTanks) * (boundingIndex + 1) - offset / 2
+        
+        self.BOUNDARIES = Box(start, 0, end, 1)
+    
     def move(self) -> bool:
         """moves the tank in direction of the given boundaries if it is not already in there
 
@@ -573,7 +585,7 @@ if __name__ == "__main__":
     GE = GameEnvironment(CM)
     
     globals.CREATE_PICTURE = True
-    sleep(1)
+    #sleep(1)
     visualizer.createImage(CM)
     
     myTank = friendlyTank(colors.TANK_OWN, CM, GE, name="Mein Panzer")
@@ -585,5 +597,8 @@ if __name__ == "__main__":
     
     enemyTanks = TankCollection(colors.TANK_ENEMY, CM, hideTanks=mateTanks.tanks + [myTank])
     enemyTanks.paintTanks()
+    
+    myTank.setBoundaries(mateTanks, enemyTanks)
+    myTank.move()
     
     visualizer.saveImage()
