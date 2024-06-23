@@ -147,7 +147,7 @@ class GameEnvironment:
         )
 
     
-    def __makeScreenFromWeapons(self) -> Image:
+    def __makeScreenFromWeapons(self, scalingTechnique=Image.NEAREST) -> Image:
         """makes a screenshot and applies different filters for weapon recognition
 
         Returns:
@@ -226,7 +226,7 @@ class GameEnvironment:
         cap = self.__makeScreenFromWeapons()
         arr, ones = self.__convertTo1DArray(cap)
         new_point = arr
-        wep_str = knn.multiThreadfindCategory(new_point, self.__WEAPONPIXELS, 8, ones, fixedK=1)
+        wep_str = knn.multiThreadfindCategory(new_point, self.__WEAPONPIXELS, 8, fixedK=1)
         
         extra_information = None
         for wep_cat in globals.WEPS:
@@ -265,9 +265,10 @@ class GameEnvironment:
             tuple[int, int]: returns the wind as an absolute value and the wind direction it goes in. 68 to the left would be (68,-1)
         """
         cap = self.__makeScreenFromWind()
+        cap.save("test.png")
         arr, ones = self.__convertTo1DArray(cap)
         new_point = arr
-        wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, ones, fixedK=1)
+        wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, fixedK=1)
         return int(wind), self.__getWindRichtung()
 
     def pressButton(self, button : tuple[str, Box]) -> None:
@@ -392,5 +393,4 @@ if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     
-    while True:
-        print(GameEnv.inLoadingScreen())
+    print(GameEnv.getWind())
