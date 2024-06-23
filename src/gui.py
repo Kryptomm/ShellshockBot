@@ -3,6 +3,7 @@ import customtkinter
 import customtkinter as ctk
 from tkinter import *
 from screeninfo import get_monitors
+from PIL import Image, ImageTk
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -10,9 +11,8 @@ ctk.set_default_color_theme("blue")
 # Initialize variables
 monitor_height: int = 0
 
-
 def get_monitor_width():
-    """get height of monitor in pixels"""
+    """Get height of monitor in pixels"""
     global monitor_height
     for monitor in get_monitors():
         if monitor.is_primary:
@@ -20,15 +20,13 @@ def get_monitor_width():
             break
     return monitor_height
 
-
 def get_app_size(monitor_height):
-    """calculate app size"""
+    """Calculate app size"""
     ratio = 16 / 9
     app_height = monitor_height
     app_width = int(round(monitor_height * ratio))
     print(f"Window information: width={app_width}px, height={app_height}px")
     return app_width, app_height
-    
 
 class App(ctk.CTk):
     def __init__(self, app_width=None, app_height=None, *args, **kwargs):
@@ -38,13 +36,30 @@ class App(ctk.CTk):
 
         def create_bordered_frame(parent, relx, rely, relwidth, relheight, anchor, fg_color, text):
             outer_frame = ctk.CTkFrame(parent, fg_color="black")
+            outer_frame.pack_propagate(False)
             outer_frame.place(relx=relx, rely=rely, relwidth=relwidth, relheight=relheight, anchor=anchor)
 
             inner_frame = ctk.CTkFrame(outer_frame, fg_color="black", border_width=2)
-            inner_frame.place(relx=0.5, rely=0.5, relwidth=0.99, relheight=0.98, anchor='center')
+            inner_frame.pack_propagate(False)
+            inner_frame.place(relx=0.5, rely=0.5, relwidth=0.98, relheight=0.98, anchor='center')
 
             label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color)
             label.pack(fill="both", expand=True)
+
+        main_frame = ctk.CTkFrame(self, fg_color="black")
+        main_frame.place(relx=0, rely=0, relwidth=0.8, relheight=0.7, anchor='nw')
+        
+        try:
+            pil_img = Image.open("GUI-test.png")
+            img = ImageTk.PhotoImage(pil_img)
+        except Exception as e:
+            print(f"Error loading image for main-screen: {e}")
+            img = None
+
+        if img:
+            image_label = ctk.CTkLabel(main_frame, image=img, text="")
+            image_label.image = img
+            image_label.pack(fill="both", expand=True)
 
         create_bordered_frame(self,
                               relx=0.0,
@@ -91,10 +106,8 @@ class App(ctk.CTk):
                               fg_color="grey25",
                               text="Buttons can be placed here")
 
-
 if __name__ == "__main__":
     monitor_width = get_monitor_width()
     app_width, app_height = get_app_size(monitor_width)
     app = App(app_width=app_width, app_height=app_height)
-    #app = App(app_width=1920, app_height=1080)
     app.mainloop()
