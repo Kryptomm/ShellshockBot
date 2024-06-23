@@ -11,6 +11,7 @@ ctk.set_default_color_theme("blue")
 # Initialize variables
 monitor_height: int = 0
 
+
 def get_monitor_width():
     """Get height of monitor in pixels"""
     global monitor_height
@@ -20,6 +21,7 @@ def get_monitor_width():
             break
     return monitor_height
 
+
 def get_app_size(monitor_height):
     """Calculate app size"""
     ratio = 16 / 9
@@ -27,6 +29,7 @@ def get_app_size(monitor_height):
     app_width = int(round(monitor_height * ratio))
     print(f"Window information: width={app_width}px, height={app_height}px")
     return app_width, app_height
+
 
 class App(ctk.CTk):
     def __init__(self, app_width=None, app_height=None, *args, **kwargs):
@@ -106,8 +109,10 @@ class App(ctk.CTk):
                               fg_color="grey25",
                               text="Buttons can be placed here")
 
+
 if __name__ == "__main__":
     monitor_width = get_monitor_width()
     app_width, app_height = get_app_size(monitor_width)
-    app = App(app_width=app_width, app_height=app_height)
+    # app = App(app_width=app_width, app_height=app_height)
+    app = App(app_width=1920, app_height=1080)
     app.mainloop()
