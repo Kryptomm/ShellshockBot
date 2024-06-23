@@ -1,6 +1,7 @@
 # Import
 import customtkinter
 import customtkinter as ctk
+from tkinter import *
 from screeninfo import get_monitors
 
 ctk.set_appearance_mode("System")
@@ -21,6 +22,7 @@ def get_monitor_width():
 
 
 def get_app_size(monitor_height):
+    """calculate app size"""
     ratio = 16 / 9
     app_height = monitor_height
     app_width = int(round(monitor_height * ratio))
@@ -34,35 +36,65 @@ class App(ctk.CTk):
         self.title("ShellShock Bot GUI")
         self.geometry(f"{app_width}x{app_height}")
 
-        label_one = ctk.CTkLabel(self,
-                                 text="Text Box 1",
-                                 fg_color="lightblue")
-        label_one.place(relx=0.0, rely=0.85, relwidth=0.4, relheight=0.15, anchor='sw')
+        def create_bordered_frame(parent, relx, rely, relwidth, relheight, anchor, fg_color, text):
+            outer_frame = ctk.CTkFrame(parent, fg_color="black")
+            outer_frame.place(relx=relx, rely=rely, relwidth=relwidth, relheight=relheight, anchor=anchor)
 
-        label_two = ctk.CTkLabel(self,
-                                 text="Text Box 2",
-                                 fg_color="blue")
-        label_two.place(relx=0.0, rely=1.0, relwidth=0.4, relheight=0.15, anchor='sw')
+            inner_frame = ctk.CTkFrame(outer_frame, fg_color="black", border_width=2)
+            inner_frame.place(relx=0.5, rely=0.5, relwidth=0.99, relheight=0.98, anchor='center')
 
-        label_three = ctk.CTkLabel(self,
-                                   text="Text Box 3",
-                                   fg_color="darkblue")
-        label_three.place(relx=0.4, rely=1.0, relwidth=0.4, relheight=0.3, anchor='sw')
+            label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color)
+            label.pack(fill="both", expand=True)
 
-        label_four = ctk.CTkLabel(self,
-                                  text="Text Box 4",
-                                  fg_color="grey")
-        label_four.place(relx=0.8, rely=1.0, relwidth=0.2, relheight=0.15, anchor='sw')
+        create_bordered_frame(self,
+                              relx=0.0,
+                              rely=0.85,
+                              relwidth=0.4,
+                              relheight=0.15,
+                              anchor='sw',
+                              fg_color="grey25",
+                              text="Text Box 1")
 
-        label_buttons = ctk.CTkLabel(self,
-                                     text="Buttons can be placed here",
-                                     fg_color="red")
-        label_buttons.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.85, anchor='nw')
+        create_bordered_frame(self,
+                              relx=0.0,
+                              rely=1.0,
+                              relwidth=0.4,
+                              relheight=0.15,
+                              anchor='sw',
+                              fg_color="grey25",
+                              text="Text Box 2")
+
+        create_bordered_frame(self,
+                              relx=0.4,
+                              rely=1.0,
+                              relwidth=0.4,
+                              relheight=0.3,
+                              anchor='sw',
+                              fg_color="grey25",
+                              text="Text Box 3")
+
+        create_bordered_frame(self,
+                              relx=0.8,
+                              rely=1.0,
+                              relwidth=0.2,
+                              relheight=0.15,
+                              anchor='sw',
+                              fg_color="grey25",
+                              text="Text Box 4")
+
+        create_bordered_frame(self,
+                              relx=0.8,
+                              rely=0,
+                              relwidth=0.2,
+                              relheight=0.85,
+                              anchor='nw',
+                              fg_color="grey25",
+                              text="Buttons can be placed here")
 
 
 if __name__ == "__main__":
     monitor_width = get_monitor_width()
     app_width, app_height = get_app_size(monitor_width)
-    #app = App(app_width=app_width, app_height=app_height)
-    app = App(app_width=1920, app_height=1080)
+    app = App(app_width=app_width, app_height=app_height)
+    #app = App(app_width=1920, app_height=1080)
     app.mainloop()
