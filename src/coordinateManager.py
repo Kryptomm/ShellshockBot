@@ -159,7 +159,8 @@ class Box:
 class CoordinateManager:
     @timeit("Class: CoordinateManager __init__")
     def __init__(self) -> None:
-        """A class where all needed coordinates are already preset
+        """
+        A class where all needed coordinates are already preset
         """
         self.__screenWidth, self.__screenHeigth = size()
         self.__heigthWidthRatio = self.__screenHeigth / self.__screenWidth
@@ -185,8 +186,12 @@ class CoordinateManager:
         self.DRONE              = Box(0,         0,         1,         0.851852)
         self.CRATE              = Box(0,         0,         1,         0.851852)
         
+        self.CANTBEANYONE       = Box(0.476563,  0.055556,  0.523438,  0.097222) #A region where it is considered there cant be anyone standing
+        
         self.RADIUS             = 0.178646 #dependent from width of the screen
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen
+        
+        
         
     def getScreenWidth(self) -> int:
         """getter for the screen width

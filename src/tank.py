@@ -76,23 +76,23 @@ class TankCollection:
         
     def updateTankCollection(self, hideTanks=None):
         hideRegions = self.coordManager.convertTanksToHideRegion(hideTanks)
-        for enemy in self.tanks:
-            if not enemy.isInSameSpot():
-                enemy.getCoordinatesBreadth(hideRegions = hideRegions)
+        for tank in self.tanks:
+            if not tank.isInSameSpot():
+                tank.getCoordinatesBreadth(hideRegions = hideRegions)
                 
         #Sort out Tanks that have the same coordinate
-        newEnemies = []
-        for enemy in self.tanks:
+        newTanks = []
+        for tank in self.tanks:
             add = True
-            for otherEnemy in newEnemies:
-                if enemy.areCloseToEachOther(otherEnemy):
+            for otherTank in newTanks:
+                if tank.areCloseToEachOther(otherTank):
                     add = False
-            if add:
-                newEnemies.append(enemy)
-            else:
-                print(f"deleted {enemy}")
+            #Check if Enemy is in the CANTBEANYONE Region. This is normally where allies are located but there are none.
+            if self.coordManager.CANTBEANYONE.isPointInBoundaries(tank.getPosition()): add = False
+            if add: newTanks.append(tank)
+            else: print(f"deleted {tank}")
                 
-        self.tanks = newEnemies    
+        self.tanks = newTanks    
     
     def paintTanks(self):
         for enemyTank in self.tanks:
@@ -459,7 +459,7 @@ class friendlyTank(Tank):
         buffs = self.gameEnvironment.findBuffs()
         
         #convert buffs to tanks
-        key_to_epsilon = {"x3": 0.01, "x2": 0.02, "drone": 0.01, "crate": 0.01}
+        key_to_epsilon = {"x3": 0.01, "x2": 0.02, "drone": 0.008, "crate": 0.005}
         for key in buffs:
             newList = []
             for buff in buffs[key]:
