@@ -598,7 +598,6 @@ if __name__ == "__main__":
     enemyTanks = TankCollection(colors.TANK_ENEMY, CM, hideTanks=mateTanks.tanks + [myTank])
     enemyTanks.paintTanks()
     
-    myTank.setBoundaries(mateTanks, enemyTanks)
-    myTank.move()
+    myTank.shoot(enemyTanks)
     
     visualizer.saveImage()

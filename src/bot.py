@@ -26,7 +26,7 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     """    
 
     #Wait until screen is fully there
-    if not globals.DEBUG: sleep(12)
+    sleep(8)
     
     #initialize Tanks
     #Search for the first time
@@ -45,12 +45,15 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
             
         gameEnvironment.isShootingState = True
         
+        mateTanks.updateTankCollection(hideTanks = [myTank])
+        enemyTanks.updateTankCollection(hideTanks = mateTanks.tanks + [myTank])
+        
+        myTank.setBoundaries(enemyTanks, mateTanks)
+        myTank.move()
+        
         if not myTank.isInSameSpot():
             myTank.getCoordinatesBreadth()
         print(myTank)
-        
-        mateTanks.updateTankCollection(hideTanks = [myTank])
-        enemyTanks.updateTankCollection(hideTanks = mateTanks.tanks + [myTank])
         
         if globals.CREATE_PICTURE:
             visualizer.createImage(coordManager)

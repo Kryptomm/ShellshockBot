@@ -41,7 +41,6 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
     """
     calculations = {}
     threads = []
-
     def doCalculation(enemyTank):
         if weapon_cat == "normal": calculations[enemyTank] =  __normal(myTank, enemyTank, wind, buffs, CM)
         elif weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
@@ -62,7 +61,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
             
         for t in threads:
             t.join()
-    
+            
     return calculations
 
 
@@ -440,7 +439,7 @@ def __straight(myTank, enemyTank) -> tuple[int,int]:
     if enemyTank.getXCoordinate() < myTank.getXCoordinate():
         angle += 180
     
-    return ((round(angle) % 360, 100),0)
+    return ((round(angle) % 360, 100), 100)
 
 def __instant() -> tuple[int,int]:
     """does nothing than returning the basic angle 90 and 100
@@ -464,7 +463,7 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
     Returns:
         tuple[int,int]: (angle, strength)
     """
-    angle = __straight(myTank, enemyTank)[0]
+    angle = __straight(myTank, enemyTank)[0][0]
     distance = math.sqrt((myTank.getXCoordinate() - enemyTank.getXCoordinate())**2 +
                          ((myTank.getYCoordinate() - enemyTank.getYCoordinate()) * CM.getScreenHeigth() / CM.getScreenWidth())**2)
     
