@@ -1,8 +1,0 @@
--Buffs should only considered hittable if they are between the player shooting and the target
--moving tank
-
-
-Notizen:
--unptimized: 7.7620
--only every second angle 4.24
-
