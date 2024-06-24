@@ -58,7 +58,7 @@ def getSelectedWeaponNeighbors():
     cap = makeScreenFromWeapons()
     arr, ones = convertTo1DArray(cap)
     new_point = arr
-    wep_str = knn.multiThreadfindCategory(new_point, WEAPONPIXELS, 8, ones, fixedK=1)
+    wep_str = knn.knnWind(new_point)
     
     for wep_cat in WEPS:
         for wep in WEPS[wep_cat]:

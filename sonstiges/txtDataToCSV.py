@@ -1,8 +1,8 @@
 import pandas as pd
 
 # File paths
-input_file = 'data/WindPixels.txt'
-output_file = 'binary_data.csv'
+input_file = 'data/WeaponPixels.txt'
+output_file = 'WeaponPixels.csv'
 
 # Read the text file
 data = []
@@ -11,7 +11,7 @@ with open(input_file, 'r') as file:
         # Split the line into features and label
         parts = line.strip().split()
         features = list(map(int, parts[2:]))  # Convert features to integers
-        label = int(parts[0])  # Convert label to integer
+        label = parts[0]  # Convert label to integer
         data.append(features + [label])
 
 # Determine the number of features

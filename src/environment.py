@@ -4,6 +4,7 @@ import threading
 import globals
 import win32gui
 import numpy as np
+import cv2
 
 from time import sleep
 from math import sqrt
@@ -20,9 +21,6 @@ class GameEnvironment:
             coordManager (CoordinateManager): an initlaized CoordinateManager class
         """        
         self.coordManager = coordManager
-        
-        self.__WEAPONPIXELS = self.__loadPixelData('data/WeaponPixels.txt') 
-        self.__WINDPIXELS = self.__loadPixelData('data/WindPixels.txt')
         
         #Buttons
         self.FireButton : tuple[str, CoordinateManager] = ("Images/FireButton.png", coordManager.FIRE_BUTTON)
@@ -99,29 +97,6 @@ class GameEnvironment:
         else:
             raise TypeError()
     
-    def __loadPixelData(self, path : str) -> list[list[int], str, int]:
-        """loads data out of a txt file for KNN-Recognition
-
-        Args:
-            path (str): path to the txt file
-
-        Returns:
-            list[list[int], str, int]: a list of all the data
-        """
-        file = open(path, 'r')
-        Lines = file.readlines()
-        data = []
-        
-        count = 0
-        for line in Lines:
-            count += 1
-            txt = "{}".format(line.strip())
-            d = txt.split(" ")
-            for i in range(2,len(d)):
-                d[i] = int(d[i])
-            data.append([d[2:], d[0].replace("#"," "), int(d[1])])        
-        return data
-    
     def __calculateColorDistance(self, c1 : tuple[int, int, int], c2 : tuple[int, int, int]) -> float:
         """Calculates the euclidean Distance between two colors
 
@@ -181,41 +156,15 @@ class GameEnvironment:
         cap = self.__convertScreenshotToImage(pyautogui.screenshot(region=screenshotBoundaries))
         cap = cap.resize((27, 18), Image.NEAREST)
 
-        filter = ImageEnhance.Color(cap)
-        new_cap = filter.enhance(0)
-        enhancer = ImageEnhance.Contrast(new_cap)
-        new_cap = enhancer.enhance(100)
+        cap_np = cv2.cvtColor(np.array(cap), cv2.COLOR_RGB2BGR)
 
-        newCap  = Image.new(mode = "RGB", size = (cap.width, cap.height), color = (0, 0, 0))
-        for x in range(cap.width):
-            for y in range(cap.height):
-                color = cap.getpixel((x, y))
-                if color[0] <= 70 and color[1] <= 70 and color[2] <= 70: 
-                    newCap.putpixel((x,y),(255,255,255))
-                else:
-                    newCap.putpixel((x,y),(0,0,0))
-        return newCap
+        # Convert image to grayscale
+        gray_image = cv2.cvtColor(cap_np, cv2.COLOR_BGR2GRAY)
 
-    def __convertTo1DArray(self, cap):
-        """generates a screenshot to a list of ones and zeros based on gray-scale value
+        # Flatten and normalize pixel values
+        flattened_image = gray_image.flatten() / 255.0  # Flatten and normalize to [0, 1]
 
-        Args:
-            cap (_type_): an image that was edited already
-
-        Returns:
-            (list, int): returns the list ones and zeros and number of ones
-        """
-        arr = []
-        num = 0
-        for x in range(cap.width):
-            for y in range(cap.height):
-                color = cap.getpixel((x, y))
-                c = round(0.2989 * color[0] + 0.5870 * color[1] + 0.1140 * color[2])
-                if c == 255:
-                    arr.append(1)
-                    num += 1
-                else: arr.append(0)
-        return (arr, num)
+        return flattened_image
     
     def getSelectedWeapon(self) -> tuple[str, str]:
         """reads out the screen for the current selected weapon
@@ -226,7 +175,7 @@ class GameEnvironment:
         cap = self.__makeScreenFromWeapons()
         arr, ones = self.__convertTo1DArray(cap)
         new_point = arr
-        wep_str = knn.multiThreadfindCategory(new_point, self.__WEAPONPIXELS, 8, fixedK=1)
+        wep_str = knn.knnWeapon(new_point)
         
         extra_information = None
         for wep_cat in globals.WEPS:
@@ -265,10 +214,7 @@ class GameEnvironment:
             tuple[int, int]: returns the wind as an absolute value and the wind direction it goes in. 68 to the left would be (68,-1)
         """
         cap = self.__makeScreenFromWind()
-        cap.save("test.png")
-        arr, ones = self.__convertTo1DArray(cap)
-        new_point = arr
-        wind = knn.multiThreadfindCategory(new_point, self.__WINDPIXELS, 8, fixedK=1)
+        wind = knn.knnWind(cap)
         return int(wind), self.__getWindRichtung()
 
     def pressButton(self, button : tuple[str, Box]) -> None:
@@ -393,4 +339,5 @@ if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     
-    print(GameEnv.getWind())
+    while True:
+        print(GameEnv.getWind())
