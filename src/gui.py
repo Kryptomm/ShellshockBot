@@ -1,9 +1,14 @@
 import customtkinter as ctk
+import guiFunctions as gf
+import time
+import globals
+
 from tkinter import *
 from screeninfo import get_monitors
 from PIL import Image, ImageTk
 from threading import Thread
-from time import sleep
+from environment import GameEnvironment
+from coordinateManager import CoordinateManager
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -37,6 +42,10 @@ class App(ctk.CTk):
         self.title("ShellShock Bot GUI")
         self.geometry(f"{app_width}x{app_height}")
 
+        # For Cheating
+        self.coordManager = None
+        self.gameEnvironment = None
+
         def create_bordered_frame(parent, relx, rely, relwidth, relheight, anchor, fg_color, text):
             outer_frame = ctk.CTkFrame(parent, fg_color="black")
             outer_frame.pack_propagate(False)
@@ -49,8 +58,8 @@ class App(ctk.CTk):
             label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color)
             label.pack(fill="both", expand=True)
 
-        main_frame = ctk.CTkFrame(self, fg_color="black")
-        main_frame.place(relx=0, rely=0, relwidth=0.8, relheight=0.7, anchor='nw')
+        self.main_frame = ctk.CTkFrame(self, fg_color="black")
+        self.main_frame.place(relx=0, rely=0, relwidth=0.8, relheight=0.7, anchor='nw')
         # TODO: setup correct borders for image, remove warning and scale picture
         try:
             pil_img = Image.open("GUI-test.png")
@@ -59,10 +68,11 @@ class App(ctk.CTk):
             print(f"Error loading image for main-screen: {e}")
             img = None
 
+        self.image_label = None
         if img:
-            image_label = ctk.CTkLabel(main_frame, image=img, text="")
-            image_label.image = img
-            image_label.pack(fill="both", expand=True)
+            self.image_label = ctk.CTkLabel(self.main_frame, image=img, text="")
+            self.image_label.image = img
+            self.image_label.pack(fill="both", expand=True)
 
         create_bordered_frame(self,
                               relx=0.0,
@@ -109,23 +119,47 @@ class App(ctk.CTk):
                               fg_color="grey25",
                               text="Buttons can be placed here")
 
-        self.run_periodic_task()
+        self.start_threads()
 
-    def periodic_task(self):
-        print("This function runs periodically.")
-        sleep(2)
-        self.after(1000, self.start_periodic_task) 
+    def refresh(self):
+        print("starting")
+        if self.coordManager and self.gameEnvironment:
+            data = gf.runCheat(self.coordManager, self.gameEnvironment)
 
-    def start_periodic_task(self):
-        Thread(target=self.periodic_task).start()
+            print(data)
+            if data:
+                if not self.image_label:
+                    self.image_label = ctk.CTkLabel(self.main_frame, text="")
+                    self.image_label.pack(fill="both", expand=True)
+                
+                # Get the dimensions of the main_frame
+                frame_width = self.main_frame.winfo_width()
+                frame_height = self.main_frame.winfo_height()
 
-    def run_periodic_task(self):
-        self.start_periodic_task()
+                # Resize the image to fit the frame while maintaining aspect ratio
+                pil_img = data["Image"]
+                pil_img = pil_img.resize((frame_width, frame_height), Image.ANTIALIAS)
+                img = ImageTk.PhotoImage(pil_img)
+
+                self.image_label.configure(image=img)
+                self.image_label.image = img
+
+        self.after(0, self.start_refresh_task)
+
+    def start_refresh_task(self):
+        Thread(target=self.refresh).start()
+
+    def init_managers(self):
+        self.coordManager = CoordinateManager()
+        self.gameEnvironment = GameEnvironment(self.coordManager)
+
+    def start_threads(self):
+        self.start_refresh_task()
+        Thread(target=self.init_managers).start()
 
 
 if __name__ == "__main__":
     monitor_width = get_monitor_width()
     app_width, app_height = get_app_size(monitor_width)
-    # app = App(app_width=app_width, app_height=app_height)
     app = App(app_width=1920, app_height=1080)
     app.mainloop()
