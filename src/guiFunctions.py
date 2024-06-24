@@ -69,6 +69,6 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
             "buffs": buffs,
             "calculations": calculations,
             "wind": wind,
-            "wind_dir": wind_richtung,
+            "wind_dir": wind_richtung, #1 = Rechts, -1 = Links
             "weapon": weapon,
             "weapon_cat": weapon_category}
