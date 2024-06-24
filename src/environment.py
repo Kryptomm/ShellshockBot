@@ -153,7 +153,7 @@ class GameEnvironment:
             tuple[str, str, int]: returns (weapon_name, weapon_category, extra_information like delta angle)
         """
         cap = self.__makeScreenFromWeapons()
-        wep_str = knn.knnWeapon(cap)
+        wep_str = str(knn.knnWeapon(cap))
         
         extra_information = None
         for wep_cat in globals.WEPS:
