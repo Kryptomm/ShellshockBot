@@ -1,9 +1,9 @@
-# Import
-import customtkinter
 import customtkinter as ctk
 from tkinter import *
 from screeninfo import get_monitors
 from PIL import Image, ImageTk
+from threading import Thread
+from time import sleep
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -108,6 +108,19 @@ class App(ctk.CTk):
                               anchor='nw',
                               fg_color="grey25",
                               text="Buttons can be placed here")
+
+        self.run_periodic_task()
+
+    def periodic_task(self):
+        print("This function runs periodically.")
+        sleep(2)
+        self.after(1000, self.start_periodic_task) 
+
+    def start_periodic_task(self):
+        Thread(target=self.periodic_task).start()
+
+    def run_periodic_task(self):
+        self.start_periodic_task()
 
 
 if __name__ == "__main__":
