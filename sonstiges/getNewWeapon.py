@@ -11,7 +11,6 @@ WEAPON_FIELD = (713, 1038, 950, 1064)
 
 def makeScreen():
     cap = ImageGrab.grab(bbox=(WEAPON_FIELD[0], WEAPON_FIELD[1], WEAPON_FIELD[2], WEAPON_FIELD[3]))
-    cap.save("test.png")
 
     # Convert PIL Image to OpenCV format (BGR)
     cap_np = cv2.cvtColor(np.array(cap), cv2.COLOR_RGB2BGR)

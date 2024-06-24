@@ -38,6 +38,9 @@ class GameEnvironment:
         self.shootingStateEvent = threading.Event()
         self.__inLobbyState = False
         self.lobbyStateEvent = threading.Event()
+        
+        knn.loadWeaponKNN()
+        knn.loadWindKNN()
     
     @property
     def isShootingState(self) -> bool:
@@ -129,24 +132,18 @@ class GameEnvironment:
             Image: returns the edited image
         """
         screenshotBoundaries = self.coordManager.WEAPON_FIELD.getBoundariesNormalized(self.coordManager)
-        print(screenshotBoundaries)
-        cap = self.__convertScreenshotToImage(pyautogui.screenshot(region=screenshotBoundaries))
-        cap.save("test.png")
-        cap = cap.resize((237, 26), Image.NEAREST)
-        filter = ImageEnhance.Color(cap)
-        cap = filter.enhance(50)
-        enhancer = ImageEnhance.Contrast(cap)
-        cap = enhancer.enhance(1)
-        
-        newCap  = Image.new(mode = "RGB", size = (cap.width, cap.height), color = (0, 0, 0))
-        for x in range(cap.width):
-            for y in range(cap.height):
-                color = cap.getpixel((x, y))
-                if color[0] >= 230 and color[1] >= 230 and color[2] >= 230: 
-                    newCap.putpixel((x,y),(255,255,255))
-                else:
-                    newCap.putpixel((x,y),(0,0,0))
-        return newCap
+        cap = ImageGrab.grab(bbox=(screenshotBoundaries[0], screenshotBoundaries[1], screenshotBoundaries[2], screenshotBoundaries[3]))
+
+        # Convert PIL Image to OpenCV format (BGR)
+        cap_np = cv2.cvtColor(np.array(cap), cv2.COLOR_RGB2BGR)
+
+        # Convert image to grayscale
+        gray_image = cv2.cvtColor(cap_np, cv2.COLOR_BGR2GRAY)
+
+        # Flatten and normalize pixel values
+        flattened_image = gray_image.flatten() / 255.0  # Flatten and normalize to [0, 1]
+
+        return flattened_image
 
     def getWeapon(self) -> tuple[str, str]:
         """reads out the screen for the current selected weapon
@@ -164,6 +161,7 @@ class GameEnvironment:
                     extra_information = wep[1]
                     wep = wep[0]
                 if wep == wep_str: return wep, wep_cat, extra_information
+                
         return ("undefined", "normal", None)
     
     def __makeScreenFromWind(self) -> Image:
@@ -340,5 +338,5 @@ if __name__ == "__main__":
     GameEnv = GameEnvironment(CoordMan)
     
     while True:
-        print(GameEnv.getWeapon())
+        print(GameEnv.getWind(), GameEnv.getWeapon())
         break
