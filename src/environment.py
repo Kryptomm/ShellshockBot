@@ -146,6 +146,7 @@ class GameEnvironment:
 
         return flattened_image
 
+    @timeit("Get Weapon")
     def getWeapon(self) -> tuple[str, str]:
         """reads out the screen for the current selected weapon
 
@@ -206,6 +207,7 @@ class GameEnvironment:
                 else: richtung = -1
         return richtung
     
+    @timeit("Get Wind")
     def getWind(self) -> tuple[int, int]:
         """reads out the screen for the current wind and direction
 
@@ -339,5 +341,8 @@ if __name__ == "__main__":
     GameEnv = GameEnvironment(CoordMan)
     
     while True:
-        print(GameEnv.getWeapon())
+        WeaponData = GameEnv.getWeapon()
+        WindData = GameEnv.getWind()
         
+        print(f"{WeaponData=} {WindData=}")
+        sleep(3)
