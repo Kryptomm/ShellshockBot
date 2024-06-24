@@ -51,7 +51,7 @@ def overcharge():
             while not (isVisible("FireButton", region=(1000,900, 1420, 1100))):
                 if checks >= maxChecks: continue
                 
-                selected_weapon = gameEnvironment.getSelectedWeapon()
+                selected_weapon = gameEnvironment.getWeapon()
                 isGonnaShoot = selected_weapon[0] in targettedWeapons
                 if not isGonnaShoot:
                     #In eine Richtung bewegen beim Waffen sortieren

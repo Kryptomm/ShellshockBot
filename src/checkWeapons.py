@@ -54,7 +54,7 @@ def convertTo1DArray(cap):
             else: arr.append(0)
     return arr, num
 
-def getSelectedWeaponNeighbors():
+def getWeaponNeighbors():
     cap = makeScreenFromWeapons()
     arr, ones = convertTo1DArray(cap)
     new_point = arr
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     sleep(3)
     oneTime = True
     while True:
-        wep_data = getSelectedWeaponNeighbors()
+        wep_data = getWeaponNeighbors()
         
         print(wep_data)
         

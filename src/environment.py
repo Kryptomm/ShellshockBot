@@ -128,8 +128,10 @@ class GameEnvironment:
         Returns:
             Image: returns the edited image
         """
-        screenshotBoundaries = self.coordManager.WEAPON_FIELD.getBoundariesNormalizedForScreenshot(self.coordManager)
+        screenshotBoundaries = self.coordManager.WEAPON_FIELD.getBoundariesNormalized(self.coordManager)
+        print(screenshotBoundaries)
         cap = self.__convertScreenshotToImage(pyautogui.screenshot(region=screenshotBoundaries))
+        cap.save("test.png")
         cap = cap.resize((237, 26), Image.NEAREST)
         filter = ImageEnhance.Color(cap)
         cap = filter.enhance(50)
@@ -146,6 +148,24 @@ class GameEnvironment:
                     newCap.putpixel((x,y),(0,0,0))
         return newCap
 
+    def getWeapon(self) -> tuple[str, str]:
+        """reads out the screen for the current selected weapon
+
+        Returns:
+            tuple[str, str, int]: returns (weapon_name, weapon_category, extra_information like delta angle)
+        """
+        cap = self.__makeScreenFromWeapons()
+        wep_str = knn.knnWeapon(cap)
+        
+        extra_information = None
+        for wep_cat in globals.WEPS:
+            for wep in globals.WEPS[wep_cat]:
+                if type(wep) is tuple:
+                    extra_information = wep[1]
+                    wep = wep[0]
+                if wep == wep_str: return wep, wep_cat, extra_information
+        return ("undefined", "normal", None)
+    
     def __makeScreenFromWind(self) -> Image:
         """makes a screenshot and applies different filters for wind recognition
 
@@ -165,26 +185,6 @@ class GameEnvironment:
         flattened_image = gray_image.flatten() / 255.0  # Flatten and normalize to [0, 1]
 
         return flattened_image
-    
-    def getSelectedWeapon(self) -> tuple[str, str]:
-        """reads out the screen for the current selected weapon
-
-        Returns:
-            tuple[str, str, int]: returns (weapon_name, weapon_category, extra_information like delta angle)
-        """
-        cap = self.__makeScreenFromWeapons()
-        arr, ones = self.__convertTo1DArray(cap)
-        new_point = arr
-        wep_str = knn.knnWeapon(new_point)
-        
-        extra_information = None
-        for wep_cat in globals.WEPS:
-            for wep in globals.WEPS[wep_cat]:
-                if type(wep) is tuple:
-                    extra_information = wep[1]
-                    wep = wep[0]
-                if wep == wep_str: return wep, wep_cat, extra_information
-        return ("undefined", "normal", None)
     
     def __getWindRichtung(self) -> int:
         """reads out the screen for the current wind direction
@@ -340,4 +340,5 @@ if __name__ == "__main__":
     GameEnv = GameEnvironment(CoordMan)
     
     while True:
-        print(GameEnv.getWind())
+        print(GameEnv.getWeapon())
+        break

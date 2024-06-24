@@ -75,6 +75,6 @@ if __name__ == "__main__":
         print("Taking Pic Finished")
         
         do_after()
-        label = input("Enter label for the image: ")
+        label = input("Enter label for the image: ").lower()
         click(-1040,1192)
         saveToCSV(data, label)

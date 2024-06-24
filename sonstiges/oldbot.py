@@ -253,7 +253,7 @@ def moveCannon(angle, strength, old_angle, old_strength, myPos):
     for t in threads: t.join()
 
 #*Gibt mir meine aktuell ausgewählte Waffe wieder und zudem die Kategorie mit Pytesseract
-def getSelectedWeaponImageRead():
+def getWeaponImageRead():
     cap = makeScreenFromWeapons()
     wep_str =  pytesseract.image_to_string(cv2.cvtColor(numpy.array(cap), cv2.COLOR_BGR2GRAY))
     wep_str = wep_str.lower().strip()
@@ -273,7 +273,7 @@ def getSelectedWeaponImageRead():
     return current_wep, category
 
 #*Gibt mir meine aktuell ausgewählte Waffe wieder und zudem die Kategorie mit KNearestNeigbours
-def getSelectedWeaponNeighbors():
+def getWeaponNeighbors():
     cap = makeScreenFromWeapons()
     arr, ones = convertTo1DArray(cap)
     new_point = arr
@@ -674,10 +674,10 @@ def play(waitTime=3, debug=False):
         wep_data = ["shot","normal"]
         if WEAPONPIXELS_ACTIVE:
             print("Benutze gute Waffen-auslesung")
-            wep_data = getSelectedWeaponNeighbors()
+            wep_data = getWeaponNeighbors()
         else:
             print("Benutze schlechte Waffen-auslesung")
-            wep_data = getSelectedWeaponImageRead()
+            wep_data = getWeaponImageRead()
         
         weapon = wep_data[0]
         weapon_cat = wep_data[1]

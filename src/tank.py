@@ -451,7 +451,7 @@ class friendlyTank(Tank):
             executeShoot (bool, optional): Clicks on the buttons to execute the shot. Defaults to True.
         """
         
-        weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getSelectedWeapon()
+        weapon, weapon_category, weapon_extra_info = self.gameEnvironment.getWeapon()
         wind, wind_richtung = self.gameEnvironment.getWind()
         wind = wind * wind_richtung
         print(f"{super().__repr__()}: | {weapon=} | {weapon_category=} | {weapon_extra_info=} | {wind=}")
