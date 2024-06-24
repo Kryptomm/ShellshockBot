@@ -133,6 +133,7 @@ class GameEnvironment:
         """
         screenshotBoundaries = self.coordManager.WEAPON_FIELD.getBoundariesNormalized(self.coordManager)
         cap = ImageGrab.grab(bbox=(screenshotBoundaries[0], screenshotBoundaries[1], screenshotBoundaries[2], screenshotBoundaries[3]))
+        cap = cap.resize((237, 26), Image.NEAREST)
 
         # Convert PIL Image to OpenCV format (BGR)
         cap_np = cv2.cvtColor(np.array(cap), cv2.COLOR_RGB2BGR)
@@ -338,5 +339,5 @@ if __name__ == "__main__":
     GameEnv = GameEnvironment(CoordMan)
     
     while True:
-        print(GameEnv.getWind(), GameEnv.getWeapon())
-        break
+        print(GameEnv.getWeapon())
+        
