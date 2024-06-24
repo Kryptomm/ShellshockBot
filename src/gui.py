@@ -150,6 +150,8 @@ class App(ctk.CTk):
             else:
                 print("finished the calculations unsuccessfully")
                 self.after(1000, self.start_refresh_task)
+        else:
+            self.after(1000, self.start_refresh_task)
 
     def start_refresh_task(self):
         Thread(target=self.refresh).start()
