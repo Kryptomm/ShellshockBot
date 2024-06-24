@@ -2,6 +2,7 @@ import colors
 import globals
 import visualizer
 import shootingStrategies
+import win32gui
 
 from tank import Tank, friendlyTank, TankCollection
 from environment import GameEnvironment
@@ -15,8 +16,13 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
         gameEnvironment (GameEnvironment): _description_
 
     Returns:
-        dict: {"Image", }
+        dict: With Information as show on the bottom or None if not worked.
     """
+    foreground_window = win32gui.GetForegroundWindow()
+    current_window_title = win32gui.GetWindowText(foreground_window)
+    
+    if current_window_title != "ShellShock Live": return None
+    
     globals.CREATE_PICTURE = True
     visualizer.createImage(coordManager)
     
@@ -31,6 +37,7 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
     
     weapon, weapon_category, weapon_extra_info = gameEnvironment.getWeapon()
     wind, wind_richtung = gameEnvironment.getWind()
+    realwind = wind * wind_richtung
     
     buffs = gameEnvironment.findBuffs()
         
@@ -44,10 +51,24 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
             newList.append(buffTank)
         buffs[key] = newList
         
-    calculations = shootingStrategies.getAngleAndPower(myTank, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, coordManager, onlyOne=False)
+    calculations = shootingStrategies.getAngleAndPower(myTank, enemyTanks, weapon_category, realwind, weapon_extra_info, buffs, coordManager, onlyOne=False)
     
+    #Painting Part
     myTank.paintTank()
     mateTanks.paintTanks()
     enemyTanks.paintTanks()
     
-    return {"Image": globals.CURRENT_PICTURE}
+    for array in buffs.values():
+        for b in array:
+            b.paintTank()
+    
+    return {"Image": globals.CURRENT_PICTURE,
+            "MyTank": myTank,
+            "enemyTanks": enemyTanks.tanks,
+            "mateTanks": mateTanks.tanks,
+            "buffs": buffs,
+            "calculations": calculations,
+            "wind": wind,
+            "wind_dir": wind_richtung,
+            "weapon": weapon,
+            "weapon_cat": weapon_category}

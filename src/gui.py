@@ -122,7 +122,7 @@ class App(ctk.CTk):
         self.start_threads()
 
     def refresh(self):
-        print("starting")
+        print("starting the calculations")
         if self.coordManager and self.gameEnvironment:
             data = gf.runCheat(self.coordManager, self.gameEnvironment)
 
@@ -143,8 +143,13 @@ class App(ctk.CTk):
 
                 self.image_label.configure(image=img)
                 self.image_label.image = img
-
-        self.after(0, self.start_refresh_task)
+                
+                print("finished the calculations successfully")
+                self.after(0, self.start_refresh_task)
+            
+            else:
+                print("finished the calculations unsuccessfully")
+                self.after(1000, self.start_refresh_task)
 
     def start_refresh_task(self):
         Thread(target=self.refresh).start()
