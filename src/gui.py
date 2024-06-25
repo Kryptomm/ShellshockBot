@@ -120,39 +120,24 @@ class App(ctk.CTk):
                               text="Buttons can be placed here")
 
         self.start_threads()
+    
+    #GUI-Helpers
+    def changeMainImage(self, data):
+        if not self.image_label:
+            self.image_label = ctk.CTkLabel(self.main_frame, text="")
+            self.image_label.pack(fill="both", expand=True)
+        
+        frame_width = self.main_frame.winfo_width()
+        frame_height = self.main_frame.winfo_height()
 
-    def refresh(self):
-        print("starting the calculations")
-        if self.coordManager and self.gameEnvironment:
-            data = gf.runCheat(self.coordManager, self.gameEnvironment)
+        pil_img = data["Image"]
+        pil_img = pil_img.resize((frame_width, frame_height), Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(pil_img)
 
-            print(data)
-            if data:
-                if not self.image_label:
-                    self.image_label = ctk.CTkLabel(self.main_frame, text="")
-                    self.image_label.pack(fill="both", expand=True)
-                
-                # Get the dimensions of the main_frame
-                frame_width = self.main_frame.winfo_width()
-                frame_height = self.main_frame.winfo_height()
-
-                # Resize the image to fit the frame while maintaining aspect ratio
-                pil_img = data["Image"]
-                pil_img = pil_img.resize((frame_width, frame_height), Image.ANTIALIAS)
-                img = ImageTk.PhotoImage(pil_img)
-
-                self.image_label.configure(image=img)
-                self.image_label.image = img
-                
-                print("finished the calculations successfully")
-                self.after(0, self.start_refresh_task)
-            
-            else:
-                print("finished the calculations unsuccessfully")
-                self.after(1000, self.start_refresh_task)
-        else:
-            self.after(1000, self.start_refresh_task)
-
+        self.image_label.configure(image=img)
+        self.image_label.image = img
+        
+    #Init Methods
     def start_refresh_task(self):
         Thread(target=self.refresh).start()
 
@@ -164,6 +149,23 @@ class App(ctk.CTk):
         self.start_refresh_task()
         Thread(target=self.init_managers).start()
 
+    #Tasks
+    def refresh(self):
+        print("starting the calculations")
+        if self.coordManager and self.gameEnvironment:
+            data = gf.runCheat(self.coordManager, self.gameEnvironment)
+
+            if data:
+                self.changeMainImage(data)
+                
+                print("finished the calculations successfully")
+                self.after(0, self.start_refresh_task)
+            
+            else:
+                print("finished the calculations unsuccessfully")
+                self.after(1000, self.start_refresh_task)
+        else:
+            self.after(1000, self.start_refresh_task)
 
 if __name__ == "__main__":
     monitor_width = get_monitor_width()
