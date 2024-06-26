@@ -4,7 +4,7 @@ from enum import IntEnum
 import numpy as np
 
 TANK_OWN = (36, 245, 41)
-TANK_ENEMY = (252,42,37)
+TANK_ENEMY = (226,32,51)
 TANK_MATE = (36,150,186)
 GEAR = (253,251,119)
 BUMPER = (253,253,253)

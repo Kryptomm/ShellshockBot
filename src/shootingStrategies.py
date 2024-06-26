@@ -458,17 +458,11 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    sleep(2)
-    globals.CREATE_PICTURE = True
-    visualizer.createImage(CM)
-    
-    myTank = friendlyTank(colors.TANK_OWN, CM, GE, name="Mein Panzer")
-    myTank.getCoordinatesBrute()
-    
-    enemyTanks = TankCollection(colors.TANK_ENEMY, CM)
-    enemyTanks.paintTanks()
+    #sleep(2)
+    globals.CREATE_PICTURE = False
 
-    visualizer.paintPixels(myTank.getPosition(), 15, colors.TANK_OWN, CM)
-    
-    myTank.shoot(enemyTanks, onlyOne=False, executeShoot=True)
-    
+    while True:
+        enemyTanks = TankCollection(colors.TANK_ENEMY, CM)
+        enemyTanks.paintTanks()
+        
+        print(enemyTanks.tanks)
