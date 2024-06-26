@@ -188,6 +188,8 @@ class CoordinateManager:
         
         self.CANTBEANYONE       = Box(0.476563,  0.055556,  0.523438,  0.097222) #A region where it is considered there cant be anyone standing
         
+        self.GROUND_COLOR_FIELD = Box(0.460547,  0.825694,  0.518359,  0.847222)
+        
         self.RADIUS             = 0.178646 #dependent from width of the screen
         self.RESETANGLERADIUS   = 0.15625  #dependent from width of the screen
         

@@ -475,7 +475,7 @@ class friendlyTank(Tank):
         b = [calculations[i] for i in calculations]
         maxElem = max(b, key=lambda x: x[1])[1]
         b = list(filter(lambda x: x[1] == maxElem, sorted(b, key=lambda x: x[1], reverse=True)))
-
+        
         
         c = random.choice(b)
         angle, power = c[0]

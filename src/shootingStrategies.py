@@ -172,36 +172,6 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         
     return (False, time)
 
-def extract_yellow_channel(np_image: np.ndarray, red_threshold=128, green_threshold=128, blue_threshold=100) -> np.ndarray:
-    """
-    Extracts the yellow channel from an image using thresholds.
-
-    Args:
-        np_image (np.ndarray): An image in RGB format.
-        red_threshold (int): Minimum value for the red channel to be considered yellow.
-        green_threshold (int): Minimum value for the green channel to be considered yellow.
-        blue_threshold (int): Maximum value for the blue channel to be considered yellow.
-
-    Returns:
-        np.ndarray: A binary image where yellow regions are marked.
-    """
-    # Extract red, green, and blue channels
-    red_channel = np_image[:, :, 0]
-    green_channel = np_image[:, :, 1]
-    blue_channel = np_image[:, :, 2]
-    
-    # Create a binary mask for yellow regions
-    yellow_mask = (
-        (red_channel >= red_threshold) &
-        (green_channel >= green_threshold) &
-        (blue_channel <= blue_threshold)
-    )
-    
-    # Convert the mask to a uint8 image
-    yellow_channel = yellow_mask.astype(np.uint8) * 255
-    
-    return yellow_channel
-
 def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
     """Returns a screenshot where everything is black except the bumpers.
 
@@ -221,7 +191,7 @@ def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
         color_mask |= np.all(np_image[:, :, :3] == color, axis=2)
     dilated_mask = binary_dilation(color_mask, iterations=5)
 
-    yellow_channel = extract_yellow_channel(np_image)
+    yellow_channel = colors.extract_color_channel(np_image, colors.groundColor.YELLOW)
     edges = canny(yellow_channel, sigma=10)
     dilated_edges = binary_dilation(edges, iterations=3)
 
@@ -492,11 +462,11 @@ if __name__ == "__main__":
     
     visualizer.saveImage()
     
-    exit()
+    #exit()
     myTank = friendlyTank(colors.TANK_OWN, CM, GE, name="Mein Panzer")
     myTank.getCoordinatesBrute()
     
-    enemyTanks = TankCollection(colors.TANK_ENEMY, CM, myTank)
+    enemyTanks = TankCollection(colors.TANK_ENEMY, CM)
     enemyTanks.paintTanks()
 
     visualizer.paintPixels(myTank.getPosition(), 15, colors.TANK_OWN, CM)

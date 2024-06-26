@@ -5,12 +5,14 @@ import globals
 import win32gui
 import numpy as np
 import cv2
+import colors
 
 from time import sleep
 from math import sqrt
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
 from decorators import timeit
+from colors import groundColor
 
 class GameEnvironment:
     @timeit("Class: GameEnvironment __init__")
@@ -335,14 +337,20 @@ class GameEnvironment:
         calcs["crate"].extend(findBuffsHelper(self.crate))
         
         return calcs
+    
+    def getGroundColor(self) -> groundColor:
+        cap = pyautogui.screenshot(region=self.coordManager.GROUND_COLOR_FIELD.getBoundariesNormalizedForScreenshot(self.coordManager))
+        cap = self.__convertScreenshotToImage(cap)
+        cap_array = np.array(cap)
+        avg_color = cap_array.mean(axis=(0, 1))
+        
+        return colors.convert_rgb_to_ground_color(avg_color.astype(int))
+        return tuple(avg_color.astype(int))
         
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
     
     while True:
-        WeaponData = GameEnv.getWeapon()
-        WindData = GameEnv.getWind()
-        
-        print(f"{WeaponData=} {WindData=}")
-        sleep(3)
+        print(GameEnv.getGroundColor())
+        sleep(2)
