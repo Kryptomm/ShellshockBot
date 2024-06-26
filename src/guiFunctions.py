@@ -50,8 +50,10 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
             buffTank.setPosition(buff)
             newList.append(buffTank)
         buffs[key] = newList
-        
-    calculations = shootingStrategies.getAngleAndPower(myTank, enemyTanks, weapon_category, realwind, weapon_extra_info, buffs, coordManager, onlyOne=False)
+    
+    groundColor = gameEnvironment.getGroundColor()
+    
+    calculations = shootingStrategies.getAngleAndPower(myTank, enemyTanks, weapon_category, realwind, weapon_extra_info, buffs, coordManager, groundColor, onlyOne=False)
     
     #Painting Part
     myTank.paintTank()

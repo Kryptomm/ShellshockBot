@@ -25,7 +25,7 @@ MIN_STRENGTH = 20
 MAX_STRENGTH = 100
 
 @timeit("Calculate Angle and Power", print_result=True)
-def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffs, CM : CoordinateManager, onlyOne : bool = True) -> dict[object, tuple[int, int]]:
+def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffs, CM : CoordinateManager, groundColor : colors.GroundColor ,onlyOne : bool = True) -> dict[object, tuple[int, int]]:
     """based on Tank positions and wind and the weapon data, it generates the perfect angle and strength to shoot the enemy at
 
     Args:
@@ -35,6 +35,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         wind (int): calculated wind. wind * wind direction. 68 to the left = -68
         extra_info (Union[int, tuple, None]): extra information provided by the weapon
         CM (CoordinateManager): initialized coordinateManager class
+        groundColor (colors.GroundColor): The color of the ground
         onlyOne (bool): if True it select one of the enemy tanks and does only one calculation. Defaults to True
     Returns:
         dict[object, tuple[int, int]: {Tank: (angle, strength)}. A dict mapping from a tank to angle and strength starting at the right going up.
@@ -42,11 +43,11 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
     calculations = {}
     threads = []
     def doCalculation(enemyTank):
-        if weapon_cat == "normal": calculations[enemyTank] =  __normal(myTank, enemyTank, wind, buffs, CM)
+        if weapon_cat == "normal": calculations[enemyTank] =  __normal(myTank, enemyTank, wind, buffs, CM, groundColor)
         elif weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
         elif weapon_cat == "instant": calculations[enemyTank] = __instant()
-        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM)
-        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM)
+        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, groundColor)
+        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, groundColor)
         elif weapon_cat == "radius": calculations[enemyTank] = __radius(myTank, enemyTank, weapon_extra_info, CM)
         else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM)
     
@@ -172,11 +173,12 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         
     return (False, time)
 
-def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
+def __getEdgesScreenshot(coordManager : CoordinateManager, groundColor : colors.GroundColor) -> Image:
     """Returns a screenshot where everything is black except the bumpers.
 
     Args:
         coordManager (CoordinateManager): initialized coordinateManager class
+        groundColor (colors.GroundColor): The color of the ground
 
     Returns:
         Image: Leaves whites pixels everywhere where is a bumper
@@ -191,8 +193,8 @@ def __getEdgesScreenshot(coordManager : CoordinateManager) -> Image:
         color_mask |= np.all(np_image[:, :, :3] == color, axis=2)
     dilated_mask = binary_dilation(color_mask, iterations=5)
 
-    yellow_channel = colors.extract_color_channel(np_image, colors.groundColor.YELLOW)
-    edges = canny(yellow_channel, sigma=10)
+    color_channel = colors.extract_color_channel(np_image, groundColor)
+    edges = canny(color_channel, sigma=10)
     dilated_edges = binary_dilation(edges, iterations=3)
 
     combined_mask = np.logical_or(dilated_mask, dilated_edges)
@@ -263,7 +265,7 @@ def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, 
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
 
-def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tuple[int,int]:
+def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
     """calculates angle and power for the shot type "normal".
     Start from angle 90 and tries its best to find a strength to it.
     if not strength found for angle 90, it goes to 89, then 91, then 88, then 92, ...,45,135
@@ -275,12 +277,13 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tu
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
+        GroundColor (colors.GroundColor): The color of the ground
 
     Returns:
         tuple[int,int]: (angle, strength)
     """
     angle = 90
-    bumperScreenshot = __getEdgesScreenshot(CM)
+    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")
@@ -305,7 +308,7 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tu
     
     return (hittingPosition,bestPriority)
 
-def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tuple[int,int]:
+def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
     strength for the angle 45, if non is found, go to angle 46, 47, 48, ... 65
     if really there was no strength found for all of them go to
@@ -316,13 +319,14 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) ->
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
+        groundColor (colors.GroundColor): The color of the ground
 
     Returns:
         tuple[int,int]: (angle, strength)
     """
     angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
 
-    bumperScreenshot = __getEdgesScreenshot(CM)
+    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
 
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")
@@ -347,7 +351,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) ->
     
     return (hittingPosition,bestPriority)
 
-def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> tuple[int,int]:
+def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "landing". Does it by calculating the
     strength for the angle 67, if non is found, go to angle 68, 69, 70, ... 86
     if really there was no strength found for all of them go to
@@ -358,13 +362,14 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager) -> t
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
+        groundColor (colors.GroundColor): The color of the ground
 
     Returns:
         tuple[int,int]: (angle, strength)
     """
     angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
     
-    bumperScreenshot = __getEdgesScreenshot(CM)
+    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")
@@ -457,12 +462,6 @@ if __name__ == "__main__":
     globals.CREATE_PICTURE = True
     visualizer.createImage(CM)
     
-    img = __getEdgesScreenshot(CM)
-    img.save("test.png")
-    
-    visualizer.saveImage()
-    
-    #exit()
     myTank = friendlyTank(colors.TANK_OWN, CM, GE, name="Mein Panzer")
     myTank.getCoordinatesBrute()
     
@@ -471,5 +470,5 @@ if __name__ == "__main__":
 
     visualizer.paintPixels(myTank.getPosition(), 15, colors.TANK_OWN, CM)
     
-    myTank.shoot(enemyTanks, onlyOne=False, executeShoot=False)
+    myTank.shoot(enemyTanks, onlyOne=False, executeShoot=True)
     

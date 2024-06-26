@@ -12,7 +12,7 @@ from math import sqrt
 from coordinateManager import CoordinateManager, Box, Point
 from PIL import Image, ImageEnhance, ImageGrab
 from decorators import timeit
-from colors import groundColor
+from colors import GroundColor
 
 class GameEnvironment:
     @timeit("Class: GameEnvironment __init__")
@@ -338,7 +338,7 @@ class GameEnvironment:
         
         return calcs
     
-    def getGroundColor(self) -> groundColor:
+    def getGroundColor(self) -> GroundColor:
         cap = pyautogui.screenshot(region=self.coordManager.GROUND_COLOR_FIELD.getBoundariesNormalizedForScreenshot(self.coordManager))
         cap = self.__convertScreenshotToImage(cap)
         cap_array = np.array(cap)

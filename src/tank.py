@@ -469,8 +469,10 @@ class friendlyTank(Tank):
             buffs[key] = newList
             
         print(f"{buffs=}")
-            
-        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, self.coordManager, onlyOne=onlyOne)
+        
+        groundColor = self.gameEnvironment.getGroundColor()
+        
+        calculations = shootingStrategies.getAngleAndPower(self, enemyTanks, weapon_category, wind, weapon_extra_info, buffs, self.coordManager, groundColor, onlyOne=onlyOne)
         
         b = [calculations[i] for i in calculations]
         maxElem = max(b, key=lambda x: x[1])[1]
