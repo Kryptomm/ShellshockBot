@@ -114,7 +114,7 @@ class Tank:
         self.__position : Point = Point(0.5, 0.5)
         self.color = color
         self.coordManager = coordManager
-        self.__name = name
+        self.name = name
         self.epsilon = epsilon
     
     def setPosition(self, position : Point) -> None:
@@ -360,7 +360,7 @@ class Tank:
         visualizer.paintPixels(self.getPosition(), self.epsilon * self.coordManager.getScreenWidth(), self.color, self.coordManager)
     
     def __repr__(self) -> str:
-        text = f"{Style.BRIGHT}{colors.convert_rgb_to_text_color(self.color)}{self.__name}{Style.RESET_ALL}: | Positon: {self.__position}"
+        text = f"{Style.BRIGHT}{colors.convert_rgb_to_text_color(self.color)}{self.name}{Style.RESET_ALL}: | Positon: {self.__position}"
         return text
 
 class friendlyTank(Tank):

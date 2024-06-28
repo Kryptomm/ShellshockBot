@@ -68,7 +68,7 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
     
     return {"Image": globals.CURRENT_PICTURE,
             "MyTank": myTank,
-            "enemyTanks": enemyTanks.tanks,
+            "enemyTanks": sorted(enemyTanks.tanks, key=lambda x: x.getXCoordinate()),
             "mateTanks": mateTanks.tanks,
             "buffs": buffs,
             "calculations": calculations,
@@ -76,3 +76,19 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
             "wind_dir": wind_richtung, #1 = Rechts, -1 = Links
             "weapon": weapon,
             "weapon_cat": weapon_category}
+    
+def convertAngleToStr(angle : int) -> str:
+    """Converts an Angle to an appropriate str
+
+    Args:
+        angle (int): the angle
+
+    Returns:
+        str: the represantation
+    """
+    if angle == 90: return "90N"
+    if angle == 270: return "-90N"
+    if 90 <= angle <= 180: return f"{-angle % 90}L"
+    if 180 <= angle <= 270: return f"-{angle % 90}L"
+    if 0 <= angle <= 90: return f"{angle % 90}R"
+    if 270 <= angle <= 360: return f"-{-angle % 90}R"

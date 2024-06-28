@@ -167,6 +167,14 @@ class App(ctk.CTk):
     def change_text_box3(self, new_text):
         if self.text_box3_label:
             self.text_box3_label.configure(text=new_text)
+            
+    def change_text_box4(self, new_text):
+        if self.text_box4_label:
+            self.text_box4_label.configure(text=new_text)
+            
+    def change_text_box5(self, new_text):
+        if self.text_box5_label:
+            self.text_box5_label.configure(text=new_text)
     
     #Init Methods
     def start_refresh_task(self):
@@ -183,7 +191,13 @@ class App(ctk.CTk):
     #Tasks
     def data_further_processing(self, data):
         self.change_main_image(data)
-        self.change_text_box1("\n".join(str(i) for i in data["enemyTanks"]))
+        
+        #EnemyBox
+        calcs = data["calculations"]
+        self.change_text_box1("\n".join(f"{tank.name} | X: {round(tank.getXCoordinate(),4)} | Y: {round(tank.getYCoordinate(),4)} | Power: {calcs[tank][0][1]} | Angle: {gf.convertAngleToStr(calcs[tank][0][0])}" for tank in data["enemyTanks"]))
+        
+        #EnvironmentBox
+        self.change_text_box5(f"{data['wind']}{'R' if data['wind_dir'] == 1 else 'L'}")
     
     def refresh(self):
         print("starting the calculations")
