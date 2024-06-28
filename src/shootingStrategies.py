@@ -49,7 +49,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, groundColor)
         elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, groundColor)
         elif weapon_cat == "radius": calculations[enemyTank] = __radius(myTank, enemyTank, weapon_extra_info, CM)
-        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM)
+        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM, groundColor)
     
     if onlyOne:
         random_enemy = random.choice(enemyTanks.tanks)
@@ -459,10 +459,14 @@ if __name__ == "__main__":
     GE = GameEnvironment(CM)
     
     #sleep(2)
-    globals.CREATE_PICTURE = False
+    globals.CREATE_PICTURE = True
+    visualizer.createImage(CM)
 
-    while True:
-        enemyTanks = TankCollection(colors.TANK_ENEMY, CM)
-        enemyTanks.paintTanks()
-        
-        print(enemyTanks.tanks)
+    ground = GE.getGroundColor()
+    enemyColor = colors.convert_ground_to_enemy_color(ground)
+    print(ground, enemyColor)
+    enemyTanks = TankCollection(enemyColor, CM)
+    enemyTanks.paintTanks()
+    
+    print(enemyTanks.tanks)
+    visualizer.saveImage()

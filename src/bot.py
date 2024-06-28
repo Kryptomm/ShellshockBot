@@ -34,7 +34,9 @@ def gameLoop(coordManager : CoordinateManager, gameEnvironment : GameEnvironment
     myTank.getCoordinatesBrute()
     
     mateTanks = TankCollection(colors.TANK_MATE, coordManager, hideTanks = [myTank], minimum = 0)
-    enemyTanks = TankCollection(colors.TANK_ENEMY, coordManager, hideTanks = mateTanks.tanks + [myTank])
+    ground = gameEnvironment.getGroundColor()
+    enemyColor = colors.convert_ground_to_enemy_color(ground)
+    enemyTanks = TankCollection(enemyColor, coordManager, hideTanks = mateTanks.tanks + [myTank])
     
     while True:
         while not gameEnvironment.isMyTurn():

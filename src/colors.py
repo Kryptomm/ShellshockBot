@@ -4,7 +4,7 @@ from enum import IntEnum
 import numpy as np
 
 TANK_OWN = (36, 245, 41)
-TANK_ENEMY = (226,32,51)
+TANK_ENEMY_DEFAULT = (226,32,51)
 TANK_MATE = (36,150,186)
 GEAR = (253,251,119)
 BUMPER = (253,253,253)
@@ -27,6 +27,18 @@ __COLOR_MAPPING = {
     (0, 255, 255): Fore.LIGHTCYAN_EX,
     (255, 255, 255): Fore.LIGHTWHITE_EX
 }
+
+def convert_rgb_to_text_color(rgb : tuple[int,int,int]) -> Fore: # type: ignore
+    """Converts a color of (r,g,b) to a text color
+
+    Args:
+        rgb (_type_): (r,g,b) Values
+
+    Returns:
+        colorama.AnsiFore: The closest color to it
+    """
+    closest_color = min(__COLOR_MAPPING.keys(), key=lambda c: sum(abs(a - b) for a, b in zip(rgb, c)))
+    return __COLOR_MAPPING[closest_color]
 
 class GroundColor(IntEnum):
     BLUE = 0
@@ -69,19 +81,15 @@ __GROUND_MAPPING = {
     (45, 107, 93): GroundColor.CYAN
 }
 
-def convert_rgb_to_text_color(rgb : tuple[int,int,int]) -> Fore: # type: ignore
-    """Converts a color of (r,g,b) to a text color
+def convert_rgb_to_ground_color(rgb : tuple[int,int,int]) -> GroundColor:
+    """Converts an avg of color pixels to the nearest groundcolor
 
     Args:
-        rgb (_type_): (r,g,b) Values
+        rgb (tuple[int,int,int]): The avg color
 
     Returns:
-        colorama.AnsiFore: The closest color to it
+        GroundColor: A groundcolor from a predefined list
     """
-    closest_color = min(__COLOR_MAPPING.keys(), key=lambda c: sum(abs(a - b) for a, b in zip(rgb, c)))
-    return __COLOR_MAPPING[closest_color]
-
-def convert_rgb_to_ground_color(rgb : tuple[int,int,int]) -> GroundColor:
     closest_color = min(__GROUND_MAPPING.keys(), key=lambda c: sum(abs(a - b) for a, b in zip(rgb, c)))
     return __GROUND_MAPPING[closest_color]
 
@@ -130,7 +138,6 @@ def extract_green_channel(np_image: np.ndarray) -> np.ndarray:
     
     return green_channel_extracted
 
-
 def extract_blue_channel(np_image: np.ndarray) -> np.ndarray:
     """
     Extracts the blue channel
@@ -157,3 +164,27 @@ def extract_yellow_channel(np_image: np.ndarray) -> np.ndarray:
     yellow_channel = yellow_mask.astype(np.uint8) * 255
     
     return yellow_channel
+
+__ENEMYTANK_MAPPING = {
+    GroundColor.BLUE: (176,47,57),
+    GroundColor.GREEN: (190,26,20),
+    GroundColor.RED: (208,37,37),
+    GroundColor.GRAY_BLUE: (208,52,57),
+    GroundColor.PURPLE: (211,31,51),
+    GroundColor.YELLOW: (210,52,29),
+    GroundColor.ORANGE: (210,52,29),
+    GroundColor.PINK: (217,46,72),
+    GroundColor.BLUE_PURPLE: (208,43,59),
+    GroundColor.CYAN: (206,40,38)
+}
+
+def convert_ground_to_enemy_color(color : GroundColor) -> tuple[int,int,int]:
+    """Converts the ground color to a fitting enemy tank color
+
+    Args:
+        color (GroundColor): The ground color
+
+    Returns:
+        tuple[int,int,int]: enemy color
+    """
+    return __ENEMYTANK_MAPPING.get(color, TANK_ENEMY_DEFAULT)

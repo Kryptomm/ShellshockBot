@@ -597,7 +597,9 @@ if __name__ == "__main__":
     mateTanks = TankCollection(colors.TANK_MATE, CM, hideTanks=[myTank], minimum=0)
     mateTanks.paintTanks()
     
-    enemyTanks = TankCollection(colors.TANK_ENEMY, CM, hideTanks=mateTanks.tanks + [myTank])
+    ground = GE.getGroundColor()
+    enemyColor = colors.convert_ground_to_enemy_color(ground)
+    enemyTanks = TankCollection(enemyColor, CM, hideTanks=mateTanks.tanks + [myTank])
     enemyTanks.paintTanks()
     
     myTank.shoot(enemyTanks)

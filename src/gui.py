@@ -57,9 +57,12 @@ class App(ctk.CTk):
 
             label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color)
             label.pack(fill="both", expand=True)
+            
+            return label
 
         self.main_frame = ctk.CTkFrame(self, fg_color="black")
         self.main_frame.place(relx=0, rely=0, relwidth=0.8, relheight=0.7, anchor='nw')
+        
         # TODO: setup correct borders for image, remove warning and scale picture
         try:
             pil_img = Image.open("GUI-test.png")
@@ -74,7 +77,7 @@ class App(ctk.CTk):
             self.image_label.image = img
             self.image_label.pack(fill="both", expand=True)
 
-        create_bordered_frame(self,
+        self.text_box1_label = create_bordered_frame(self,
                               relx=0.0,
                               rely=0.85,
                               relwidth=0.4,
@@ -83,7 +86,7 @@ class App(ctk.CTk):
                               fg_color="grey25",
                               text="Text Box 1")
 
-        create_bordered_frame(self,
+        self.text_box2_label = create_bordered_frame(self,
                               relx=0.0,
                               rely=1.0,
                               relwidth=0.4,
@@ -92,7 +95,7 @@ class App(ctk.CTk):
                               fg_color="grey25",
                               text="Text Box 2")
 
-        create_bordered_frame(self,
+        self.text_box3_label = create_bordered_frame(self,
                               relx=0.4,
                               rely=1.0,
                               relwidth=0.4,
@@ -101,7 +104,7 @@ class App(ctk.CTk):
                               fg_color="grey25",
                               text="Text Box 3")
 
-        create_bordered_frame(self,
+        self.text_box4_label = create_bordered_frame(self,
                               relx=0.8,
                               rely=1.0,
                               relwidth=0.2,
@@ -109,20 +112,29 @@ class App(ctk.CTk):
                               anchor='sw',
                               fg_color="grey25",
                               text="Text Box 4")
+        
+        self.text_box5_label = create_bordered_frame(self,
+                              relx=0.8,
+                              rely=0.85,
+                              relwidth=0.2,
+                              relheight=0.15,
+                              anchor='sw',
+                              fg_color="grey25",
+                              text="Text Box 5")
 
         create_bordered_frame(self,
                               relx=0.8,
                               rely=0,
                               relwidth=0.2,
-                              relheight=0.85,
+                              relheight=0.7,
                               anchor='nw',
                               fg_color="grey25",
                               text="Buttons can be placed here")
 
         self.start_threads()
-    
+            
     #GUI-Helpers
-    def changeMainImage(self, data):
+    def change_main_image(self, data):
         if not self.image_label:
             self.image_label = ctk.CTkLabel(self.main_frame, text="")
             self.image_label.pack(fill="both", expand=True)
@@ -136,7 +148,19 @@ class App(ctk.CTk):
 
         self.image_label.configure(image=img)
         self.image_label.image = img
-        
+    
+    def change_text_box1(self, new_text):
+        if self.text_box1_label:
+            self.text_box1_label.configure(text=new_text)
+            
+    def change_text_box2(self, new_text):
+        if self.text_box2_label:
+            self.text_box2_label.configure(text=new_text)
+    
+    def change_text_box3(self, new_text):
+        if self.text_box3_label:
+            self.text_box3_label.configure(text=new_text)
+    
     #Init Methods
     def start_refresh_task(self):
         Thread(target=self.refresh).start()
@@ -150,13 +174,17 @@ class App(ctk.CTk):
         Thread(target=self.init_managers).start()
 
     #Tasks
+    def data_further_processing(self, data):
+        self.change_main_image(data)
+        self.change_text_box1(str(data["enemyTanks"]))
+    
     def refresh(self):
         print("starting the calculations")
         if self.coordManager and self.gameEnvironment:
             data = gf.runCheat(self.coordManager, self.gameEnvironment)
 
             if data:
-                self.changeMainImage(data)
+                self.data_further_processing(data)
                 
                 print("finished the calculations successfully")
                 self.after(0, self.start_refresh_task)
