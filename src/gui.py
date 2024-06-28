@@ -14,17 +14,24 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 # Initialize variables
-monitor_height: int = 0
+monitor_height: int = float("inf")
 
 
-def get_monitor_width():
+def get_monitor_height():
     """Get height of monitor in pixels"""
     global monitor_height
+
+    scale_factor = 0.7
     for monitor in get_monitors():
+        if int(monitor.height) < monitor_height and int(monitor.height) != 0:
+            monitor_height = int(monitor.height)
+    return round(monitor_height * scale_factor)
+    """
         if monitor.is_primary:
             monitor_height = int(monitor.height)
             break
     return monitor_height
+    """
 
 
 def get_app_size(monitor_height):
@@ -176,7 +183,7 @@ class App(ctk.CTk):
     #Tasks
     def data_further_processing(self, data):
         self.change_main_image(data)
-        self.change_text_box1(str(data["enemyTanks"]))
+        self.change_text_box1("\n".join(str(i) for i in data["enemyTanks"]))
     
     def refresh(self):
         print("starting the calculations")
@@ -196,7 +203,8 @@ class App(ctk.CTk):
             self.after(1000, self.start_refresh_task)
 
 if __name__ == "__main__":
-    monitor_width = get_monitor_width()
-    app_width, app_height = get_app_size(monitor_width)
-    app = App(app_width=1920, app_height=1080)
+    monitor_height = get_monitor_height()
+    print(monitor_height)
+    app_width, app_height = get_app_size(monitor_height)
+    app = App(app_width=app_width, app_height=app_height)
     app.mainloop()
