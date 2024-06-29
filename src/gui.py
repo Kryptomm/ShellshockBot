@@ -199,6 +199,9 @@ class App(ctk.CTk):
         calcs = data["calculations"]
         self.change_text_box3("\n".join(f"{tank.name} | X: {round(tank.getXCoordinate(),4):{' '}<6} | Y: {round(tank.getYCoordinate(),4):{' '}<6} | Power: {calcs[tank][0][1]:{' '}<3} | Angle: {gf.convertAngleToStr(calcs[tank][0][0]):{' '}<4}" for tank in data["enemyTanks"]))
         
+        #Mate Box
+        self.change_text_box2("\n".join(f"{tank.name} | X: {round(tank.getXCoordinate(),4):{' '}<6} | Y: {round(tank.getYCoordinate(),4):{' '}<6}" for tank in data["mateTanks"]))
+        
         #EnvironmentBox
         self.change_text_box5(f"Wind: {data['wind']}{'R' if data['wind_dir'] == 1 else 'L'}")
         

@@ -29,7 +29,7 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
     myTank = friendlyTank(colors.TANK_OWN, coordManager, gameEnvironment, name="My Tank")
     myTank.getCoordinatesBrute()
     
-    mateTanks = TankCollection(colors.TANK_MATE, coordManager, hideTanks = [myTank], minimum = 0)
+    mateTanks = TankCollection(colors.TANK_MATE, coordManager, hideTanks = [myTank], minimum = 0, maximum=4,name="Mate")
     ground = gameEnvironment.getGroundColor()
     enemyColor = colors.convert_ground_to_enemy_color(ground)
     enemyTanks = TankCollection(enemyColor, coordManager, hideTanks = mateTanks.tanks + [myTank], minimum=0)

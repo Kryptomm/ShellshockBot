@@ -38,7 +38,7 @@ def holdKey(time : float, key : str) -> None:
     keyUp(key)
 
 class TankCollection:
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, minimum = 1, hideTanks=None):
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, minimum = 1, maximum = 7,hideTanks=None, name="Enemy"):
         """A wrapper for holding all enemy tanks. Inplies that there is atleast one enemy
 
         Args:
@@ -50,6 +50,8 @@ class TankCollection:
         self.coordManager = coordManager
         self.tanks = []
         self.minimum = minimum
+        self.maximum = maximum
+        self.name = name
         
         self.initTankCollection(hideTanks=hideTanks)
         
@@ -57,7 +59,7 @@ class TankCollection:
         hideRegions = self.coordManager.convertTanksToHideRegion(hideTanks) + self.coordManager.convertTanksToHideRegion(self.tanks)
         
         while True:
-            newEnemy = Tank(self.color, self.coordManager, name=f"Enemy Tank {len(self.tanks) + 1}")
+            newEnemy = Tank(self.color, self.coordManager, name=f"{self.name} Tank {len(self.tanks) + 1}")
             res = newEnemy.getCoordinatesBrute(hideRegions=hideRegions)
             
             if res[1] >= 15:
@@ -72,7 +74,10 @@ class TankCollection:
             hr = self.coordManager.convertTanksToHideRegion([newEnemy])
             hideRegions.extend(hr)
             self.tanks.append(newEnemy)
-        
+            
+            if len(self.tanks) >= self.maximum:
+                print(f"Found {len(self.tanks)} Tanks in collection!")
+                return
         
     def updateTankCollection(self, hideTanks=None):
         hideRegions = self.coordManager.convertTanksToHideRegion(hideTanks)
