@@ -62,7 +62,7 @@ class App(ctk.CTk):
             inner_frame.pack_propagate(False)
             inner_frame.place(relx=0.5, rely=0.5, relwidth=0.98, relheight=0.98, anchor='center')
 
-            label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color, font=("Arial", 18) )
+            label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color, font=("Arial", 18), anchor="w")
             label.pack(fill="both", expand=True)
             
             return label
