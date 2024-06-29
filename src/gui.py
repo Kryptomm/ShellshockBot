@@ -62,7 +62,7 @@ class App(ctk.CTk):
             inner_frame.pack_propagate(False)
             inner_frame.place(relx=0.5, rely=0.5, relwidth=0.98, relheight=0.98, anchor='center')
 
-            label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color)
+            label = ctk.CTkLabel(inner_frame, text=text, fg_color=fg_color, font=("Arial", 18) )
             label.pack(fill="both", expand=True)
             
             return label
@@ -192,26 +192,38 @@ class App(ctk.CTk):
     def data_further_processing(self, data):
         self.change_main_image(data)
         
+        #MyTankBox
+        self.change_text_box1(f"Weapon: {data['weapon'].title()} | Cat: {data['weapon_cat']}")
+        
         #EnemyBox
         calcs = data["calculations"]
-        self.change_text_box1("\n".join(f"{tank.name} | X: {round(tank.getXCoordinate(),4)} | Y: {round(tank.getYCoordinate(),4)} | Power: {calcs[tank][0][1]} | Angle: {gf.convertAngleToStr(calcs[tank][0][0])}" for tank in data["enemyTanks"]))
+        self.change_text_box3("\n".join(f"{tank.name} | X: {round(tank.getXCoordinate(),4):{' '}<6} | Y: {round(tank.getYCoordinate(),4):{' '}<6} | Power: {calcs[tank][0][1]:{' '}<3} | Angle: {gf.convertAngleToStr(calcs[tank][0][0]):{' '}<4}" for tank in data["enemyTanks"]))
         
         #EnvironmentBox
-        self.change_text_box5(f"{data['wind']}{'R' if data['wind_dir'] == 1 else 'L'}")
+        self.change_text_box5(f"Wind: {data['wind']}{'R' if data['wind_dir'] == 1 else 'L'}")
+        
+        #StatisticsBox
+        self.change_text_box4(f"Calculation Time: {round(data['time'],3)}s")
     
     def refresh(self):
         print("starting the calculations")
         if self.coordManager and self.gameEnvironment:
-            data = gf.runCheat(self.coordManager, self.gameEnvironment)
-
-            if data:
-                self.data_further_processing(data)
+            try:
+                startTime = time.time()
+                data = gf.runCheat(self.coordManager, self.gameEnvironment)
+                endTime = time.time() - startTime
+                data["time"] = endTime
                 
-                print("finished the calculations successfully")
-                self.after(0, self.start_refresh_task)
-            
-            else:
-                print("finished the calculations unsuccessfully")
+                if data:
+                    self.data_further_processing(data)
+                    
+                    print("finished the calculations successfully")
+                    self.after(0, self.start_refresh_task)
+                
+                else:
+                    print("finished the calculations unsuccessfully")
+                    self.after(1000, self.start_refresh_task)
+            except:
                 self.after(1000, self.start_refresh_task)
         else:
             self.after(1000, self.start_refresh_task)
