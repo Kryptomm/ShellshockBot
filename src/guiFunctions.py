@@ -22,6 +22,7 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
     current_window_title = win32gui.GetWindowText(foreground_window)
     
     if current_window_title != "ShellShock Live": return None
+    if not gameEnvironment.isMyTurn(): return None
     
     globals.CREATE_PICTURE = True
     visualizer.createImage(coordManager)
