@@ -3,6 +3,7 @@ import globals
 import visualizer
 import shootingStrategies
 import win32gui
+import time
 
 from tank import Tank, friendlyTank, TankCollection
 from environment import GameEnvironment
@@ -20,7 +21,6 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
     """
     foreground_window = win32gui.GetForegroundWindow()
     current_window_title = win32gui.GetWindowText(foreground_window)
-    
     if current_window_title != "ShellShock Live": return None
     if not gameEnvironment.isMyTurn(): return None
     
@@ -43,7 +43,7 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
     realwind = wind * wind_richtung
     
     buffs = gameEnvironment.findBuffs()
-        
+    
     #convert buffs to tanks
     key_to_epsilon = {"x3": 0.01, "x2": 0.02, "drone": 0.008, "crate": 0.005}
     for key in buffs:
@@ -55,7 +55,6 @@ def runCheat(coordManager: CoordinateManager, gameEnvironment: GameEnvironment) 
         buffs[key] = newList
     
     groundColor = gameEnvironment.getGroundColor()
-    
     calculations = shootingStrategies.getAngleAndPower(myTank, enemyTanks, weapon_category, realwind, weapon_extra_info, buffs, coordManager, groundColor, onlyOne=False)
     
     #Painting Part

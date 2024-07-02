@@ -315,6 +315,7 @@ class GameEnvironment:
         
         return image
     
+    @timeit("Find Buffs")
     def findBuffs(self) -> dict[str, list[object]]:
         """A method to find all buffs on the field
 
