@@ -229,7 +229,7 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
                     try: bumperScreenshot.putpixel((x,y),(0,0,0))
                     except: pass
 
-    timeSteps = floatingTime / abs(enemyTank.absX - myTank.absX) / 3
+    timeSteps = floatingTime / abs(enemyTank.absX - myTank.absX) / 10
     ignoreTime = floatingTime * 0.04
     currentTime = 0 + ignoreTime
     while currentTime < (floatingTime - ignoreTime * 0.25):
