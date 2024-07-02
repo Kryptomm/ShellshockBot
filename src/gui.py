@@ -209,9 +209,9 @@ class App(ctk.CTk):
         self.change_text_box4(f"Calculation Time: {round(data['time'],3)}s")
     
     def refresh(self):
-        print("starting the calculations")
         if self.coordManager and self.gameEnvironment:
             try:
+                print("starting the calculations")
                 startTime = time.time()
                 data = gf.runCheat(self.coordManager, self.gameEnvironment)
                 endTime = time.time() - startTime
