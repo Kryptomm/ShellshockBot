@@ -343,23 +343,31 @@ def __normalShot(angle: int, myTank, enemyTank, wind : int, buffs, CM : Coordina
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")
     maxPriority = __getMaxPriority(buffs, myTank, enemyTank)
-    for i in range(0,40):
+    
+    directionFactor = -1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 1
+    for i in range(50):
+        a = angle + i * directionFactor
         for strength in range(MIN_STRENGTH, MAX_STRENGTH):
-            hits, prio = __calculateHittingAndPriority(angle - i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
-                return (angle - i, strength), maxPriority
+                return (a, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
-                hittingPosition = (angle - i, strength)
-                
-            hits, prio = __calculateHittingAndPriority(angle + i, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+                hittingPosition = (a, strength)
+                break
+            
+    for i in range(50):
+        a = angle - i * directionFactor
+        for strength in range(MIN_STRENGTH, MAX_STRENGTH):
+            hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
-                return (angle + i, strength), maxPriority
+                return (a, strength), maxPriority
             elif hits and prio > bestPriority:
                 bestPriority = prio
-                hittingPosition = (angle + i, strength)
+                hittingPosition = (a, strength)
+                break
     
     return (hittingPosition,bestPriority)
 
