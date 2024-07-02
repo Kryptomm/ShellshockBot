@@ -283,61 +283,6 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
         tuple[int,int]: (angle, strength)
     """
     angle = 90
-    return __normalShot(angle, myTank, enemyTank, wind, buffs, CM, groundColor)
-
-def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
-    """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
-    strength for the angle 45, if non is found, go to angle 46, 47, 48, ... 65
-    if really there was no strength found for all of them go to
-    44, 43 ,42, ... 25.
-
-    Args:
-        myTank (_type_): initialized friendlyTank class, can also be Tank class
-        enemyTank (_type_): initialized Tank class
-        wind (int): wind the environment currently has [-100,100]
-        CM (CoordinateManager): initialized coordinateManager class
-        groundColor (colors.GroundColor): The color of the ground
-
-    Returns:
-        tuple[int,int]: (angle, strength)
-    """
-    angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
-    return __normalShot(angle, myTank, enemyTank, wind, buffs, CM, groundColor)
-
-def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
-    """Calculates angle and strength for the shot type "landing". Does it by calculating the
-    strength for the angle 67, if non is found, go to angle 68, 69, 70, ... 86
-    if really there was no strength found for all of them go to
-    66, 65 ,64, ... 48.
-
-    Args:
-        myTank (_type_): initialized friendlyTank class, can also be Tank class
-        enemyTank (_type_): initialized Tank class
-        wind (int): wind the environment currently has [-100,100]
-        CM (CoordinateManager): initialized coordinateManager class
-        groundColor (colors.GroundColor): The color of the ground
-
-    Returns:
-        tuple[int,int]: (angle, strength)
-    """
-    angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
-    return __normalShot(angle, myTank, enemyTank, wind, buffs, CM, groundColor)
-    
-
-def __normalShot(angle: int, myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
-    """Calculates angle and strength for any shot type to hit the target giving a special start angle
-
-    Args:
-        angle (int): The angle to start at
-        myTank (_type_): initialized friendlyTank class, can also be Tank class
-        enemyTank (_type_): initialized Tank class
-        wind (int): wind the environment currently has [-100,100]
-        CM (CoordinateManager): initialized coordinateManager class
-        groundColor (colors.GroundColor): The color of the ground
-
-    Returns:
-        tuple[int,int]: (angle, strength)
-    """
     bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     hittingPosition = (angle, 100)
@@ -357,7 +302,7 @@ def __normalShot(angle: int, myTank, enemyTank, wind : int, buffs, CM : Coordina
                 hittingPosition = (a, strength)
                 break
             
-    for i in range(50):
+    for i in range(20):
         a = angle - i * directionFactor
         for strength in range(MIN_STRENGTH, MAX_STRENGTH):
             hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
@@ -370,6 +315,105 @@ def __normalShot(angle: int, myTank, enemyTank, wind : int, buffs, CM : Coordina
                 break
     
     return (hittingPosition,bestPriority)
+
+def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
+    """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
+    strength for the angle 45, if non is found, go to angle 46, 47, 48, ... 65
+    if really there was no strength found for all of them go to
+    44, 43 ,42, ... 25.
+
+    Args:
+        myTank (_type_): initialized friendlyTank class, can also be Tank class
+        enemyTank (_type_): initialized Tank class
+        wind (int): wind the environment currently has [-100,100]
+        CM (CoordinateManager): initialized coordinateManager class
+        groundColor (colors.GroundColor): The color of the ground
+
+    Returns:
+        tuple[int,int]: (angle, strength)
+    """
+    angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
+    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
+    
+    hittingPosition = (angle, 100)
+    bestPriority = float("-inf")
+    maxPriority = __getMaxPriority(buffs, myTank, enemyTank)
+    
+    directionFactor = -1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 1
+    for i in range(50):
+        a = angle + i * directionFactor
+        for strength in range(MIN_STRENGTH, MAX_STRENGTH):
+            hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            
+            if hits and prio >= maxPriority:
+                return (a, strength), maxPriority
+            elif hits and prio > bestPriority:
+                bestPriority = prio
+                hittingPosition = (a, strength)
+                break
+            
+        a = angle - i * directionFactor
+        for strength in range(MIN_STRENGTH, MAX_STRENGTH):
+            hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            
+            if hits and prio >= maxPriority:
+                return (a, strength), maxPriority
+            elif hits and prio > bestPriority:
+                bestPriority = prio
+                hittingPosition = (a, strength)
+                break
+    
+    return (hittingPosition,bestPriority)
+
+def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
+    """Calculates angle and strength for the shot type "landing". Does it by calculating the
+    strength for the angle 67, if non is found, go to angle 68, 69, 70, ... 86
+    if really there was no strength found for all of them go to
+    66, 65 ,64, ... 48.
+
+    Args:
+        myTank (_type_): initialized friendlyTank class, can also be Tank class
+        enemyTank (_type_): initialized Tank class
+        wind (int): wind the environment currently has [-100,100]
+        CM (CoordinateManager): initialized coordinateManager class
+        groundColor (colors.GroundColor): The color of the ground
+
+    Returns:
+        tuple[int,int]: (angle, strength)
+    """
+    angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
+    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
+    
+    hittingPosition = (angle, 100)
+    bestPriority = float("-inf")
+    maxPriority = __getMaxPriority(buffs, myTank, enemyTank)
+    
+    directionFactor = -1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 1
+    for i in range(50):
+        a = angle + i * directionFactor
+        for strength in range(MIN_STRENGTH, MAX_STRENGTH):
+            hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            
+            if hits and prio >= maxPriority:
+                return (a, strength), maxPriority
+            elif hits and prio > bestPriority:
+                bestPriority = prio
+                hittingPosition = (a, strength)
+                break
+            
+        a = angle - i * directionFactor
+        for strength in range(MIN_STRENGTH, MAX_STRENGTH):
+            hits, prio = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            
+            if hits and prio >= maxPriority:
+                return (a, strength), maxPriority
+            elif hits and prio > bestPriority:
+                bestPriority = prio
+                hittingPosition = (a, strength)
+                break
+    
+    return (hittingPosition,bestPriority)
+    
 
 def __straight(myTank, enemyTank) -> tuple[int,int]:
     """calculates the angle for myTank to shoot at enemyTank if it has a weapon that goes straight at him.
