@@ -59,10 +59,10 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
     def doCalculation(enemyTank):
         if weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
         elif weapon_cat == "instant": calculations[enemyTank] = __instant()
-        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, groundColor, bumperScreenshot)
-        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, groundColor, bumperScreenshot)
+        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, bumperScreenshot)
+        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, bumperScreenshot)
         elif weapon_cat == "radius": calculations[enemyTank] = __radius(myTank, enemyTank, weapon_extra_info, CM)
-        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM, groundColor, bumperScreenshot)
+        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM, bumperScreenshot)
     
     if onlyOne:
         random_enemy = random.choice(enemyTanks.tanks)
@@ -255,12 +255,12 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
 def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs):
     isHitting, whenHitting, hittingPosition = __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, enemyTank)
     #Trifft er den Gegner überhaupt?
-    if hittingPosition[1] >= enemyTank.getYCoordinate(): wentUnder = False
-    else: wentUnder = True
-    if not isHitting: return False, 0, wentUnder
+    if hittingPosition[1] >= enemyTank.getYCoordinate(): wentAbove = False
+    else: wentAbove = True
+    if not isHitting: return False, 0, wentAbove
     
     #Trifft er auf den Weg einen Bumper
-    if __isHittingEdge(angle, strength, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffs, CM): return False, 0, wentUnder
+    if __isHittingEdge(angle, strength, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffs, CM): return False, 0, wentAbove
     
     #Prioritäten
     hitsCrate = False if len(buffs["crate"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["crate"][0])[0]
@@ -268,12 +268,12 @@ def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, 
     hitsX2 = False if len(buffs["x2"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["x2"][0])[0]
     hitsX3 = False if len(buffs["x3"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["x3"][0])[0]
     
-    return True, __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3), wentUnder
+    return True, __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3), wentAbove
     
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
 
-def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor, bumperScreenshot) -> tuple[int,int]:
+def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, bumperScreenshot) -> tuple[int,int]:
     """calculates angle and power for the shot type "normal".
     Start from angle 90 and tries its best to find a strength to it.
     if not strength found for angle 90, it goes to 89, then 91, then 88, then 92, ...,45,135
@@ -285,8 +285,6 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
-        GroundColor (colors.GroundColor): The color of the ground
-
     Returns:
         tuple[int,int]: (angle, strength)
     """
@@ -300,7 +298,7 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
     for i in range(0,50):
         a = angle + i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, wentUnder = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -308,13 +306,13 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
-            elif not wentUnder:
+            elif not wentAbove:
                 break
             
     for i in range(0,20):
         a = angle - i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -322,12 +320,12 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
-            elif not shouldContinue:
+            elif not wentAbove:
                 break
     
     return (hittingPosition,bestPriority)
 
-def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor, bumperScreenshot) -> tuple[int,int]:
+def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager,  bumperScreenshot) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
     strength for the angle 45, if non is found, go to angle 46, 47, 48, ... 65
     if really there was no strength found for all of them go to
@@ -338,7 +336,6 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
-        groundColor (colors.GroundColor): The color of the ground
 
     Returns:
         tuple[int,int]: (angle, strength)
@@ -351,9 +348,11 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
     
     directionFactor = -1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 1
     for i in range(50):
+        continueAbove, continueBelow = True, True
         a = angle + i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, _ = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            if not continueAbove: continueBelow
+            hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -361,10 +360,13 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
-            
+            if not wentAbove:
+                continueAbove = False
+                
         a = angle - i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, _ = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            if not continueBelow: continueBelow
+            hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -372,10 +374,12 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
+            if not wentAbove:
+                continueBelow = False
     
     return (hittingPosition,bestPriority)
 
-def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor, bumperScreenshot) -> tuple[int,int]:
+def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, bumperScreenshot) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "landing". Does it by calculating the
     strength for the angle 67, if non is found, go to angle 68, 69, 70, ... 86
     if really there was no strength found for all of them go to
@@ -386,7 +390,6 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, grou
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
-        groundColor (colors.GroundColor): The color of the ground
 
     Returns:
         tuple[int,int]: (angle, strength)
@@ -398,10 +401,13 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, grou
     maxPriority = __getMaxPriority(buffs, myTank, enemyTank)
     
     directionFactor = -1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 1
+    continueAbove, continueBelow = True, True
     for i in range(50):
+        continueAbove, continueBelow = True, True
         a = angle + i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            if not continueAbove: continueBelow
+            hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -409,10 +415,13 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, grou
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
-            
+            if not wentAbove:
+                continueAbove = False
+    
         a = angle - i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            if not continueBelow: continueBelow
+            hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -420,6 +429,8 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, grou
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
+            if not wentAbove:
+                continueAbove = False
     
     return (hittingPosition,bestPriority)
     
@@ -464,7 +475,7 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
         enemyTank (_type_): initialized Tank class
         wind (int): wind the environment currently has [-100,100]
         CM (CoordinateManager): initialized coordinateManager class
-        
+        deltaAngle
     Returns:
         tuple[int,int]: (angle, strength)
     """
@@ -476,6 +487,9 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
     strengh = min(round(radia * delta),100)
     
     return ((angle, strengh), 0)
+
+def __deltaAngle():
+    pass
 
 
 
