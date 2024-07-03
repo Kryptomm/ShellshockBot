@@ -53,8 +53,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         regionBoundaries = region.getBoundariesNormalized(CM)
         draw.rectangle([regionBoundaries[0], regionBoundaries[1], regionBoundaries[2], regionBoundaries[3]], fill=(0, 0, 0))
     del draw
-    bumperScreenshot.save("test.png")
-    
+
     if weapon_cat == "extraWind": wind *= weapon_extra_info
     
     def doCalculation(enemyTank):
