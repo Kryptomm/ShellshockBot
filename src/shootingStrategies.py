@@ -299,7 +299,7 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
     for i in range(0,50):
         a = angle + i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            hits, prio, wentUnder = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -307,7 +307,7 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
                 bestPriority = prio
                 hittingPosition = (a, strength)
                 break
-            elif not shouldContinue:
+            elif not wentUnder:
                 break
             
     for i in range(0,20):
@@ -352,7 +352,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
     for i in range(50):
         a = angle + i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            hits, prio, _ = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
@@ -363,7 +363,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
             
         a = angle - i * directionFactor
         for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
-            hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
+            hits, prio, _ = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
                 return (a, strength), maxPriority
