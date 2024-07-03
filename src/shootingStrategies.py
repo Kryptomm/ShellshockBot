@@ -9,7 +9,7 @@ import colors
 from typing import Union
 from PIL import Image, ImageGrab, ImageDraw
 from scipy.ndimage import binary_dilation
-from coordinateManager import CoordinateManager, Point
+from coordinateManager import CoordinateManager, Point, Box
 from decorators import timeit
 from skimage.feature import canny
 from threading import Thread
@@ -19,8 +19,7 @@ WIND_FACTOR = 0.000252 / 2
 EPSILON = 0.01
 MINTIME = 0
 MAXTIME = 10
-ITERATIONS = 15
-ITERATIONS = 15
+ITERATIONS = 10
 
 MIN_STRENGTH = 20
 MAX_STRENGTH = 100
@@ -46,15 +45,15 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
     bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     draw = ImageDraw.Draw(bumperScreenshot)
-    hideTanks = []
+    hideRegions = []
     for key in buffs:
         for buff in buffs[key]:
-            hideTanks.append(buff)
-    hideRegions = CM.convertTanksToHideRegion(hideTanks)
+            hideRegions.append(Box(buff.getXCoordinate() - 0.05 , buff.getYCoordinate() - 0.08, buff.getXCoordinate() + 0.05, buff.getYCoordinate() + 0.08))
     for region in hideRegions:
         regionBoundaries = region.getBoundariesNormalized(CM)
         draw.rectangle([regionBoundaries[0], regionBoundaries[1], regionBoundaries[2], regionBoundaries[3]], fill=(0, 0, 0))
     del draw
+    bumperScreenshot.save("test.png")
     
     def doCalculation(enemyTank):
         if weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
@@ -177,13 +176,13 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
             time = time + timeSize * lookingFactor
         timeSize = timeSize / 2
             
-        if enemyTank.isPointHitting(calculatedPosition[0], calculatedPosition[1]): return (True, time)
+        if enemyTank.isPointHitting(calculatedPosition[0], calculatedPosition[1]): return True, time, calculatedPosition
     
     for i in range(-3,4):
         i = i/10170
-        if enemyTank.isPointHitting(calculatedPosition[0]+i, calculatedPosition[1]): return (True, time)
+        if enemyTank.isPointHitting(calculatedPosition[0]+i, calculatedPosition[1]): return True, time, calculatedPosition
         
-    return (False, time)
+    return False, time, calculatedPosition
 
 def __getEdgesScreenshot(coordManager : CoordinateManager, groundColor : colors.GroundColor) -> Image:
     """Returns a screenshot where everything is black except the bumpers.
@@ -253,12 +252,14 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
     return False
 
 def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs):
-    isHitting, whenHitting = __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, enemyTank)
+    isHitting, whenHitting, hittingPosition = __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, enemyTank)
     #Trifft er den Gegner überhaupt?
-    if not isHitting: return False, 0
+    if hittingPosition[1] >= enemyTank.getYCoordinate(): shouldContinue = False
+    else: shouldContinue = True
+    if not isHitting: return False, 0, shouldContinue
     
     #Trifft er auf den Weg einen Bumper
-    if __isHittingEdge(angle, strength, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffs, CM): return False, 0
+    if __isHittingEdge(angle, strength, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffs, CM): return False, 0, shouldContinue
     
     #Prioritäten
     hitsCrate = False if len(buffs["crate"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["crate"][0])[0]
@@ -266,7 +267,7 @@ def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, 
     hitsX2 = False if len(buffs["x2"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["x2"][0])[0]
     hitsX3 = False if len(buffs["x3"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["x3"][0])[0]
     
-    return True, __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3)
+    return True, __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3), shouldContinue
     
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
