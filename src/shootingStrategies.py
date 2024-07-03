@@ -7,7 +7,7 @@ import random
 import colors
 
 from typing import Union
-from PIL import Image, ImageGrab
+from PIL import Image, ImageGrab, ImageDraw
 from scipy.ndimage import binary_dilation
 from coordinateManager import CoordinateManager, Point
 from decorators import timeit
@@ -42,14 +42,26 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
     """
     calculations = {}
     threads = []
+    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
+    
+    draw = ImageDraw.Draw(bumperScreenshot)
+    hideTanks = []
+    for key in buffs:
+        for buff in buffs[key]:
+            hideTanks.append(buff)
+    hideRegions = CM.convertTanksToHideRegion(hideTanks)
+    for region in hideRegions:
+        regionBoundaries = region.getBoundariesNormalized(CM)
+        draw.rectangle([regionBoundaries[0], regionBoundaries[1], regionBoundaries[2], regionBoundaries[3]], fill=(0, 0, 0))
+    del draw
+    
     def doCalculation(enemyTank):
-        if weapon_cat == "normal": calculations[enemyTank] =  __normal(myTank, enemyTank, wind, buffs, CM, groundColor)
-        elif weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
+        if weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)
         elif weapon_cat == "instant": calculations[enemyTank] = __instant()
-        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, groundColor)
-        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, groundColor)
+        elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, groundColor, bumperScreenshot)
+        elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, groundColor, bumperScreenshot)
         elif weapon_cat == "radius": calculations[enemyTank] = __radius(myTank, enemyTank, weapon_extra_info, CM)
-        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM, groundColor)
+        else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM, groundColor, bumperScreenshot)
     
     if onlyOne:
         random_enemy = random.choice(enemyTanks.tanks)
@@ -64,7 +76,6 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
             t.join()
             
     return calculations
-
 
 
 #HILFSMETHODEN ZUR BERECHNUNG
@@ -217,12 +228,6 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
     Returns:
         bool: returns True if the shot is hitting a bumper, False if not
     """
-    for key in buffs:
-        for buff in buffs[key]:
-            for x in range(coordManager.convertFloatToWidth(buff.getXCoordinate() - 0.03), coordManager.convertFloatToWidth(buff.getXCoordinate() + 0.03)):
-                for y in range(coordManager.convertFloatToHeigth(buff.getYCoordinate() - 0.05), coordManager.convertFloatToHeigth(buff.getYCoordinate() + 0.05)):
-                    try: bumperScreenshot.putpixel((x,y),(0,0,0))
-                    except: pass
 
     timeSteps = floatingTime / abs(enemyTank.absX - myTank.absX) / 10
     ignoreTime = floatingTime * 0.04
@@ -243,10 +248,10 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
 
 def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs):
     isHitting, whenHitting, hittingPosition = __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, enemyTank)
-    #Trifft er den Gegner überhaupt?
     if hittingPosition[1] >= enemyTank.getYCoordinate(): shouldContinue = False
     else: shouldContinue = True
     
+    #Trifft er den Gegner überhaupt?
     if not isHitting: return False, 0, shouldContinue
     
     #Trifft er auf den Weg einen Bumper
@@ -262,7 +267,7 @@ def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, 
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
 
-def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
+def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor, bumperScreenshot) -> tuple[int,int]:
     """calculates angle and power for the shot type "normal".
     Start from angle 90 and tries its best to find a strength to it.
     if not strength found for angle 90, it goes to 89, then 91, then 88, then 92, ...,45,135
@@ -280,16 +285,15 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
         tuple[int,int]: (angle, strength)
     """
     angle = 90
-    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")
     maxPriority = __getMaxPriority(buffs, myTank, enemyTank)
     
     directionFactor = -1 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 1
-    for i in range(50):
+    for i in range(0,50):
         a = angle + i * directionFactor
-        for strength in range(MAX_STRENGTH, MIN_STRENGTH, -1):
+        for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
             hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
@@ -299,12 +303,11 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
                 hittingPosition = (a, strength)
                 break
             elif not shouldContinue:
-                print("not continuing after strength", strength, a)
                 break
             
-    for i in range(20):
+    for i in range(0,20):
         a = angle - i * directionFactor
-        for strength in range(MAX_STRENGTH, MIN_STRENGTH, -1):
+        for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
             hits, prio, shouldContinue = __calculateHittingAndPriority(a, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs)
             
             if hits and prio >= maxPriority:
@@ -318,7 +321,7 @@ def __normal(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groun
     
     return (hittingPosition,bestPriority)
 
-def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
+def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor, bumperScreenshot) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "45degrees". Does it by calculating the
     strength for the angle 45, if non is found, go to angle 46, 47, 48, ... 65
     if really there was no strength found for all of them go to
@@ -335,7 +338,6 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
         tuple[int,int]: (angle, strength)
     """
     angle = 45 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 135
-    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")
@@ -371,7 +373,7 @@ def __45degrees(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, gr
     
     return (hittingPosition,bestPriority)
 
-def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor) -> tuple[int,int]:
+def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, groundColor : colors.GroundColor, bumperScreenshot) -> tuple[int,int]:
     """Calculates angle and strength for the shot type "landing". Does it by calculating the
     strength for the angle 67, if non is found, go to angle 68, 69, 70, ... 86
     if really there was no strength found for all of them go to
@@ -388,7 +390,6 @@ def __landing(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, grou
         tuple[int,int]: (angle, strength)
     """
     angle = 67 if myTank.getXCoordinate() <= enemyTank.getXCoordinate() else 113
-    bumperScreenshot = __getEdgesScreenshot(CM, groundColor)
     
     hittingPosition = (angle, 100)
     bestPriority = float("-inf")

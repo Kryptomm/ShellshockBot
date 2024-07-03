@@ -38,7 +38,7 @@ def holdKey(time : float, key : str) -> None:
     keyUp(key)
 
 class TankCollection:
-    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, minimum = 1, maximum = 7,hideTanks=None, name="Enemy"):
+    def __init__(self, color : tuple[int, int, int], coordManager : CoordinateManager, minimum = 1, maximum = 7,hideTanks=None, name="Enemy", init=True):
         """A wrapper for holding all enemy tanks. Inplies that there is atleast one enemy
 
         Args:
@@ -53,7 +53,8 @@ class TankCollection:
         self.maximum = maximum
         self.name = name
         
-        self.initTankCollection(hideTanks=hideTanks)
+        if init:
+            self.initTankCollection(hideTanks=hideTanks)
         
     def initTankCollection(self, hideTanks=None):
         hideRegions = self.coordManager.convertTanksToHideRegion(hideTanks) + self.coordManager.convertTanksToHideRegion(self.tanks)
@@ -483,7 +484,6 @@ class friendlyTank(Tank):
         maxElem = max(b, key=lambda x: x[1])[1]
         b = list(filter(lambda x: x[1] == maxElem, sorted(b, key=lambda x: x[1], reverse=True)))
         
-        
         c = random.choice(b)
         angle, power = c[0]
         
@@ -591,7 +591,6 @@ if __name__ == "__main__":
     CM = CoordinateManager()
     GE = GameEnvironment(CM)
     
-    globals.CREATE_PICTURE = True
     #sleep(1)
     visualizer.createImage(CM)
     
