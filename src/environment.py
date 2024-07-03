@@ -287,14 +287,39 @@ class GameEnvironment:
         Returns:
             Point: a point where the picture is located, None if not found
         """
+        # Scale up the image to find
         scaledUp = self.scaleUpPicture(image)
-        location = pyautogui.locateCenterOnScreen(scaledUp, grayscale=True, confidence=0.9, region=image[1].getBoundariesNormalized(self.coordManager))
-        if location == None:
-            return None
         
-        return Point(self.coordManager.convertWidthToFloat(location[0]), self.coordManager.convertHeigthToFloat(location[1]))
+        # Load the scaled-up image as a template
+        template = cv2.cvtColor(np.array(scaledUp), cv2.COLOR_BGR2GRAY)
+        w, h = template.shape[::-1]
+
+        # Capture the screen or the specified region
+        region = image[1].getBoundariesNormalized(self.coordManager)
+        screen = np.array(ImageGrab.grab(bbox=region))  # bbox is the region (left, top, right, bottom)
+
+        # Convert the screen capture to grayscale
+        gray_screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+
+        # Perform template matching
+        res = cv2.matchTemplate(gray_screen, template, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+
+        # Check if the best match meets the confidence threshold
+        threshold = 0.9
+        if max_val >= threshold:
+            # Get the center of the located image
+            center_x = max_loc[0] + w // 2
+            center_y = max_loc[1] + h // 2
+
+            # Convert the coordinates using coordManager
+            converted_x = self.coordManager.convertWidthToFloat(center_x)
+            converted_y = self.coordManager.convertHeigthToFloat(center_y)
+
+            return Point(converted_x, converted_y)
+        else:
+            return None
     
-    @timeit("ScaleUp")
     def scaleUpPicture(self, image : Image) -> Image:
         """Scales up the picture by the ratio
 
