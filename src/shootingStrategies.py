@@ -13,6 +13,7 @@ from coordinateManager import CoordinateManager, Point, Box
 from decorators import timeit
 from skimage.feature import canny
 from threading import Thread
+from copy import deepcopy
 
 GRAVITY = 0.359413
 WIND_FACTOR = 0.000252 / 2
@@ -62,6 +63,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         elif weapon_cat == "45degrees": calculations[enemyTank] = __45degrees(myTank, enemyTank, wind, buffs, CM, bumperScreenshot)
         elif weapon_cat == "landing": calculations[enemyTank] = __landing(myTank, enemyTank, wind, buffs, CM, bumperScreenshot)
         elif weapon_cat == "radius": calculations[enemyTank] = __radius(myTank, enemyTank, weapon_extra_info, CM)
+        elif weapon_cat == "deltaAngle": calculations[enemyTank] = __deltaAngle(myTank, enemyTank, wind, buffs, CM, bumperScreenshot, weapon_extra_info)
         else: calculations[enemyTank] = __normal(myTank, enemyTank, wind, buffs, CM, bumperScreenshot)
     
     if onlyOne:
@@ -488,8 +490,63 @@ def __radius(myTank, enemyTank, delta ,CM : CoordinateManager) -> tuple[int,int]
     
     return ((angle, strengh), 0)
 
-def __deltaAngle():
-    pass
+def __deltaAngle(myTank, enemyTank, wind : int, buffs, CM : CoordinateManager, bumperScreenshot, extra_info):
+    """calculates angle and power for the shot type "deltaAngle".
+    Start from angle 90 and tries its best to find a strength to it.
+    if not strength found for angle 90, it goes to 89, then 91, then 88, then 92, ...,45,135
+    if nothing was found in all those angles (which is possibly only a bug and happens really rare)
+    then a standart angle and strength is returned that will not hit, but wont crash the program
+
+    Args:
+        myTank (_type_): initialized friendlyTank class, can also be Tank class
+        enemyTank (_type_): initialized Tank class
+        wind (int): wind the environment currently has [-100,100]
+        CM (CoordinateManager): initialized coordinateManager class
+    Returns:
+        tuple[int,int]: (angle, strength)
+    """
+    angle = 90
+    
+    hittingPosition = (angle, 100)
+    bestPriority = float("-inf")
+    maxPriority = __getMaxPriority(buffs, myTank, enemyTank)
+    
+    tank1 = deepcopy(enemyTank)
+    tank1.setPosition(Point(tank1.getXCoordinate() - CM.RADIUS / 4 * extra_info, tank1.getYCoordinate()))
+    tank2 = deepcopy(enemyTank)
+    tank2.setPosition(Point(tank1.getXCoordinate() - CM.RADIUS / 4 * extra_info, tank2.getYCoordinate()))
+    
+    for ringTank in [tank1, tank1]:
+        directionFactor = -1 if myTank.getXCoordinate() <= ringTank.getXCoordinate() else 1
+        for i in range(0,50):
+            a = angle + i * directionFactor
+            for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
+                hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, ringTank, bumperScreenshot, buffs)
+                
+                if hits and prio >= maxPriority:
+                    return (a, strength), maxPriority
+                elif hits and prio > bestPriority:
+                    bestPriority = prio
+                    hittingPosition = (a, strength)
+                    break
+                elif not wentAbove:
+                    break
+                
+        for i in range(0,20):
+            a = angle - i * directionFactor
+            for strength in range(MAX_STRENGTH, MIN_STRENGTH, -2):
+                hits, prio, wentAbove = __calculateHittingAndPriority(a, strength, wind, CM, myTank, ringTank, bumperScreenshot, buffs)
+                
+                if hits and prio >= maxPriority:
+                    return (a, strength), maxPriority
+                elif hits and prio > bestPriority:
+                    bestPriority = prio
+                    hittingPosition = (a, strength)
+                    break
+                elif not wentAbove:
+                    break
+        
+        return (hittingPosition,bestPriority)
 
 
 
