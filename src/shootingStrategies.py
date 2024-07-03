@@ -25,7 +25,7 @@ MIN_STRENGTH = 20
 MAX_STRENGTH = 100
 
 @timeit("Calculate Angle and Power", print_result=True)
-def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_extra_info : Union[int, tuple], buffs, CM : CoordinateManager, groundColor : colors.GroundColor ,onlyOne : bool = True) -> dict[object, tuple[int, int]]:
+def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_extra_info : Union[int, None], buffs, CM : CoordinateManager, groundColor : colors.GroundColor ,onlyOne : bool = True) -> dict[object, tuple[int, int]]:
     """based on Tank positions and wind and the weapon data, it generates the perfect angle and strength to shoot the enemy at
 
     Args:
@@ -33,7 +33,7 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         enemyTanks (TankCollection): initialized EnemyTank class
         weapon_cat (str): Weapon Category, NOT the weapon itself
         wind (int): calculated wind. wind * wind direction. 68 to the left = -68
-        extra_info (Union[int, tuple, None]): extra information provided by the weapon
+        extra_info (Union[int, None]): extra information provided by the weapon
         CM (CoordinateManager): initialized coordinateManager class
         groundColor (colors.GroundColor): The color of the ground
         onlyOne (bool): if True it select one of the enemy tanks and does only one calculation. Defaults to True
@@ -54,6 +54,8 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
         draw.rectangle([regionBoundaries[0], regionBoundaries[1], regionBoundaries[2], regionBoundaries[3]], fill=(0, 0, 0))
     del draw
     bumperScreenshot.save("test.png")
+    
+    if weapon_cat == "extraWind": wind *= weapon_extra_info
     
     def doCalculation(enemyTank):
         if weapon_cat == "straight": calculations[enemyTank] = __straight(myTank, enemyTank)

@@ -36,7 +36,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "black widow", "clover", "four leaf clover", "snowball", "spotter",
                     "spotter xl", "spotter xxl", "fighter jet", "heavy jet", "bee hive",
                     "killer bees", "wasps", "dual-roller", "partition", "division",
-                    "bfg-1000", "bfg-9000", "mini-turret", "nuke", "meganuke",
+                    "mini-turret", "nuke", "meganuke",
                     "black hole", "cosmic rift", "breakermadness", "breakermania", "homing missile",
                     "homing rockets", "puzzler", "deceiver", "baffler", "pentagram",
                     "pentaslam", "radar", "sonar", "lidar", "tweeter",
@@ -48,8 +48,7 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "hexagon", "octagon", "satellite", "ufo", "palm",
                     "double palm", "triple palm", "fountain", "waterworks", "sprinkler",
                     "flattener", "wall", "fortress", "funnel", "mad birds",
-                    "furious birds", "livid birds", "beacon", "beaconator", "chopper",
-                    "apache", "skullshot", "skeleton", "hidden blade", "secret blade",
+                    "furious birds", "livid birds", "beacon", "beaconator", "skullshot", "skeleton", "hidden blade", "secret blade",
                     "concealed blade", "portal gun", "ashpd", "volcano", "eruption",
                     "tangent fire", "tangent attack", "tangent assault", "summoner", "mage",
                     "travelers", "scavengers", "wicked witch", "witches broom", "ghouls",
@@ -106,7 +105,9 @@ WEPS = {"normal": ["shot", "big shot", "heavy shot", "massive shot", "one-bounce
                     "recruiter", "enroller", "enlister", "pinpoint", "needles",
                     "pins and needles", "god rays", "deity", "spreader", "kamikaze",
                     "suicide bomber", "acid rain", "acid hail", "shooting star", "snowstorm",
-                    "firestorm"]
+                    "firestorm"],
+        
+        "extraWind": [("bfg-1000", 2), ("bfg-9000", 2), ("chopper", 2), ("apache", 2)]
         }
 
 RULES = """
