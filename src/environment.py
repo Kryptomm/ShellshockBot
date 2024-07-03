@@ -294,6 +294,7 @@ class GameEnvironment:
         
         return Point(self.coordManager.convertWidthToFloat(location[0]), self.coordManager.convertHeigthToFloat(location[1]))
     
+    @timeit("ScaleUp")
     def scaleUpPicture(self, image : Image) -> Image:
         """Scales up the picture by the ratio
 

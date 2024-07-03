@@ -254,12 +254,12 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
 def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, bumperScreenshot, buffs):
     isHitting, whenHitting, hittingPosition = __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, enemyTank)
     #Trifft er den Gegner überhaupt?
-    if hittingPosition[1] >= enemyTank.getYCoordinate(): shouldContinue = False
-    else: shouldContinue = True
-    if not isHitting: return False, 0, shouldContinue
+    if hittingPosition[1] >= enemyTank.getYCoordinate(): wentUnder = False
+    else: wentUnder = True
+    if not isHitting: return False, 0, wentUnder
     
     #Trifft er auf den Weg einen Bumper
-    if __isHittingEdge(angle, strength, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffs, CM): return False, 0, shouldContinue
+    if __isHittingEdge(angle, strength, wind, myTank, enemyTank, whenHitting, bumperScreenshot, buffs, CM): return False, 0, wentUnder
     
     #Prioritäten
     hitsCrate = False if len(buffs["crate"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["crate"][0])[0]
@@ -267,7 +267,7 @@ def __calculateHittingAndPriority(angle, strength, wind, CM, myTank, enemyTank, 
     hitsX2 = False if len(buffs["x2"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["x2"][0])[0]
     hitsX3 = False if len(buffs["x3"]) == 0 else __isAngleAndPowerHitting(angle, strength, wind, CM, myTank, buffs["x3"][0])[0]
     
-    return True, __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3), shouldContinue
+    return True, __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3), wentUnder
     
 
 #HIER BEGINNEN DIE EIGENTLICHEN METHODEN ZUR BERECHNUNG
