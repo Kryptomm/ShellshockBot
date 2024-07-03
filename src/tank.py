@@ -269,7 +269,6 @@ class Tank:
 
         return (Point(self.getXCoordinate(), self.getYCoordinate()), minD[2])
     
-    @timeit("getCoordinatesBrute")
     def getCoordinatesBrute(self, everyPixel=1, hideRegions=None) -> tuple[Point, float]:
         """updates the coordinates of the tank by doing brute force search on the screen
         updates them automatically but also returns them. Position may be inaccurate by a few pixels.
