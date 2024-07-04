@@ -83,35 +83,6 @@ def getAngleAndPower(myTank, enemyTanks, weapon_cat : str, wind : int, weapon_ex
 
 #HILFSMETHODEN ZUR BERECHNUNG
 
-def __calculatePosition(angle : int, strength : int ,wind : int, time : float, coordManager : CoordinateManager, x_offset : float, y_offset : float) -> tuple[float,float]:
-    """Formulas for calculating x,y positions at a given time t with
-    angle: [0,359]
-    wind: [-100,100]
-    strength: [0,100]
-    time: R
-    gravity: [0:inf)
-
-    Args:
-        angle (int): angle of the desired shot [0,359]
-        strength (int): strength of the desired shot [0,100]
-        wind (int): wind the environment currently has [-100,100]
-        time (float): position at time to calculate
-        coordManager (CoordinateManager): initialized coordinateManager class
-        x_offset (float): x offset of the shot, most likely your tank position
-        y_offset (float): y offset of the shot, most likely your tank position
-
-    Returns:
-        tuple[float,float]: (x, y) position in relative coordinates
-    """
-    angle = math.radians(angle)
-    strength = 0.009133*strength - 0.0009244
-    wind = WIND_FACTOR*wind
-    
-    x = (strength * coordManager.getHeigthWidthRatio() * math.cos(angle) + wind * time) * time + x_offset
-    y = -1 * (strength * math.sin(angle) * time - 0.5 * GRAVITY * time**2) + y_offset
-    
-    return x,y
-
 def __getMaxPriority(buffs : dict, myTank, enemyTank) -> int:
     """Gets all the current buffs on the map
 
@@ -147,6 +118,35 @@ def __getShotPriority(hitsCrate, hitsDrone, hitsX2, hitsX3):
     
     return points
 
+def __calculatePosition(angle : int, strength : int ,wind : int, time : float, coordManager : CoordinateManager, x_offset : float, y_offset : float) -> tuple[float,float]:
+    """Formulas for calculating x,y positions at a given time t with
+    angle: [0,359]
+    wind: [-100,100]
+    strength: [0,100]
+    time: R
+    gravity: [0:inf)
+
+    Args:
+        angle (int): angle of the desired shot [0,359]
+        strength (int): strength of the desired shot [0,100]
+        wind (int): wind the environment currently has [-100,100]
+        time (float): position at time to calculate
+        coordManager (CoordinateManager): initialized coordinateManager class
+        x_offset (float): x offset of the shot, most likely your tank position
+        y_offset (float): y offset of the shot, most likely your tank position
+
+    Returns:
+        tuple[float,float]: (x, y) position in relative coordinates
+    """
+    angle = math.radians(angle)
+    strength = 0.009133 * strength - 0.0009244
+    wind = WIND_FACTOR * wind
+    
+    x = (strength * coordManager.getHeigthWidthRatio() * math.cos(angle) + wind * time) * time + x_offset
+    y = -1 * (strength * math.sin(angle) * time - 0.5 * GRAVITY * time**2) + y_offset
+    
+    return x,y
+
 def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordManager : CoordinateManager, myTank, enemyTank) -> tuple[bool,float]:
     """checks if an angle and power is hitting by doing binary search on the time to search the time it hits
     the enemy tank and then checks if the y coordinate matches the enemytank at this point in time.
@@ -180,10 +180,6 @@ def __isAngleAndPowerHitting(angle : int, strength : int , wind : int, coordMana
         timeSize = timeSize / 2
             
         if enemyTank.isPointHitting(calculatedPosition[0], calculatedPosition[1]): return True, time, calculatedPosition
-    
-    for i in range(-3,4):
-        i = i/10170
-        if enemyTank.isPointHitting(calculatedPosition[0]+i, calculatedPosition[1]): return True, time, calculatedPosition
         
     return False, time, calculatedPosition
 

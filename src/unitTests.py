@@ -60,6 +60,8 @@ def calcShot():
     
 def testVariousFunctions():
     GE.findPicture(GE.x2)
+    
+
 
 if __name__ == "__main__":
     startTime = time.time()
