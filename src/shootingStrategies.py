@@ -202,7 +202,7 @@ def __getEdgesScreenshot(coordManager : CoordinateManager, groundColor : colors.
     for color in colors_to_preserve:
         color_mask |= np.all(np_image[:, :, :3] == color, axis=2)
     dilated_mask = binary_dilation(color_mask, iterations=5)
-
+    
     color_channel = colors.extract_color_channel(np_image, groundColor)
     edges = canny(color_channel, sigma=10)
     dilated_edges = binary_dilation(edges, iterations=3)
@@ -233,13 +233,15 @@ def __isHittingEdge(angle : int, strength: int, wind : float, myTank, enemyTank,
         bool: returns True if the shot is hitting a bumper, False if not
     """
 
-    timeSteps = floatingTime / abs(enemyTank.absX - myTank.absX) / 10
+    timeSteps = floatingTime / abs(enemyTank.absX - myTank.absX) / 20
     ignoreTime = floatingTime * 0.04
-    currentTime = 0 + ignoreTime
+    currentTime = ignoreTime
     while currentTime < (floatingTime - ignoreTime * 0.25):
         x,y = __calculatePosition(angle, strength, wind, currentTime, coordManager, myTank.getXCoordinate(), myTank.getYCoordinate())
+        
         currentTime += timeSteps
         visualizer.paintPixels(Point(x,y),1,(255,255,255),coordManager)
+        
         x,y = coordManager.convertFloatToWidth(x), coordManager.convertFloatToHeigth(y)
         if not (0 <= x < bumperScreenshot.width and 0 <= y < bumperScreenshot.height):
             continue

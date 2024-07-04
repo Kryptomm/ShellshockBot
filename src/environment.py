@@ -372,8 +372,8 @@ class GameEnvironment:
         avg_color = cap_array.mean(axis=(0, 1))
         
         return colors.convert_rgb_to_ground_color(avg_color.astype(int))
-        return tuple(avg_color.astype(int))
-        
+
+
 if __name__ == "__main__":
     CoordMan = CoordinateManager()
     GameEnv = GameEnvironment(CoordMan)
